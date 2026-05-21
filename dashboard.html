@@ -846,9 +846,14 @@ body::after{
   .tab-btn .tab-icon svg{width:20px;height:20px}
   .card{padding:12px 14px}
 }
+
+/* ── Toast ── */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120%);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:13px;z-index:9999;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:transform .3s ease;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 <div class="container">
 
   <!-- ═══════ HOME TAB ═══════ -->
@@ -1324,6 +1329,15 @@ function getActiveDateString(){const now=new Date();let d=now;if(now.getHours()<
 function getTomorrowDateString(){const now=new Date();let d=new Date(now);if(now.getHours()<6){}else{d.setDate(d.getDate()+1)}return dateStrLocal(d)}
 function formatDate(iso){const d=new Date(iso+'T12:00:00');const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return days[d.getDay()]+', '+months[d.getMonth()]+' '+d.getDate()}
 function formatTime12(ts){const d=new Date(ts);let h=d.getHours();const ampm=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0')+' '+ampm}
+
+var _toastTimer=null;
+function showToast(msg,duration){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){el.classList.remove('show')},duration||3500);
+}
 
 /* ════════════ TAB SYSTEM ════════════ */
 document.querySelectorAll('.tab-btn').forEach(function(btn){
@@ -2553,6 +2567,30 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
         items.push('goal: '+data.calendar.task_title);
       }
 
+      input.value='';
+
+      // Persist to server and use response for toast + full UI refresh
+      fetch('/api/v1/quick-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+        .then(function(r){return r.json()})
+        .then(function(result){
+          // Show server-confirmed summary as toast
+          if(result&&result.summary){
+            showToast(result.summary);
+          }
+          // Refresh all UI components with server state
+          renderWater();renderSuppl();
+          renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+          renderExpenses();renderExpenseHome();
+          loadToday();
+          // If calendar events were mutated, reload the calendar list
+          if(result&&result.mutations&&(result.mutations.indexOf('created_calendar_event')!==-1||result.mutations.indexOf('deleted_calendar_event')!==-1)){
+            loadCalendar();
+          }
+        })
+        .catch(function(){});
+
+      syncContextToServer();
+
       if(items.length){
         feedback.textContent='Logged: '+items.join(' | ');
         feedback.style.color='var(--success)';
@@ -2560,10 +2598,6 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
         feedback.textContent='Couldn\'t extract anything — try rephrasing.';
         feedback.style.color='var(--warning)';
       }
-      input.value='';
-      // Persist parsed data to server-side files (fire-and-forget)
-      fetch('/api/v1/quick-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(){});
-      syncContextToServer();
     }).catch(function(){
       feedback.textContent='Error — try again.';
       feedback.style.color='var(--danger)';

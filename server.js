@@ -478,15 +478,20 @@ app.post('/api/polish', async (req, res) => {
 
 const VOICE_SYSTEM_PROMPT = `You are a specialized NLP engine responsible for parsing unstructured user voice logs into a structured JSON payload for a personal tracking app.
 
-Analyze the user's input string and extract data for four categories: health, workouts, finance, and calendar.
+Analyze the user's input string and extract data for five categories: health, workouts, finance, calendar goals, and calendar events (CREATE/DELETE).
 
 CRITICAL RULES:
 1. Output ONLY a valid JSON object. No markdown wrapping, no conversational filler, no code fences.
 2. If a category or specific metric is not mentioned, omit it from the payload or set it to null.
 3. Normalize all water/fluid units to fluid ounces (oz). (e.g., "a cup" = 8oz, "a shaker" = 20oz, "a liter" = 33oz).
-4. Parse relative time references ("today", "tomorrow") relative to the date provided.
+4. Parse relative time references ("today", "tomorrow", "next Monday") relative to the date provided.
 5. If the user says "add water" or "drank water" without a quantity, assume 8oz (one glass).
 6. Detect workout types: cardio, strength, hiit, yoga, running, cycling, swimming, walking, stretching, sports.
+7. Detect calendar EVENT actions: "schedule", "add event", "create event", "book", "put on calendar" → calendar_action: "CREATE".
+8. Detect calendar DELETE actions: "remove event", "cancel", "delete event", "clear from calendar" → calendar_action: "DELETE".
+9. For DELETE, set event_match_keyword to a substring that would match the event title (e.g., "dentist" to match "Dentist Appointment").
+10. For CREATE, set target_date to the specific date the event should occur.
+11. Do NOT confuse calendar events (scheduled appointments) with calendar goals (daily tasks/todos). Goals use calendar.task_title; events use calendar_action.
 
 EXPECTED JSON SCHEMA:
 {
@@ -509,6 +514,12 @@ EXPECTED JSON SCHEMA:
     "task_title": string | null,
     "due_date": string | null (ISO 8601 YYYY-MM-DD),
     "is_goal": boolean
+  },
+  "calendar_action": "CREATE" | "DELETE" | null,
+  "calendar_details": {
+    "title": string | null,
+    "target_date": string | null (ISO 8601 YYYY-MM-DD),
+    "event_match_keyword": string | null
   }
 }`;
 
@@ -577,14 +588,16 @@ app.post('/api/v1/quick-log', (req, res) => {
 
   const dateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local TZ
   const now = Date.now();
-  const logged = [];
+  const mutations = [];
+  const summaryParts = [];
 
   // Snapshot current state of all files for rollback
   const snapshot = {
-    water:      loadDataFile('water'),
-    workouts:   loadDataFile('workouts'),
-    expenses:   loadDataFile('expenses'),
-    goals:      loadDataFile('goals'),
+    water:           loadDataFile('water'),
+    workouts:        loadDataFile('workouts'),
+    expenses:        loadDataFile('expenses'),
+    goals:           loadDataFile('goals'),
+    calendar_events: loadDataFile('calendar_events'),
   };
 
   try {
@@ -602,7 +615,8 @@ app.post('/api/v1/quick-log', (req, res) => {
         entry.log.push(now);
       }
       saveDataFile('water', waterData);
-      logged.push(glasses + ' glass' + (glasses > 1 ? 'es' : '') + ' of water');
+      mutations.push('added_water');
+      summaryParts.push(glasses + ' glass' + (glasses > 1 ? 'es' : '') + ' of water');
     }
 
     // ── Workout ──
@@ -616,7 +630,8 @@ app.post('/api/v1/quick-log', (req, res) => {
       }
       dayEntry.sessions.push({ type: payload.workout.type, duration: secs, time: now });
       saveDataFile('workouts', wkData);
-      logged.push(payload.workout.type + ' ' + (payload.workout.duration_minutes || 10) + 'min');
+      mutations.push('logged_workout');
+      summaryParts.push(payload.workout.type + ' ' + (payload.workout.duration_minutes || 10) + 'min');
     }
 
     // ── Finance (expense) ──
@@ -640,7 +655,8 @@ app.post('/api/v1/quick-log', (req, res) => {
       const expData = snapshot.expenses;
       expData.push({ cat: normalized, amount: amt, desc: desc, time: now });
       saveDataFile('expenses', expData);
-      logged.push('$' + amt.toFixed(2) + ' on ' + (desc || normalized));
+      mutations.push('added_expense');
+      summaryParts.push('$' + amt.toFixed(2) + ' on ' + (desc || normalized));
     }
 
     // ── Goal / Calendar task ──
@@ -654,23 +670,63 @@ app.post('/api/v1/quick-log', (req, res) => {
       }
       dayEntry.items.push({ text: title, done: false, addedAt: now });
       saveDataFile('goals', goalData);
-      logged.push('goal: ' + title);
+      mutations.push('added_goal');
+      summaryParts.push('goal: ' + title);
     }
 
-    if (logged.length === 0) {
-      return res.json({ ok: true, logged: [], message: 'No metrics found in payload' });
+    // ── Calendar Event CREATE ──
+    if (payload.calendar_action === 'CREATE' && payload.calendar_details && payload.calendar_details.title) {
+      const calData = snapshot.calendar_events;
+      const ev = {
+        id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        title: payload.calendar_details.title.trim(),
+        date: payload.calendar_details.target_date || dateStr,
+        createdAt: now,
+      };
+      calData.push(ev);
+      saveDataFile('calendar_events', calData);
+      mutations.push('created_calendar_event');
+      summaryParts.push("scheduled '" + ev.title + "' on " + ev.date);
     }
 
-    res.json({ ok: true, logged: logged });
+    // ── Calendar Event DELETE ──
+    if (payload.calendar_action === 'DELETE' && payload.calendar_details && payload.calendar_details.event_match_keyword) {
+      const keyword = payload.calendar_details.event_match_keyword.toLowerCase();
+      const calData = snapshot.calendar_events;
+      const before = calData.length;
+      const removed = calData.filter(e => e.title.toLowerCase().includes(keyword));
+      const remaining = calData.filter(e => !e.title.toLowerCase().includes(keyword));
+      if (removed.length > 0) {
+        saveDataFile('calendar_events', remaining);
+        mutations.push('deleted_calendar_event');
+        summaryParts.push('removed ' + removed.length + ' event(s) matching "' + payload.calendar_details.event_match_keyword + '"');
+      } else {
+        summaryParts.push('no events found matching "' + payload.calendar_details.event_match_keyword + '"');
+      }
+    }
+
+    if (mutations.length === 0 && summaryParts.length === 0) {
+      return res.json({ status: 'success', mutations: [], summary: 'No metrics found in payload' });
+    }
+
+    res.json({ status: 'success', mutations: mutations, summary: summaryParts.join(' and ') });
   } catch (err) {
     // Rollback — restore all files to their snapshot state
     console.error('Quick-log error, rolling back:', err.message);
-    saveDataFile('water',    snapshot.water);
-    saveDataFile('workouts', snapshot.workouts);
-    saveDataFile('expenses', snapshot.expenses);
-    saveDataFile('goals',    snapshot.goals);
+    saveDataFile('water',           snapshot.water);
+    saveDataFile('workouts',        snapshot.workouts);
+    saveDataFile('expenses',        snapshot.expenses);
+    saveDataFile('goals',           snapshot.goals);
+    saveDataFile('calendar_events', snapshot.calendar_events);
     res.status(500).json({ error: 'Write failed, all changes rolled back' });
   }
+});
+
+/* ════════════ USER CALENDAR EVENTS ════════════ */
+
+app.get('/api/v1/calendar-events', (req, res) => {
+  const events = loadDataFile('calendar_events');
+  res.json({ events: events });
 });
 
 /* ════════════ INSIGHTS ENGINE ════════════ */
