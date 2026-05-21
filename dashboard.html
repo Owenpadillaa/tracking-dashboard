@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0e17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aura">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<title>Aura</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --text-primary:#FAFAFA;
+  --text-secondary:#B8B6B0;
+  --text-tertiary:#76746E;
+  --success:#6BE3A4;
+  --warning:#F2C063;
+  --danger:#FF6B6B;
+  --water:#5BA4E3;
+  --water-glow:rgba(91,164,227,0.35);
+}
+html{height:100%}
+body{
+  min-height:100%;
+  background:#050506;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(224,118,88,0.12), transparent);
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text-primary);
+  padding:max(env(safe-area-inset-top,16px),16px) 16px 90px;
+  -webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 3 3' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='3' height='3' filter='url(%23n)' opacity='0.014'/%3E%3C/svg%3E");
+  background-size:3px 3px;opacity:1;
+}
+.container{max-width:1100px;margin:0 auto}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+/* ── Tab system ── */
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* ── Floating tab bar ── */
+.tab-bar{
+  position:fixed;bottom:max(16px,env(safe-area-inset-bottom,0px));
+  left:50%;transform:translateX(-50%);z-index:100;
+  display:flex;gap:2px;
+  background:rgba(20,20,22,0.95);
+  backdrop-filter:blur(24px) saturate(1.6);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:6px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03) inset;
+}
+.tab-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 16px;border:none;background:none;cursor:pointer;
+  border-radius:14px;
+  color:var(--text-tertiary);
+  transition:all 0.25s cubic-bezier(0.22,1,0.36,1);
+  position:relative;min-width:52px;
+}
+.tab-btn:hover{color:var(--text-secondary);background:rgba(255,255,255,0.04)}
+.tab-btn.active{color:var(--text-primary);background:rgba(255,255,255,0.07)}
+.tab-btn .tab-icon{width:20px;height:20px;line-height:1}
+.tab-btn .tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn span:not(.tab-icon){font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-top:1px}
+
+/* ── Card chassis ── */
+.card{
+  background:rgba(255,255,255,0.04);
+  border-radius:16px;padding:18px 22px;
+  backdrop-filter:blur(24px) saturate(1.2);
+  box-shadow:0 12px 40px rgba(0,0,0,0.45);
+}
+
+/* ── Title ── */
+.dash-title{
+  font-size:28px;font-weight:700;letter-spacing:-0.025em;margin-bottom:14px;
+  background:linear-gradient(180deg,#FFFFFF 0%,#C7C4BC 120%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* ── Goal Ticker ── */
+.ticker-row{margin-bottom:12px}
+.goal-ticker{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 12px;border-radius:12px;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.30) 100%);
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.30) 100%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 3px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;
+}
+.goal-ticker::after{
+  content:'';position:absolute;top:0;left:-40%;width:30%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);
+  animation:sweep 8s ease-in-out infinite;pointer-events:none;
+}
+@keyframes sweep{0%{left:-40%}50%{left:110%}100%{left:110%}}
+.goal-ticker-led{display:flex;align-items:center}
+.goal-ticker-led-dot{
+  width:7px;height:7px;border-radius:50%;background:#6BE3A4;
+  box-shadow:0 0 8px rgba(107,227,164,0.7);
+  animation:led-pulse 1.6s ease-in-out infinite;
+}
+@keyframes led-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.85)}}
+.goal-ticker-label{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:9.5px;font-weight:800;letter-spacing:0.18em;color:var(--text-tertiary);
+  text-transform:uppercase;
+}
+.goal-ticker-stage{flex:1;height:22px;position:relative;overflow:hidden}
+.goal-ticker-row{
+  display:flex;align-items:center;height:22px;gap:8px;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;
+  color:var(--text-primary);white-space:nowrap;
+}
+.goal-ticker-status{width:18px;display:flex;align-items:center;justify-content:center}
+.goal-ticker-status[data-status="done"]{color:var(--success)}
+.goal-ticker-status[data-status="pending"]{color:var(--text-tertiary)}
+.goal-ticker-status[data-status=""]{color:var(--text-tertiary)}
+.goal-ticker-text{flex:1;overflow:hidden;text-overflow:ellipsis}
+.goal-ticker-meta{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;
+  color:var(--text-secondary);letter-spacing:0.04em;
+  padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.04);
+}
+@keyframes ticker-leave{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-100%)}}
+@keyframes ticker-enter{0%{opacity:0;transform:translateY(100%)}100%{opacity:1;transform:translateY(0)}}
+.goal-ticker-row.is-leaving{animation:ticker-leave 0.45s cubic-bezier(0.55,0,0.55,1) forwards}
+.goal-ticker-row.is-entering{animation:ticker-enter 0.45s cubic-bezier(0.22,1,0.36,1) forwards}
+
+/* ── Water bar (home) ── */
+.water-bar-home{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 12px;border-radius:10px;margin-bottom:18px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  cursor:pointer;transition:all 0.2s;
+}
+.water-bar-home:hover{background:rgba(255,255,255,0.05)}
+.water-bar-home:active{transform:scale(0.99)}
+.water-bar-label{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:11px;font-weight:700;color:var(--text-tertiary);white-space:nowrap;
+  min-width:52px;
+}
+.water-bar-track{flex:1;display:flex;gap:3px;height:8px}
+.water-bar-seg{
+  flex:1;border-radius:4px;background:rgba(255,255,255,0.08);
+  transition:all 0.35s ease;
+}
+.water-bar-seg.filled{background:var(--water);box-shadow:0 0 6px var(--water-glow)}
+.water-bar-seg.filled.done{background:var(--success);box-shadow:0 0 6px rgba(107,227,164,0.4)}
+.water-bar-ml{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:10px;color:var(--text-tertiary);min-width:45px;text-align:right;
+}
+
+/* ── Day Ring ── */
+.rings-row{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-bottom:12px;
+}
+.ring-col{display:flex;flex-direction:column;align-items:center}
+.ring-container{position:relative;width:110px;height:110px;flex-shrink:0}
+.ring-container-lg{width:150px;height:150px}
+.ring-svg{width:100%;height:100%}
+.ring-text{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;pointer-events:none;
+}
+.ring-icon{font-size:22px}
+.ring-label{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:8px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-top:3px;
+}
+.ring-val{font-size:15px;font-weight:800;margin-top:1px}
+.ring-sub{font-size:10px;font-weight:700;color:var(--text-tertiary);margin-top:1px}
+.day-ring-pct{
+  font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-0.04em;line-height:1;
+}
+.day-ring-phase{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:8.5px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-top:4px;
+}
+.day-ring-clock{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:10px;color:var(--text-tertiary);margin-top:2px;
+}
+.rings-bottom{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin-bottom:24px;flex-wrap:wrap;
+}
+.rings-bottom-status{display:flex;flex-direction:column;align-items:center;gap:2px}
+.day-ring-status{font-size:13px;font-weight:700}
+.day-ring-remaining{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-secondary)}
+.day-ring-range{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary)}
+.sleep-btn{
+  padding:7px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
+  font-size:12px;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;
+  transition:all 0.2s;background:rgba(91,164,227,0.15);color:var(--water);
+}
+.sleep-btn:hover{background:rgba(91,164,227,0.25)}
+.sleep-btn.check-out{background:rgba(226,93,122,0.15);color:#E25D7A}
+.sleep-btn.check-out:hover{background:rgba(226,93,122,0.25)}
+
+/* ── Section / Card chrome ── */
+.section{margin-bottom:24px}
+.section-title{
+  font-size:10.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--text-tertiary);display:flex;align-items:center;gap:12px;margin-bottom:16px;
+}
+.section-title::before{content:'';width:18px;height:1px;background:var(--text-tertiary);opacity:0.6}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent)}
+.gm-card{margin-bottom:16px;position:relative;overflow:hidden;transition:all 0.5s ease}
+.gm-card.gm-all-done{background:rgba(107,227,164,0.04);background-image:radial-gradient(ellipse at top,rgba(107,227,164,0.08),transparent 60%)}
+.gm-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.gm-eyebrow{
+  font-size:10.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:6px;
+}
+.gm-progress-row{display:flex;align-items:baseline;gap:6px}
+.gm-progress-num{font-size:42px;font-weight:700;letter-spacing:-0.045em;font-variant-numeric:tabular-nums;line-height:1}
+.gm-progress-total{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:18px;color:var(--text-tertiary)}
+.gm-progress-label{font-size:11px;font-weight:600;letter-spacing:0.10em;text-transform:uppercase;color:var(--text-tertiary)}
+.gm-card-tomorrow .gm-progress-row{display:none}
+.gm-streak{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:99px;
+  background:rgba(255,255,255,0.04);color:var(--text-tertiary);
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;
+  border:1px solid transparent;transition:all 0.3s ease;
+}
+.gm-streak.gm-streak-active{background:rgba(242,192,99,0.10);color:#F2C063;border-color:rgba(242,192,99,0.32)}
+.gm-streak.gm-streak-active .gm-streak-bolt{filter:drop-shadow(0 0 6px rgba(242,192,99,0.6))}
+.gm-streak-label{font-size:9px;letter-spacing:0.10em;text-transform:uppercase}
+.gm-bar{display:flex;gap:4px;height:6px;margin-bottom:16px}
+.gm-bar:empty{display:none}
+.gm-bar-seg{flex:1;border-radius:3px;background:rgba(255,255,255,0.08);transition:all 0.3s ease}
+.gm-bar-seg.gm-bar-seg-done{background:#6BE3A4;box-shadow:0 0 6px rgba(107,227,164,0.40)}
+
+/* Goal list */
+.gm-list{list-style:none;margin-bottom:12px}
+.goal-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;margin-bottom:6px;border-radius:12px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all 0.2s ease;position:relative;
+}
+.goal-item:hover{background:rgba(255,255,255,0.06)}
+.goal-item:hover .goal-handle,.goal-item:hover .goal-delete{opacity:1}
+.goal-item.gm-done{opacity:0.45;background:rgba(107,227,164,0.04)}
+.goal-item.gm-done .goal-text{text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.4)}
+.goal-item.gm-queued{background:rgba(242,192,99,0.10);border-left:3px solid #F2C063}
+.goal-item.gm-queued .goal-text{color:#FFE2A8}
+.goal-item.is-queue-flashing{animation:gm-queue-flash 0.48s ease}
+@keyframes gm-queue-flash{0%{background:rgba(242,192,99,0.32);transform:scale(1.015)}100%{background:rgba(242,192,99,0.10);transform:scale(1)}}
+.goal-handle{width:14px;font-size:14px;color:var(--text-tertiary);cursor:grab;opacity:0;transition:opacity 0.2s;letter-spacing:-2px;user-select:none;flex-shrink:0}
+.goal-checkbox{
+  width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(0,0,0,0.3);cursor:pointer;flex-shrink:0;position:relative;
+  transition:all 0.2s ease;appearance:none;-webkit-appearance:none;
+}
+.goal-checkbox:checked{background:#6BE3A4;border-color:#6BE3A4;box-shadow:0 0 12px rgba(107,227,164,0.40)}
+.goal-checkbox:checked::after{
+  content:'';position:absolute;top:3px;left:6px;width:5px;height:9px;
+  border:solid #050506;border-width:0 2px 2px 0;
+  transform:rotate(45deg) scale(0);
+  animation:check-pop 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes check-pop{to{transform:rotate(45deg) scale(1)}}
+.goal-text{flex:1;font-size:14px;color:var(--text-primary);outline:none;border-radius:4px;padding:2px 4px;margin:-2px -4px;transition:all 0.2s}
+.goal-text:focus{background:rgba(255,255,255,0.06);outline:1px solid rgba(255,255,255,0.15)}
+.gm-queue-btn{font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0.55;transition:all 0.2s;padding:4px}
+.gm-queue-btn.gm-queue-active{color:#F2C063;opacity:1;filter:drop-shadow(0 0 4px rgba(242,192,99,0.65))}
+.gm-queue-btn:hover{opacity:1}
+.goal-delete{font-size:16px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:all 0.2s;padding:4px}
+.goal-delete:hover{color:var(--danger);opacity:1}
+.empty-state{font-size:12px;color:var(--text-tertiary);font-style:italic;padding:14px 0;text-align:center}
+.gm-show-more{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;
+  font-size:12px;color:var(--text-tertiary);cursor:pointer;
+  margin-bottom:6px;transition:all 0.2s;background:none;width:100%;
+}
+.gm-show-more:hover{border-color:rgba(255,255,255,0.2);color:var(--text-secondary)}
+.gm-push-btn{display:none;width:100%;padding:10px;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;background:none;color:var(--text-tertiary);font-size:12px;cursor:pointer;transition:all 0.2s;margin-bottom:12px}
+.gm-push-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text-primary)}
+.gm-push-btn.visible{display:block}
+.gm-input-wrap{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px}
+.gm-input{flex:1;padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s}
+.gm-input::placeholder{color:var(--text-tertiary)}
+.gm-input:focus{border-color:rgba(255,255,255,0.25)}
+.gm-add-btn{padding:11px 20px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:14px;font-family:inherit;background:linear-gradient(180deg,#FFFFFF 0%,#E8E5DD 100%);color:#0A0A0B;box-shadow:0 2px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.5);transition:all 0.2s;white-space:nowrap}
+.gm-add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.6)}
+.gm-polish-btn{padding:11px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-weight:700;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.04);color:var(--text-primary);transition:all 0.2s;white-space:nowrap}
+.gm-polish-btn:hover{background:rgba(255,255,255,0.08)}
+.gm-status{font-size:11px;color:var(--text-tertiary);min-height:16px;margin-top:4px}
+.gm-status.gm-status-error{color:var(--danger)}
+.gm-tomorrow-count{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;font-variant-numeric:tabular-nums;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em}
+.gm-tomorrow-sub{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+.goal-item.drag-over{border-top:2px solid rgba(255,255,255,0.3)}
+
+/* ── Health: Water ── */
+.water-ring-container{position:relative;width:168px;height:168px;margin:0 auto 14px}
+.water-ring-svg{width:100%;height:100%}
+.water-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.water-ring-num{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-0.04em;line-height:1}
+.water-ring-unit{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
+.water-ring-sub{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--text-tertiary);text-align:center;margin-bottom:16px}
+.water-add-btn{
+  display:block;margin:0 auto 14px;
+  padding:12px 28px;border-radius:12px;border:none;cursor:pointer;
+  font-weight:700;font-size:15px;font-family:inherit;
+  background:linear-gradient(180deg,#5BA4E3 0%,#4090D0 100%);color:#FFFFFF;
+  box-shadow:0 2px 10px rgba(91,164,227,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:all 0.2s;white-space:nowrap;
+}
+.water-add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(91,164,227,0.45),inset 0 1px 0 rgba(255,255,255,0.3)}
+.water-add-btn:active{transform:scale(0.97)}
+.water-add-btn.water-complete{background:linear-gradient(180deg,#6BE3A4 0%,#50C88A 100%);box-shadow:0 2px 10px rgba(107,227,164,0.35),inset 0 1px 0 rgba(255,255,255,0.25)}
+.water-bar-chart{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.water-bar-row{display:flex;align-items:center;gap:8px}
+.water-bar-num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);width:12px;text-align:right}
+.water-bar-fill{flex:1;height:14px;border-radius:7px;background:rgba(255,255,255,0.06);overflow:hidden}
+.water-bar-inner{height:100%;border-radius:7px;background:var(--water);box-shadow:0 0 8px var(--water-glow);width:0%;transition:width 0.5s cubic-bezier(0.22,1,0.36,1)}
+.water-bar-inner.full{background:var(--success);box-shadow:0 0 8px rgba(107,227,164,0.4)}
+.water-bar-time{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:55px}
+.water-log{margin-top:10px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);letter-spacing:0.04em;max-height:60px;overflow-y:auto}
+.water-log span{display:block;padding:1px 0}
+
+/* ── Health: Supplements ── */
+.suppl-category{margin-bottom:12px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden}
+.suppl-cat-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;cursor:pointer;
+  background:rgba(255,255,255,0.03);transition:background 0.2s;
+  user-select:none;
+}
+.suppl-cat-header:hover{background:rgba(255,255,255,0.06)}
+.suppl-cat-name{font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary)}
+.suppl-cat-count{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary)}
+.suppl-cat-arrow{font-size:12px;color:var(--text-tertiary);transition:transform 0.2s}
+.suppl-category.collapsed .suppl-cat-arrow{transform:rotate(-90deg)}
+.suppl-category.collapsed .suppl-cat-body{display:none}
+.suppl-cat-body{padding:4px 8px 8px}
+.suppl-list{list-style:none}
+.suppl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);transition:all 0.2s ease}
+.suppl-item:hover{background:rgba(255,255,255,0.06)}
+.suppl-item:hover .suppl-delete{opacity:1}
+.suppl-item.suppl-taken{opacity:0.55;background:rgba(107,227,164,0.04)}
+.suppl-checkbox{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.18);background:rgba(0,0,0,0.3);cursor:pointer;flex-shrink:0;position:relative;transition:all 0.2s ease;appearance:none;-webkit-appearance:none}
+.suppl-checkbox:checked{background:#6BE3A4;border-color:#6BE3A4;box-shadow:0 0 10px rgba(107,227,164,0.35)}
+.suppl-checkbox:checked::after{content:'';position:absolute;top:2px;left:5px;width:5px;height:8px;border:solid #050506;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);animation:check-pop 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.suppl-name{flex:1;font-size:13px}
+.suppl-time{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:60px;text-align:right}
+.suppl-delete{font-size:15px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:all 0.2s;padding:2px 4px}
+.suppl-delete:hover{color:var(--danger);opacity:1}
+.suppl-cat-empty{font-size:11px;color:var(--text-tertiary);font-style:italic;padding:8px 0;text-align:center}
+.suppl-summary{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:12px}
+.suppl-add-row{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:12px;flex-wrap:wrap}
+.suppl-select{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;cursor:pointer;min-width:140px}
+.suppl-select option{background:#1a1a1e;color:var(--text-primary)}
+.suppl-select:focus{border-color:rgba(255,255,255,0.25)}
+.suppl-time-btns{display:flex;gap:4px}
+.suppl-time-btn{
+  padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.04);color:var(--text-tertiary);
+  font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+  letter-spacing:0.04em;text-transform:uppercase;transition:all 0.2s;
+}
+.suppl-time-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.suppl-time-btn.active{background:rgba(91,164,227,0.15);color:var(--water);border-color:rgba(91,164,227,0.3)}
+
+/* ── Workouts (timer) ── */
+.wtype-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.wtype-btn{
+  padding:10px 18px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:var(--text-secondary);
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:all 0.2s;letter-spacing:0.02em;
+}
+.wtype-btn:hover{background:rgba(255,255,255,0.07);color:var(--text-primary)}
+.wtype-btn.active{background:rgba(91,164,227,0.12);color:var(--water);border-color:rgba(91,164,227,0.35)}
+.timer-section{text-align:center;margin:24px 0}
+.timer-display{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:56px;font-weight:700;letter-spacing:-0.03em;
+  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:8px;
+  color:var(--text-primary);
+}
+.timer-display.running{color:var(--success)}
+.timer-type-label{
+  font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:20px;
+}
+.timer-controls{display:flex;gap:10px;justify-content:center}
+.timer-start-btn{
+  padding:14px 36px;border-radius:14px;border:none;cursor:pointer;
+  font-weight:700;font-size:16px;font-family:inherit;
+  background:linear-gradient(180deg,#6BE3A4 0%,#50C88A 100%);color:#050506;
+  box-shadow:0 4px 16px rgba(107,227,164,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
+  transition:all 0.2s;
+}
+.timer-start-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(107,227,164,0.4),inset 0 1px 0 rgba(255,255,255,0.35)}
+.timer-stop-btn{
+  padding:14px 36px;border-radius:14px;border:none;cursor:pointer;
+  font-weight:700;font-size:16px;font-family:inherit;
+  background:linear-gradient(180deg,#FF6B6B 0%,#E05555 100%);color:#FFFFFF;
+  box-shadow:0 4px 16px rgba(255,107,107,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+  transition:all 0.2s;
+}
+.timer-stop-btn:hover{transform:translateY(-1px)}
+.timer-reset-btn{
+  padding:14px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
+  background:none;color:var(--text-tertiary);cursor:pointer;
+  font-weight:700;font-size:14px;font-family:inherit;transition:all 0.2s;
+}
+.timer-reset-btn:hover{color:var(--text-primary);border-color:rgba(255,255,255,0.2)}
+
+/* Weekly chart */
+.weekly-chart{margin-top:8px}
+.weekly-chart-title{
+  font-size:10.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.weekly-chart-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.weekly-bars{display:flex;gap:6px;align-items:flex-end;height:140px;padding:0 4px}
+.weekly-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.weekly-bar{
+  width:100%;border-radius:6px 6px 2px 2px;
+  background:var(--water);min-height:0;
+  transition:height 0.5s cubic-bezier(0.22,1,0.36,1);
+  position:relative;
+}
+.weekly-bar.today{background:var(--success)}
+.weekly-bar-label{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:10px;color:var(--text-tertiary);font-weight:700;
+}
+.weekly-bar-value{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:9px;color:var(--text-secondary);font-weight:600;
+  position:absolute;top:-16px;left:50%;transform:translateX(-50%);white-space:nowrap;
+}
+.weekly-total{
+  margin-top:12px;text-align:center;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:12px;color:var(--text-tertiary);
+}
+
+/* Today's log */
+.today-log{margin-top:20px}
+.today-log-title{
+  font-size:10.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;
+}
+.today-log-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.today-log-list{list-style:none}
+.today-log-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;margin-bottom:3px;border-radius:8px;
+  background:rgba(255,255,255,0.025);
+}
+.today-log-type{flex:1;font-size:13px;font-weight:600}
+.today-log-dur{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--text-secondary)}
+.today-log-when{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:55px;text-align:right}
+.today-log-delete{font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px}
+.today-log-item:hover .today-log-delete{opacity:1}
+.today-log-delete:hover{color:var(--danger)}
+
+/* ── Finance: Income ── */
+.income-amount{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.income-num{font-size:36px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:1}
+.income-freq{font-size:13px;color:var(--text-tertiary)}
+.income-monthly{font-size:12px;color:var(--text-tertiary);margin-bottom:10px}
+.income-edit-btn{
+  padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
+  background:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:all 0.2s;
+}
+.income-edit-btn:hover{color:var(--text-primary);border-color:rgba(255,255,255,0.2)}
+.income-row{display:flex;gap:12px;flex-wrap:wrap}
+.income-field{flex:1;min-width:120px}
+.income-label{display:block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px}
+.income-input-wrap{display:flex;align-items:center;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.04);overflow:hidden}
+.income-dollar{padding:0 0 0 12px;color:var(--text-tertiary);font-size:14px;font-weight:600}
+.income-input-wrap .income-input{border:none;background:none;padding-left:4px}
+.income-input-wrap .gm-input{border:none;padding-left:4px}
+.income-freq-select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
+.income-freq-select option{background:#1a1a1e;color:var(--text-primary)}
+
+/* ── Finance: Budget ── */
+.budget-grid{display:flex;gap:10px;flex-wrap:wrap}
+.budget-item{
+  flex:1;min-width:100px;padding:14px;border-radius:12px;text-align:center;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+}
+.budget-pct{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.budget-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px}
+.budget-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;font-weight:600;color:var(--text-secondary)}
+.budget-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0}
+
+/* ── Finance: Expenses ── */
+.expense-layout{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.expense-chart-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+.expense-chart-wrap canvas{width:160px;height:160px}
+.expense-total{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:16px;font-weight:700;color:var(--text-primary);pointer-events:none;
+}
+.expense-list-wrap{flex:1;min-width:200px}
+.expense-list{list-style:none}
+.expense-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;margin-bottom:3px;border-radius:8px;
+  background:rgba(255,255,255,0.025);
+}
+.expense-item:hover .expense-delete{opacity:1}
+.expense-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.expense-cat-name{flex:1;font-size:13px}
+.expense-cat-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;font-weight:600}
+.expense-delete{font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px}
+.expense-delete:hover{color:var(--danger)}
+.expense-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0}
+
+/* ── Finance: Subscriptions ── */
+.sub-total{font-size:12px;color:var(--text-tertiary);text-align:center;margin-bottom:12px;font-variant-numeric:tabular-nums}
+.sub-list{list-style:none}
+.sub-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;margin-bottom:4px;border-radius:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);
+  transition:all 0.2s;
+}
+.sub-item:hover .sub-delete{opacity:1}
+.sub-name{flex:1;font-size:13px;font-weight:600}
+.sub-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--text-secondary)}
+.sub-cycle{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:35px}
+.sub-delete{font-size:15px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px}
+.sub-delete:hover{color:var(--danger)}
+
+/* ── Home top row (goals + water side by side) ── */
+.home-top-row{display:flex;gap:10px;margin-bottom:12px;align-items:stretch}
+.home-top-row .goal-ticker{flex:1;margin-bottom:0}
+.home-top-row .water-bar-home{flex:0 0 48%;margin-bottom:0;flex-direction:column;align-items:stretch;gap:4px}
+.home-top-row .water-bar-label{text-align:center;min-width:0}
+.home-top-row .water-bar-ml{text-align:center;min-width:0}
+
+
+/* ── Voice log bar ── */
+.voice-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;position:relative}
+.voice-input{flex:1;min-width:0;padding:10px 14px;font-size:16px;font-family:inherit;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:var(--text-primary);outline:none;transition:border-color 0.2s}
+.voice-input:focus{border-color:rgba(91,164,227,0.4)}
+.voice-input::placeholder{color:var(--text-tertiary)}
+.voice-btn{padding:10px 18px;font-size:13px;font-weight:700;font-family:inherit;letter-spacing:0.03em;border:none;border-radius:10px;cursor:pointer;background:rgba(91,164,227,0.15);color:var(--water);transition:background 0.2s;min-height:44px}
+.voice-btn:hover{background:rgba(91,164,227,0.25)}
+.voice-btn:disabled{opacity:0.4;cursor:default}
+.voice-feedback{width:100%;font-size:11px;font-weight:600;color:var(--success);min-height:16px;padding:2px 0}
+
+/* ── AI Insights card ── */
+.insights-card{
+  position:relative;margin-bottom:18px;padding:18px 20px 14px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.06);
+  backdrop-filter:blur(24px) saturate(1.2);
+  box-shadow:0 12px 40px rgba(0,0,0,0.45);
+  overflow:hidden;
+}
+.insights-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(45,212,191,0.3),transparent);
+}
+.insights-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.insights-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:rgba(45,212,191,0.1);
+  border:1px solid rgba(45,212,191,0.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.insights-icon svg{width:16px;height:16px;stroke:#2DD4BF;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.insights-label{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:#2DD4BF;opacity:0.85;
+}
+.insights-text{
+  font-size:14px;line-height:1.6;color:var(--text-secondary);
+  opacity:0;transition:opacity 0.5s ease;
+}
+.insights-text.visible{opacity:1}
+.insights-footer{
+  margin-top:12px;padding-top:10px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;align-items:center;gap:6px;
+}
+.insights-dot{
+  width:5px;height:5px;border-radius:50%;background:#2DD4BF;
+  box-shadow:0 0 6px rgba(45,212,191,0.6);
+}
+.insights-timestamp{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.03em;
+}
+
+/* Shimmer skeleton */
+.insights-skeleton{padding:4px 0}
+.insights-skeleton-bar{
+  height:10px;border-radius:5px;margin-bottom:8px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);
+  background-size:200% 100%;animation:shimmer 1.8s ease-in-out infinite;
+}
+.insights-skeleton-bar:nth-child(1){width:92%}
+.insights-skeleton-bar:nth-child(2){width:78%}
+.insights-skeleton-bar:nth-child(3){width:60%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.insights-fallback{
+  font-size:13px;line-height:1.6;color:var(--text-tertiary);font-style:italic;
+}
+
+/* ── Notifications bar ── */
+.notif-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;margin-bottom:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;font-size:11px}
+.notif-bar-label{font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary)}
+.notif-bar-status{font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin-left:auto}
+.notif-bar-status.on{color:var(--success)}
+.notif-bar-status.off{color:var(--text-tertiary)}
+.notif-bar-btn{padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-weight:700;font-size:10px;font-family:inherit;letter-spacing:0.03em;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;background:rgba(91,164,227,0.12);color:var(--water)}
+.notif-bar-btn:hover{background:rgba(91,164,227,0.22)}
+.notif-bar-btn:disabled{opacity:0.4;cursor:default}
+.notif-bar-btn-secondary{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
+.notif-bar-btn-secondary:hover{background:rgba(255,255,255,0.1)}
+
+/* ── Calendar strip + agenda ── */
+.cal-strip{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
+.cal-strip::-webkit-scrollbar{display:none}
+.cal-day{flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);cursor:pointer;transition:all 0.2s;user-select:none}
+.cal-day:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.08)}
+.cal-day.active{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.14)}
+.cal-day.today{border-color:rgba(91,164,227,0.4);background:rgba(91,164,227,0.08)}
+.cal-day.today .cal-day-dow{color:var(--water)}
+.cal-day-dow{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary)}
+.cal-day-num{font-size:16px;font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums}
+.cal-day.has-events::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--water);margin-top:2px}
+.cal-card{padding:14px 16px}
+.cal-agenda{display:flex;flex-direction:column;gap:0}
+.cal-empty{text-align:center;padding:24px 0;color:var(--text-tertiary);font-size:13px}
+.cal-event{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.cal-event:last-child{border-bottom:none}
+.cal-event-time{min-width:56px;text-align:right;font-size:11px;font-weight:600;color:var(--text-tertiary);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding-top:2px;letter-spacing:0.02em}
+.cal-event-bar{width:2px;border-radius:1px;background:var(--water);flex-shrink:0}
+.cal-event-body{flex:1;min-width:0}
+.cal-event-title{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-event-range{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+.cal-event.all-day .cal-event-time{color:var(--water)}
+.cal-url-wrap{display:flex;gap:8px;margin-bottom:14px}
+.cal-toggle-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;opacity:0.4;transition:opacity 0.2s;vertical-align:middle}
+.cal-toggle-btn:hover{opacity:0.8}
+.cal-url-input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:12px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;outline:none}
+.cal-url-input:focus{border-color:rgba(255,255,255,0.25)}
+.cal-url-input::placeholder{color:var(--text-tertiary)}
+.cal-url-btn{padding:8px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;background:rgba(91,164,227,0.12);color:var(--water);transition:all 0.2s;white-space:nowrap}
+.cal-url-btn:hover{background:rgba(91,164,227,0.2)}
+
+/* ── Chat widget ── */
+.chat-card{padding:0;overflow:hidden}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary)}
+.chat-reset-btn{padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--text-tertiary);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;letter-spacing:0.05em}
+.chat-reset-btn:hover{background:rgba(255,255,255,0.06);color:var(--text-primary);border-color:rgba(255,255,255,0.15)}
+.chat-log{max-height:300px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent}
+.chat-log::-webkit-scrollbar{width:4px}
+.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.chat-msg{display:flex}
+.chat-msg.user{justify-content:flex-end}
+.chat-bubble{max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.5;color:var(--text-primary);word-wrap:break-word}
+.chat-msg.aura .chat-bubble{background:rgba(255,255,255,0.04);border-bottom-left-radius:4px}
+.chat-msg.user .chat-bubble{background:rgba(91,164,227,0.12);border-bottom-right-radius:4px}
+.chat-cursor{display:inline-block;width:2px;height:14px;background:var(--water);margin-left:2px;vertical-align:text-bottom;animation:chatBlink 1s step-end infinite}
+@keyframes chatBlink{0%,100%{opacity:1}50%{opacity:0}}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,255,255,0.04)}
+.chat-input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;resize:none}
+.chat-input:focus{border-color:rgba(255,255,255,0.25)}
+.chat-input::placeholder{color:var(--text-tertiary)}
+.chat-send-btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit;background:rgba(91,164,227,0.12);color:var(--water);transition:all 0.2s;white-space:nowrap}
+.chat-send-btn:hover{background:rgba(91,164,227,0.2)}
+.chat-send-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* ── Compact water donut (health) ── */
+.water-donut-wrap{position:relative;width:120px;height:120px;margin:0 auto 14px}
+.water-donut-svg{width:100%;height:100%}
+.water-donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.water-donut-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit;background:rgba(255,255,255,0.06);color:var(--text-primary);transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.water-donut-btn:hover{background:rgba(255,255,255,0.1);transform:scale(1.05)}
+.water-donut-btn:active{transform:scale(0.95)}
+.water-donut-btn.done{background:rgba(107,227,164,0.15);color:var(--success)}
+.water-donut-info{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:4px}
+.water-donut-num{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.water-donut-goal{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--text-tertiary)}
+
+/* ── Workout stats ── */
+.wstats-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.wstat-item{flex:1;min-width:80px;padding:12px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
+.wstat-num{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px}
+.wstat-label{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary)}
+
+/* ── Mobile-first input sizing (prevents iOS zoom) ── */
+.chat-input,.gm-input,.cal-url-input,.income-input,.suppl-select,.income-freq-select{font-size:16px}
+.water-donut-btn,.gm-add-btn,.gm-polish-btn,.gm-push-btn{min-height:48px}
+
+/* Responsive */
+@media(max-width:480px){
+  body{padding:max(env(safe-area-inset-top,16px),16px) 16px 90px}
+  .container{padding:0;max-width:100%}
+  .dash-title{font-size:24px;margin-bottom:12px;text-align:center}
+  .section{margin-bottom:16px}
+  .section-title{font-size:12px;margin-bottom:10px;letter-spacing:0.1em}
+  .card{padding:14px 16px;border-radius:14px}
+
+  /* Tab bar */
+  .tab-bar{bottom:max(10px,env(safe-area-inset-bottom,0px));padding:6px 8px;gap:3px;border-radius:20px}
+  .tab-btn{padding:10px 16px;min-width:52px;border-radius:14px}
+  .tab-btn .tab-icon{width:24px;height:24px}
+  .tab-btn .tab-icon svg{width:24px;height:24px;stroke-width:2}
+  .tab-btn span:not(.tab-icon){font-size:9px;font-weight:800}
+
+  /* Goal ticker */
+  .goal-ticker{padding:10px 12px;text-align:center}
+  .goal-ticker-label{font-size:9px}
+  .goal-ticker-row{font-size:12px;justify-content:center}
+  .goal-ticker-meta{font-size:10px;padding:3px 7px}
+
+  /* Rings */
+  .rings-row{gap:8px;justify-content:center}
+  .rings-bottom{justify-content:center;gap:12px;margin-bottom:16px;text-align:center}
+  .ring-container{width:95px;height:95px}
+  .ring-container-lg{width:128px;height:128px}
+  .ring-icon{font-size:20px}
+  .ring-val{font-size:15px;font-weight:800}
+  .ring-label{font-size:8px}
+  .ring-sub{font-size:11px}
+  .day-ring-pct{font-size:30px}
+  .day-ring-phase{font-size:9px}
+  .day-ring-clock{font-size:10px}
+  .day-ring-status{font-size:12px}
+  .day-ring-remaining{font-size:11px}
+  .day-ring-range{font-size:9px}
+  .rings-bottom-status{align-items:center}
+  .sleep-btn{padding:9px 20px;font-size:13px;border-radius:12px}
+
+  /* Goals */
+  .gm-input-wrap{flex-wrap:wrap;gap:6px;padding-top:12px}
+  .gm-input{padding:12px 14px;font-size:16px;border-radius:10px;flex:1 1 100%}
+  .gm-add-btn,.gm-polish-btn{padding:12px 16px;font-size:13px;font-weight:800;flex:1;min-height:48px}
+  .gm-progress-num{font-size:34px}
+  .gm-status{font-size:11px}
+  .gm-header{flex-direction:column;gap:8px;align-items:center;text-align:center}
+  .gm-streak{align-self:center}
+  .gm-bar{height:6px;margin-top:10px}
+
+  /* Water */
+  .water-ring-container{width:130px;height:130px;margin:0 auto}
+  .water-donut-btn{width:56px;height:56px;font-size:13px}
+  .water-ring-sub{font-size:12px}
+
+  /* Supplements */
+  .suppl-time-btns{flex-wrap:wrap;gap:4px;justify-content:center}
+  .suppl-time-btn{padding:7px 12px;font-size:11px}
+  .suppl-select{padding:10px 12px;font-size:16px;width:100%}
+  .suppl-cat-name{font-size:12px;font-weight:700}
+
+  /* Workouts */
+  .timer-display{font-size:38px;text-align:center}
+  .wtype-grid{gap:6px}
+  .wtype-btn{padding:10px 12px;font-size:12px;min-height:44px}
+  .wstats-row{flex-direction:column;gap:6px}
+  .today-log-item{padding:8px 0;font-size:13px}
+
+  /* Finance */
+  .expense-layout{flex-direction:column;align-items:stretch}
+  .expense-chart-wrap{margin:0 auto;width:200px;height:200px}
+  .budget-grid{flex-direction:column;gap:10px}
+  .income-row{flex-direction:column;gap:10px}
+  .income-input{font-size:16px}
+  .income-freq-select{font-size:16px;width:100%}
+  .income-display{padding:14px 16px}
+  .income-num{font-size:24px}
+
+  /* Calendar */
+  .cal-strip{gap:2px;justify-content:center}
+  .cal-day{min-width:38px;padding:8px 3px}
+  .cal-day-num{font-size:14px}
+  .cal-day-label{font-size:9px}
+  .cal-url-wrap{flex-direction:column;gap:6px}
+  .cal-url-input{padding:12px 14px;font-size:16px;width:100%}
+  .cal-url-btn{padding:12px 16px;font-size:13px;font-weight:700}
+  .cal-event-time{font-size:10px;min-width:48px}
+  .cal-event-item{padding:8px 0}
+
+  /* Chat */
+  .chat-log{max-height:220px}
+  .chat-input-row{padding:8px 10px;gap:8px}
+  .chat-input{padding:12px 14px;font-size:16px}
+  .chat-send-btn{padding:12px 16px;font-size:14px;font-weight:700}
+  .bubble{font-size:13px;padding:8px 12px}
+
+  /* Home top */
+  .home-top-row{flex-direction:column;gap:12px;align-items:stretch}
+  .home-top-row .water-bar-home{flex:auto}
+
+  /* Notif bar */
+  .notif-bar{padding:8px 12px;font-size:10px}
+  .notif-bar-btn{padding:5px 12px;font-size:10px}
+
+  /* Insights card */
+  .insights-card{padding:14px 16px 12px;border-radius:14px}
+  .insights-text{font-size:13px}
+}
+@media(max-width:360px){
+  body{padding:max(env(safe-area-inset-top,12px),12px) 12px 86px}
+  .rings-row{gap:6px}
+  .ring-container{width:82px;height:82px}
+  .ring-container-lg{width:110px;height:110px}
+  .day-ring-pct{font-size:26px}
+  .tab-btn{padding:8px 12px;min-width:44px}
+  .tab-btn .tab-icon{width:20px;height:20px}
+  .tab-btn .tab-icon svg{width:20px;height:20px}
+  .card{padding:12px 14px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════ HOME TAB ═══════ -->
+  <div class="tab-page active" id="tab-home">
+    <h1 class="dash-title">My Dashboard</h1>
+
+    <!-- Notifications (compact bar) -->
+    <div class="notif-bar">
+      <span class="notif-bar-label">Push Notifications</span>
+      <span class="notif-bar-status" id="notifStatus">Off</span>
+      <button class="notif-bar-btn" id="notifToggleBtn">Turn On</button>
+      <button class="notif-bar-btn notif-bar-btn-secondary" id="notifTestBtn" style="display:none">Test</button>
+    </div>
+
+    <!-- Triple Ring Row -->
+    <div class="rings-row">
+
+      <!-- Sleep Ring (left) -->
+      <div class="ring-col">
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <filter id="sleepGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+            <circle id="sleepRingFill" cx="60" cy="60" r="52" fill="none" stroke="#4D4B47" stroke-width="7"
+              stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+              transform="rotate(-90 60 60)" filter="url(#sleepGlow)"
+              style="transition:stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s cubic-bezier(0.22,1,0.36,1)"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-icon" id="sleepRingIcon">🌙</div>
+            <div class="ring-label">SLEEP</div>
+            <div class="ring-val mono" id="sleepRingVal">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day Ring (center) -->
+      <div class="ring-col ring-col-center">
+        <div class="ring-container ring-container-lg">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <filter id="ringGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+            <circle id="dayRingFill" cx="60" cy="60" r="52" fill="none" stroke="#4D4B47" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+              transform="rotate(-90 60 60)" filter="url(#ringGlow)"
+              style="transition:stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s cubic-bezier(0.22,1,0.36,1)"/>
+          </svg>
+          <div class="ring-text">
+            <div class="day-ring-pct" id="dayRingPct">—</div>
+            <div class="day-ring-phase" id="dayRingPhase">SLEEPING</div>
+            <div class="day-ring-clock mono" id="dayRingClock"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Money Ring (right) -->
+      <div class="ring-col">
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <defs>
+              <filter id="moneyGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+            <circle id="moneyRingFill" cx="60" cy="60" r="52" fill="none" stroke="#4D4B47" stroke-width="7"
+              stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+              transform="rotate(-90 60 60)" filter="url(#moneyGlow)"
+              style="transition:stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s cubic-bezier(0.22,1,0.36,1)"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-label">SPENT</div>
+            <div class="ring-val mono" id="moneyRingVal">$0</div>
+            <div class="ring-sub mono" id="moneyRingPct">0%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Day info + Sleep controls below rings -->
+    <div class="rings-bottom">
+      <div class="rings-bottom-status">
+        <div class="day-ring-status" id="dayRingStatus">😴 Still sleeping</div>
+        <div class="day-ring-remaining mono" id="dayRingRemaining"></div>
+        <div class="day-ring-range mono">8:00 AM – 12:00 AM</div>
+      </div>
+      <button class="sleep-btn" id="sleepCheckBtn">Check In</button>
+    </div>
+
+    <!-- Voice Log -->
+    <div class="voice-bar">
+      <input type="text" class="voice-input" id="voiceInput" placeholder="Log something... e.g. drank water, ran 20 min" autocomplete="off">
+      <button class="voice-btn" id="voiceLogBtn">Log</button>
+      <div class="voice-feedback" id="voiceFeedback"></div>
+    </div>
+
+    <!-- Goal Ticker -->
+    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
+      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
+      <div class="goal-ticker-label">GOALS</div>
+      <div class="goal-ticker-stage" id="goalTickerStage">
+        <div class="goal-ticker-row">
+          <span class="goal-ticker-status" data-status="">—</span>
+          <span class="goal-ticker-text">Loading…</span>
+        </div>
+      </div>
+      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
+    </div>
+
+    <!-- Water bar -->
+    <div class="water-bar-home" id="waterBarHome" title="Tap to add a glass">
+      <div class="water-bar-label" id="waterBarLabel">💧 0/8</div>
+      <div class="water-bar-track" id="waterBarTrack"></div>
+      <div class="water-bar-ml" id="waterBarMl">0ml</div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="insights-card" id="insightsCard">
+      <div class="insights-header">
+        <div class="insights-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <span class="insights-label">Aura Insights</span>
+      </div>
+      <div id="insightsBody">
+        <div class="insights-skeleton" id="insightsSkeleton">
+          <div class="insights-skeleton-bar"></div>
+          <div class="insights-skeleton-bar"></div>
+          <div class="insights-skeleton-bar"></div>
+        </div>
+      </div>
+      <div class="insights-footer" id="insightsFooter" style="display:none">
+        <span class="insights-dot"></span>
+        <span class="insights-timestamp" id="insightsTimestamp"></span>
+      </div>
+    </div>
+
+    <!-- To Do List -->
+    <div class="section">
+      <div class="section-title">To Do List</div>
+      <div class="card gm-card" id="gmCardToday">
+        <div class="gm-header">
+          <div>
+            <div class="gm-eyebrow" id="todayLabel"></div>
+            <div class="gm-progress-row">
+              <span class="gm-progress-num" id="gmProgressNum">0</span>
+              <span class="gm-progress-total mono" id="gmProgressTotal">/ 0</span>
+              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+            </div>
+          </div>
+          <div class="gm-streak" id="gmStreak">
+            <span class="gm-streak-bolt">⚡</span>
+            <span class="mono" id="gmStreakNum">0</span>
+            <span class="gm-streak-label">workout streak</span>
+          </div>
+        </div>
+        <div class="gm-bar" id="gmBar"></div>
+        <ul id="goalList" class="gm-list"></ul>
+        <div id="emptyState" class="empty-state">No goals for today yet — add one below.</div>
+        <div class="gm-input-wrap">
+          <input type="text" class="gm-input" id="goalInput" placeholder="Add a goal for today…" maxlength="200">
+          <button class="gm-add-btn" id="goalAddBtn">+ Add</button>
+          <button class="gm-polish-btn" id="goalPolishBtn">✨ Polish</button>
+        </div>
+        <div class="gm-status" id="polishStatus"></div>
+      </div>
+    </div>
+
+    <!-- Aura Chat -->
+    <div class="section">
+      <div class="section-title">Aura</div>
+      <div class="card chat-card">
+        <div class="chat-header">
+          <span>Chat</span>
+          <button class="chat-reset-btn" id="chatResetBtn">Reset</button>
+        </div>
+        <div class="chat-log" id="chatLog">
+          <div class="chat-msg aura"><div class="chat-bubble">Hey! I'm Aura, your personal coach. How can I help you today?</div></div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask Aura anything…" maxlength="1000" autocomplete="off">
+          <button class="chat-send-btn" id="chatSendBtn">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Agenda -->
+    <div class="section" id="calendarSection">
+      <div class="section-title">Calendar
+        <button class="cal-toggle-btn" id="calToggleBtn" title="Calendar settings">⚙</button>
+      </div>
+      <div class="cal-url-wrap" id="calUrlWrap" style="display:none">
+        <input type="url" class="cal-url-input" id="calUrlInput" placeholder="Paste Google Calendar ICS URL…" autocomplete="off">
+        <button class="cal-url-btn" id="calUrlBtn">Save</button>
+        <button class="cal-url-btn" id="calReloadBtn" title="Reload calendar">↻</button>
+      </div>
+      <div class="cal-strip" id="calStrip"></div>
+      <div class="card cal-card">
+        <div class="cal-agenda" id="calAgenda">
+          <div class="cal-empty">No calendar connected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ HEALTH TAB ═══════ -->
+  <div class="tab-page" id="tab-health">
+    <h1 class="dash-title">Health</h1>
+
+    <!-- Water -->
+    <div class="section">
+      <div class="section-title">Water Intake</div>
+      <div class="card" style="text-align:center">
+        <div class="water-donut-wrap">
+          <svg class="water-donut-svg" viewBox="0 0 120 120">
+            <defs>
+              <filter id="waterGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+            <circle id="waterRingFill" cx="60" cy="60" r="52" fill="none" stroke="#5BA4E3" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
+              transform="rotate(-90 60 60)" filter="url(#waterGlow)"
+              style="transition:stroke-dashoffset 0.5s cubic-bezier(0.22,1,0.36,1),stroke 0.5s ease"/>
+          </svg>
+          <div class="water-donut-center">
+            <button class="water-donut-btn" id="waterAddBtn">+1</button>
+          </div>
+        </div>
+        <div class="water-donut-info"><span class="water-donut-num" id="waterNum">0</span><span class="water-donut-goal" id="waterSub">/ 8</span></div>
+        <div class="water-log" id="waterLog"></div>
+      </div>
+    </div>
+
+    <!-- Sleep -->
+    <div class="section">
+      <div class="section-title">Sleep</div>
+      <div class="card" style="text-align:center;padding:20px">
+        <div class="sleep-hours" id="sleepHours">--</div>
+        <div class="sleep-hours-unit">hours</div>
+        <div style="font-size:13px;color:var(--text-tertiary)" id="sleepHealthDetail">Use the Home tab to check in/out</div>
+      </div>
+    </div>
+
+    <!-- Supplements -->
+    <div class="section">
+      <div class="section-title">Supplements</div>
+      <div class="card">
+        <div class="suppl-summary" id="supplSummary">0/0 taken today</div>
+        <div id="supplCategories"></div>
+        <div class="suppl-add-row">
+          <select class="suppl-select" id="supplSelect">
+            <option value="">— Quick add —</option>
+            <option value="Vitamin D">Vitamin D</option>
+            <option value="Multivitamin">Multivitamin</option>
+            <option value="Fish Oil">Fish Oil</option>
+            <option value="Omega-3">Omega-3</option>
+            <option value="Magnesium">Magnesium</option>
+            <option value="Creatine">Creatine</option>
+            <option value="Zinc">Zinc</option>
+            <option value="B-Complex">B-Complex</option>
+            <option value="Vitamin C">Vitamin C</option>
+            <option value="Iron">Iron</option>
+            <option value="Probiotics">Probiotics</option>
+            <option value="Ashwagandha">Ashwagandha</option>
+            <option value="Collagen">Collagen</option>
+            <option value="Protein">Protein</option>
+            <option value="Caffeine">Caffeine</option>
+            <option value="Melatonin">Melatonin</option>
+          </select>
+          <input type="text" class="gm-input" id="supplInput" placeholder="Or type supplement…" maxlength="100" style="flex:1;min-width:100px">
+          <div class="suppl-time-btns">
+            <button class="suppl-time-btn" data-time="morning">AM</button>
+            <button class="suppl-time-btn" data-time="afternoon">PM</button>
+            <button class="suppl-time-btn" data-time="evening">EVE</button>
+            <button class="suppl-time-btn active" data-time="anytime">ANY</button>
+          </div>
+          <button class="gm-add-btn" id="supplAddBtn">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ WORKOUTS TAB ═══════ -->
+  <div class="tab-page" id="tab-workouts">
+    <h1 class="dash-title">Workouts</h1>
+    <div class="wstats-row">
+      <div class="wstat-item"><div class="wstat-num" id="wstatToday">0</div><div class="wstat-label">Today</div></div>
+      <div class="wstat-item"><div class="wstat-num" id="wstatWeek">0</div><div class="wstat-label">This Week</div></div>
+      <div class="wstat-item"><div class="wstat-num" id="wstatStreak">0</div><div class="wstat-label">Day Streak</div></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Start a Workout</div>
+      <div class="card">
+        <div class="wtype-grid" id="wtypeGrid">
+          <button class="wtype-btn active" data-type="Weight">Weight</button>
+          <button class="wtype-btn" data-type="Kettlebell">Kettlebell</button>
+          <button class="wtype-btn" data-type="Cardio">Cardio</button>
+          <button class="wtype-btn" data-type="HIIT">HIIT</button>
+          <button class="wtype-btn" data-type="Yoga">Yoga</button>
+          <button class="wtype-btn" data-type="Stretch">Stretch</button>
+          <button class="wtype-btn" data-type="Swimming">Swimming</button>
+          <button class="wtype-btn" data-type="Cycling">Cycling</button>
+        </div>
+        <div class="timer-section">
+          <div class="timer-type-label" id="timerTypeLabel">WEIGHT</div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+          <div class="timer-controls">
+            <button class="timer-start-btn" id="timerStartBtn">▶ Start</button>
+          </div>
+        </div>
+        <div class="weekly-chart">
+          <div class="weekly-chart-title">This Week</div>
+          <div class="weekly-bars" id="weeklyBars"></div>
+          <div class="weekly-total" id="weeklyTotal">0 min total this week</div>
+        </div>
+        <div class="today-log" id="todayLogSection" style="display:none">
+          <div class="today-log-title">Today's Sessions</div>
+          <ul class="today-log-list" id="todayLogList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FINANCE TAB ═══════ -->
+  <div class="tab-page" id="tab-finance">
+    <h1 class="dash-title">Finance</h1>
+
+    <!-- Income Setup -->
+    <div class="section">
+      <div class="section-title">Income</div>
+      <div class="card" id="incomeCard">
+        <div id="incomeDisplay" style="display:none">
+          <div class="income-amount">
+            <span class="income-num mono" id="incomeNum">$0</span>
+            <span class="income-freq" id="incomeFreqLabel">/ month</span>
+          </div>
+          <div class="income-monthly mono" id="incomeMonthlyLabel"></div>
+          <button class="income-edit-btn" id="incomeEditBtn">Edit</button>
+        </div>
+        <div id="incomeForm">
+          <div class="income-row">
+            <div class="income-field">
+              <label class="income-label">Amount</label>
+              <div class="income-input-wrap">
+                <span class="income-dollar">$</span>
+                <input type="number" class="gm-input income-input" id="incomeAmount" placeholder="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="income-field">
+              <label class="income-label">Frequency</label>
+              <select class="gm-input income-freq-select" id="incomeFreq">
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Bi-weekly</option>
+                <option value="monthly" selected>Monthly</option>
+              </select>
+            </div>
+          </div>
+          <button class="gm-add-btn" id="incomeSaveBtn" style="margin-top:10px">Save Income</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Split -->
+    <div class="section">
+      <div class="section-title">Budget Split</div>
+      <div class="card">
+        <div class="budget-advice" id="budgetAdvice">
+          <div class="budget-empty">Set your income above to see budget advice.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="section">
+      <div class="section-title">Expenses</div>
+      <div class="card">
+        <div class="expense-layout">
+          <div class="expense-chart-wrap">
+            <canvas id="expenseChart" width="200" height="200"></canvas>
+            <div class="expense-total" id="expenseTotal">$0</div>
+          </div>
+          <div class="expense-list-wrap">
+            <ul class="expense-list" id="expenseList"></ul>
+            <div class="expense-empty" id="expenseEmpty">No expenses yet.</div>
+          </div>
+        </div>
+        <div class="suppl-add-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:14px">
+          <select class="suppl-select" id="expenseCatSelect">
+            <option value="Housing">Housing</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Health">Health</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="income-input-wrap" style="flex:1;min-width:80px">
+            <span class="income-dollar">$</span>
+            <input type="number" class="gm-input income-input" id="expenseAmount" placeholder="0" min="0" step="0.01">
+          </div>
+          <button class="gm-add-btn" id="expenseAddBtn">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriptions -->
+    <div class="section">
+      <div class="section-title">Subscriptions</div>
+      <div class="card">
+        <div class="sub-total mono" id="subTotal">$0.00/mo total</div>
+        <ul class="sub-list" id="subList"></ul>
+        <div class="expense-empty" id="subEmpty">No subscriptions yet.</div>
+        <div class="suppl-add-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:14px">
+          <input type="text" class="gm-input" id="subName" placeholder="Service name" style="flex:1;min-width:100px">
+          <div class="income-input-wrap" style="width:100px">
+            <span class="income-dollar">$</span>
+            <input type="number" class="gm-input income-input" id="subAmount" placeholder="0" min="0" step="0.01">
+          </div>
+          <select class="suppl-select" id="subCycle" style="width:90px;min-width:80px">
+            <option value="monthly">/ mo</option>
+            <option value="yearly">/ yr</option>
+            <option value="weekly">/ wk</option>
+          </select>
+          <button class="gm-add-btn" id="subAddBtn">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="tab-home">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.5z"/><path d="M9 21V13h6v8"/></svg></span>
+    <span>Home</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-health">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+    <span>Health</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-workouts">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="9" width="4" height="6" rx="1.2"/><rect x="5" y="7.5" width="2.5" height="9" rx="0.6"/><line x1="7.5" y1="12" x2="16.5" y2="12"/><rect x="16.5" y="7.5" width="2.5" height="9" rx="0.6"/><rect x="19" y="9" width="4" height="6" rx="1.2"/></svg></span>
+    <span>Workouts</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-finance">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 8.5c0-2.76-2.24-4.5-5-4.5S7 5.74 7 8.5c0 4 10 4.5 10 8.5 0 2.76-2.24 4.5-5 4.5s-5-1.74-5-4.5"/></svg></span>
+    <span>Finance</span>
+  </button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ════════════ SHARED HELPERS ════════════ */
+function storeGet(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}}
+function storeSet(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function storeDelete(k){localStorage.removeItem(k)}
+function storeListKeys(prefix){
+  const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(prefix))keys.push(k)}return keys;
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+const WAKE_HOUR=8,SLEEP_HOUR=24;
+function dateStrLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function getActiveDateString(){const now=new Date();let d=now;if(now.getHours()<6){d=new Date(now);d.setDate(d.getDate()-1)}return dateStrLocal(d)}
+function getTomorrowDateString(){const now=new Date();let d=new Date(now);if(now.getHours()<6){}else{d.setDate(d.getDate()+1)}return dateStrLocal(d)}
+function formatDate(iso){const d=new Date(iso+'T12:00:00');const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return days[d.getDay()]+', '+months[d.getMonth()]+' '+d.getDate()}
+function formatTime12(ts){const d=new Date(ts);let h=d.getHours();const ampm=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0')+' '+ampm}
+
+/* ════════════ TAB SYSTEM ════════════ */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ════════════ ROLLOVER ════════════ */
+function rollover(){
+  const active=getActiveDateString();
+  const allKeys=storeListKeys('goals:');
+  const todayGoals=storeGet('goals:'+active)||[];
+  allKeys.forEach(k=>{
+    const date=k.slice(6);if(date>=active)return;
+    const old=storeGet(k);if(!old||!old.length){storeDelete(k);return}
+    old.filter(g=>!g.done).forEach(g=>{if(!todayGoals.find(t=>t.text===g.text))todayGoals.push({text:g.text,done:false})});
+    storeDelete(k);
+  });
+  storeSet('goals:'+active,todayGoals);
+}
+
+/* ════════════ STREAK (workout) ════════════ */
+function computeWorkoutStreak(){
+  let streak=0,gapDays=0;
+  const checkDate=new Date();
+  const todayWorkouts=storeGet('workouts:'+dateStrLocal(checkDate))||[];
+  if(todayWorkouts.length===0){checkDate.setDate(checkDate.getDate()-1);gapDays=1}
+  while(gapDays<3){
+    const ds=dateStrLocal(checkDate);
+    const ws=storeGet('workouts:'+ds)||[];
+    if(ws.length){streak++;gapDays=0}else{gapDays++}
+    checkDate.setDate(checkDate.getDate()-1);
+    if(streak>365)break;
+  }
+  return streak;
+}
+
+/* ════════════ GOAL TICKER ════════════ */
+let tickerItems=[],tickerIdx=0,tickerTimer=null;
+function buildTickerItems(){
+  const goals=storeGet('goals:'+getActiveDateString())||[];
+  const total=goals.length,done=goals.filter(g=>g.done).length;
+  if(total===0)tickerItems=[{status:'empty',text:'No goals set for today — add one to get rolling.'}];
+  else if(done===total)tickerItems=[{status:'done',text:'✓ All goals done — solid day.'}];
+  else tickerItems=goals.filter(g=>!g.done).map(g=>({status:'pending',text:g.text}));
+  tickerIdx=0;document.getElementById('goalTickerMeta').textContent=done+'/'+total;
+}
+function tickerTick(){
+  const stage=document.getElementById('goalTickerStage');
+  if(!tickerItems.length)return;
+  const item=tickerItems[tickerIdx%tickerItems.length];
+  const oldRow=stage.querySelector('.goal-ticker-row');
+  if(oldRow){oldRow.classList.add('is-leaving');setTimeout(()=>oldRow.remove(),460)}
+  const row=document.createElement('div');
+  row.className='goal-ticker-row'+(oldRow?' is-entering':'');
+  const gl=item.status==='done'?'✓':item.status==='pending'?'○':'·';
+  row.innerHTML='<span class="goal-ticker-status" data-status="'+item.status+'">'+gl+'</span><span class="goal-ticker-text">'+escHtml(item.text)+'</span>';
+  stage.appendChild(row);tickerIdx++;
+}
+function startTicker(){buildTickerItems();tickerTick();if(tickerTimer)clearInterval(tickerTimer);tickerTimer=setInterval(tickerTick,5000)}
+window.addEventListener('goals-changed',function(){buildTickerItems();tickerIdx=0;tickerTick()});
+
+/* ════════════ DAY RING ════════════ */
+const SUN_PALETTE=[[255,216,158],[255,205,121],[255,227,143],[255,183,106],[255,149,89],[243,111,79],[226,93,122],[123,91,176],[47,58,102]];
+const CIRC=2*Math.PI*52;
+function lerpColor(stops,pct){const t=pct/100;const seg=(stops.length-1)*t;const i=Math.min(Math.floor(seg),stops.length-2);const f=seg-i;const a=stops[i],b=stops[i+1];return[Math.round(a[0]+(b[0]-a[0])*f),Math.round(a[1]+(b[1]-a[1])*f),Math.round(a[2]+(b[2]-a[2])*f)]}
+function formatClock12(d){let h=d.getHours();const ampm=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0')+' '+ampm}
+function updateDayBar(){
+  const now=new Date(),h=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+  const fill=document.getElementById('dayRingFill'),pctEl=document.getElementById('dayRingPct'),phaseEl=document.getElementById('dayRingPhase'),clockEl=document.getElementById('dayRingClock'),statusEl=document.getElementById('dayRingStatus'),remainEl=document.getElementById('dayRingRemaining');
+  if(!fill||!pctEl)return;
+  clockEl.textContent=formatClock12(now);
+  if(h<WAKE_HOUR){fill.style.stroke='#4D4B47';fill.style.strokeDashoffset=CIRC;pctEl.textContent='—';phaseEl.textContent='SLEEPING';statusEl.textContent='😴 Still sleeping';const u=WAKE_HOUR-h;remainEl.textContent=Math.floor(u)+'h '+Math.round((u-Math.floor(u))*60)+'m until wake-up'}
+  else if(h>=SLEEP_HOUR){fill.style.stroke='#E25D7A';fill.style.strokeDashoffset=0;pctEl.textContent='100%';phaseEl.textContent='PAST BEDTIME';statusEl.textContent='⚠️ Past bedtime';remainEl.textContent='Sleep!'}
+  else{const pct=(h-WAKE_HOUR)/(SLEEP_HOUR-WAKE_HOUR)*100;const color=lerpColor(SUN_PALETTE,pct);fill.style.stroke='rgb('+color.join(',')+')';fill.style.strokeDashoffset=CIRC*(1-pct/100);pctEl.textContent=Math.round(pct)+'%';if(pct<25){phaseEl.textContent='MORNING';statusEl.textContent='☀️ Morning — fresh start'}else if(pct<50){phaseEl.textContent='MIDDAY';statusEl.textContent='⚡ Midday — keep moving'}else if(pct<75){phaseEl.textContent='AFTERNOON';statusEl.textContent='🔥 Afternoon — push it'}else if(pct<90){phaseEl.textContent='EVENING';statusEl.textContent='⏳ Evening — wrap up'}else{phaseEl.textContent='BEDTIME';statusEl.textContent='🌙 Bedtime soon'}const l=SLEEP_HOUR-h;remainEl.textContent=Math.floor(l)+'h '+Math.round((l-Math.floor(l))*60)+'m awake time left'}
+}
+
+/* ════════════ WATER TRACKING ════════════ */
+const WATER_GOAL=8,WATER_CIRC=2*Math.PI*52;
+const MONEY_CIRC=2*Math.PI*52;
+function getWaterKey(){return 'water:'+getActiveDateString()}
+function getWater(){const d=storeGet(getWaterKey());if(!d)return{glasses:0,log:[]};if(!Array.isArray(d.log))d.log=[];return d}
+function setWater(d){storeSet(getWaterKey(),d)}
+
+function addGlass(){
+  const w=getWater();if(w.glasses>=WATER_GOAL*2)return;
+  w.glasses++;w.log.push(Date.now());setWater(w);renderWater();
+}
+
+function renderWater(){
+  const w=getWater(),pct=Math.min(w.glasses/WATER_GOAL,1);
+  // Health donut
+  const fill=document.getElementById('waterRingFill'),num=document.getElementById('waterNum'),sub=document.getElementById('waterSub'),btn=document.getElementById('waterAddBtn'),log=document.getElementById('waterLog');
+  fill.style.strokeDashoffset=WATER_CIRC*(1-pct);
+  if(pct>=1){fill.style.stroke='#6BE3A4';btn.className='water-donut-btn done';btn.textContent='✓'}
+  else{fill.style.stroke='#5BA4E3';btn.className='water-donut-btn';btn.textContent='+1'}
+  num.textContent=w.glasses;
+  sub.textContent='/ '+WATER_GOAL+' ('+(w.glasses*250)+'ml)';
+
+  // Log
+  log.innerHTML='';
+  w.log.slice(-6).forEach(function(ts){const s=document.createElement('span');s.textContent=formatTime12(ts);log.appendChild(s)});
+
+  // Home bar
+  renderWaterBar(w);
+}
+
+function renderWaterBar(w){
+  const label=document.getElementById('waterBarLabel'),track=document.getElementById('waterBarTrack'),ml=document.getElementById('waterBarMl');
+  label.textContent='💧 '+w.glasses+'/'+WATER_GOAL;
+  ml.textContent=(w.glasses*250)+'ml';
+  track.innerHTML='';
+  const allDone=w.glasses>=WATER_GOAL;
+  for(let i=0;i<WATER_GOAL;i++){
+    const seg=document.createElement('div');
+    seg.className='water-bar-seg'+(i<w.glasses?' filled':'')+(allDone?' done':'');
+    track.appendChild(seg);
+  }
+}
+
+document.getElementById('waterAddBtn').addEventListener('click',addGlass);
+document.getElementById('waterBarHome').addEventListener('click',addGlass);
+
+/* ════════════ SUPPLEMENTS ════════════ */
+const SUPPL_CATEGORIES=['morning','afternoon','evening','anytime'];
+const SUPPL_CAT_LABELS={morning:'Morning',afternoon:'Afternoon',evening:'Evening',anytime:'Anytime'};
+let selectedTime='anytime';
+
+function getSupplMaster(){return storeGet('supplements:master')||[]}
+function setSupplMaster(arr){storeSet('supplements:master',arr)}
+function getSupplDayKey(){return 'supplements:'+getActiveDateString()}
+function getSupplDay(){return storeGet(getSupplDayKey())||{}}
+function setSupplDay(d){storeSet(getSupplDayKey(),d)}
+
+// Time buttons
+document.querySelectorAll('.suppl-time-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.suppl-time-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');selectedTime=btn.dataset.time;
+  });
+});
+
+// Dropdown auto-fill
+document.getElementById('supplSelect').addEventListener('change',function(){
+  const val=this.value;
+  if(val){document.getElementById('supplInput').value=val;this.value=''}
+});
+
+function renderSuppl(){
+  const master=getSupplMaster(),day=getSupplDay();
+  const container=document.getElementById('supplCategories');
+  const summary=document.getElementById('supplSummary');
+  container.innerHTML='';
+
+  let totalTaken=0,totalCount=0;
+
+  SUPPL_CATEGORIES.forEach(function(cat){
+    const items=master.filter(function(m){return(m.time||'anytime')===cat});
+    if(!items.length)return;
+
+    const taken=items.filter(function(m){const s=day[m.name]||{};return s.taken}).length;
+    totalTaken+=taken;totalCount+=items.length;
+
+    const catDiv=document.createElement('div');
+    catDiv.className='suppl-category';
+
+    const header=document.createElement('div');
+    header.className='suppl-cat-header';
+    header.innerHTML='<span class="suppl-cat-name">'+SUPPL_CAT_LABELS[cat]+'</span><span class="suppl-cat-count">'+taken+'/'+items.length+'</span><span class="suppl-cat-arrow">▾</span>';
+
+    const body=document.createElement('div');
+    body.className='suppl-cat-body';
+    const list=document.createElement('ul');
+    list.className='suppl-list';
+
+    items.forEach(function(m){
+      const state=day[m.name]||{taken:false};
+      const li=document.createElement('li');
+      li.className='suppl-item'+(state.taken?' suppl-taken':'');
+
+      const cb=document.createElement('input');
+      cb.type='checkbox';cb.className='suppl-checkbox';cb.checked=!!state.taken;
+
+      const nameEl=document.createElement('span');
+      nameEl.className='suppl-name';nameEl.textContent=m.name;
+
+      const timeEl=document.createElement('span');
+      timeEl.className='suppl-time';
+      timeEl.textContent=state.taken&&state.takenAt?formatTime12(state.takenAt):'';
+
+      const delBtn=document.createElement('button');
+      delBtn.className='suppl-delete';delBtn.textContent='×';delBtn.title='Remove';
+
+      cb.addEventListener('change',function(){
+        const d=getSupplDay();
+        d[m.name]=cb.checked?{taken:true,takenAt:Date.now()}:{taken:false};
+        setSupplDay(d);renderSuppl();
+      });
+
+      delBtn.addEventListener('click',function(){
+        const arr=getSupplMaster();
+        const idx=arr.findIndex(function(x){return x.name===m.name});
+        if(idx>-1)arr.splice(idx,1);setSupplMaster(arr);
+        const d=getSupplDay();delete d[m.name];setSupplDay(d);renderSuppl();
+      });
+
+      li.append(cb,nameEl,timeEl,delBtn);
+      list.appendChild(li);
+    });
+
+    body.appendChild(list);
+    catDiv.append(header,body);
+
+    // Toggle collapse
+    header.addEventListener('click',function(){catDiv.classList.toggle('collapsed')});
+
+    container.appendChild(catDiv);
+  });
+
+  summary.textContent=totalTaken+'/'+totalCount+' taken today';
+}
+
+document.getElementById('supplAddBtn').addEventListener('click',function(){
+  const input=document.getElementById('supplInput');
+  const name=input.value.trim();
+  if(!name)return;
+  const m=getSupplMaster();
+  if(m.some(function(x){return x.name.toLowerCase()===name.toLowerCase()})){input.value='';return}
+  m.push({name:name,time:selectedTime});
+  setSupplMaster(m);
+  const d=getSupplDay();d[name]={taken:false};setSupplDay(d);
+  input.value='';renderSuppl();
+});
+
+document.getElementById('supplInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')document.getElementById('supplAddBtn').click();
+});
+
+/* ════════════ WORKOUTS (TIMER) ════════════ */
+let selectedWtype='Weight';
+let timerState='idle'; // idle | running | paused
+let timerStart=0;
+let timerElapsed=0;
+let timerInterval=null;
+
+function getWorkoutsKey(){return 'workouts:'+getActiveDateString()}
+function getWorkouts(){return storeGet(getWorkoutsKey())||[]}
+function setWorkouts(w){storeSet(getWorkoutsKey(),w)}
+
+function formatDuration(secs){
+  const m=Math.floor(secs/60),s=secs%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function formatDurationHuman(secs){
+  const m=Math.floor(secs/60),s=secs%60;
+  if(!m)return s+'s';
+  if(!s)return m+'min';
+  return m+'min '+s+'s';
+}
+
+// Type selector
+document.querySelectorAll('.wtype-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    if(timerState==='running')return;
+    document.querySelectorAll('.wtype-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    selectedWtype=btn.dataset.type;
+    document.getElementById('timerTypeLabel').textContent=selectedWtype.toUpperCase();
+  });
+});
+
+// Timer controls
+function updateTimerDisplay(){
+  const secs=timerElapsed+((timerState==='running')?Math.floor((Date.now()-timerStart)/1000):0);
+  document.getElementById('timerDisplay').textContent=formatDuration(secs);
+}
+
+function renderTimerControls(){
+  const controls=document.getElementById('timerControls')||document.querySelector('.timer-controls');
+  const disp=document.getElementById('timerDisplay');
+  controls.innerHTML='';
+
+  if(timerState==='idle'){
+    disp.classList.remove('running');
+    const startBtn=document.createElement('button');
+    startBtn.className='timer-start-btn';startBtn.textContent='▶ Start';
+    startBtn.addEventListener('click',startTimer);
+    controls.appendChild(startBtn);
+  }else if(timerState==='running'){
+    disp.classList.add('running');
+    const stopBtn=document.createElement('button');
+    stopBtn.className='timer-stop-btn';stopBtn.textContent='■ Stop';
+    stopBtn.addEventListener('click',stopTimer);
+    controls.appendChild(stopBtn);
+  }
+}
+
+function startTimer(){
+  timerState='running';timerStart=Date.now();
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(updateTimerDisplay,1000);
+  updateTimerDisplay();renderTimerControls();
+}
+
+function stopTimer(){
+  timerElapsed+=Math.floor((Date.now()-timerStart)/1000);
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null}
+  timerState='idle';
+
+  // Save workout
+  if(timerElapsed>0){
+    const w=getWorkouts();
+    w.push({type:selectedWtype,duration:timerElapsed,time:Date.now()});
+    setWorkouts(w);
+  }
+
+  timerElapsed=0;
+  updateTimerDisplay();renderTimerControls();renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+}
+
+// Weekly chart
+function getWeekDates(){
+  const dates=[];
+  const now=new Date();
+  const dayOfWeek=now.getDay(); // 0=Sun
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-((dayOfWeek+6)%7));
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    dates.push(dateStrLocal(d));
+  }
+  return dates;
+}
+
+function renderWeeklyChart(){
+  const weekDates=getWeekDates();
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const todayStr=getActiveDateString();
+  const barsEl=document.getElementById('weeklyBars');
+  const totalEl=document.getElementById('weeklyTotal');
+  barsEl.innerHTML='';
+
+  let weekTotalSecs=0;
+  let maxSecs=300; // 5 min minimum scale
+
+  // First pass: compute totals
+  const dayTotals=weekDates.map(function(date){
+    const workouts=storeGet('workouts:'+date)||[];
+    const total=workouts.reduce(function(sum,w){return sum+(w.duration||0)},0);
+    if(total>maxSecs)maxSecs=total;
+    return total;
+  });
+  weekTotalSecs=dayTotals.reduce(function(a,b){return a+b},0);
+
+  // Second pass: render bars
+  weekDates.forEach(function(date,i){
+    const total=dayTotals[i];
+    const pct=maxSecs>0?(total/maxSecs)*100:0;
+    const isToday=date===todayStr;
+
+    const col=document.createElement('div');
+    col.className='weekly-bar-col';
+
+    const bar=document.createElement('div');
+    bar.className='weekly-bar'+(isToday?' today':'');
+    bar.style.height=Math.max(pct,total>0?4:0)+'%';
+
+    if(total>0){
+      const val=document.createElement('span');
+      val.className='weekly-bar-value';
+      val.textContent=formatDurationHuman(total);
+      bar.appendChild(val);
+    }
+
+    const label=document.createElement('span');
+    label.className='weekly-bar-label';
+    label.textContent=dayNames[i];
+
+    col.append(bar,label);
+    barsEl.appendChild(col);
+  });
+
+  totalEl.textContent=formatDurationHuman(weekTotalSecs)+' total this week';
+}
+
+// Today's log
+function renderTodayLog(){
+  const workouts=getWorkouts();
+  const section=document.getElementById('todayLogSection');
+  const list=document.getElementById('todayLogList');
+  list.innerHTML='';
+
+  if(!workouts.length){section.style.display='none';return}
+  section.style.display='block';
+
+  workouts.forEach(function(w,idx){
+    const li=document.createElement('li');
+    li.className='today-log-item';
+    li.innerHTML='<span class="today-log-type">'+escHtml(w.type)+'</span>'
+      +'<span class="today-log-dur">'+formatDurationHuman(w.duration)+'</span>'
+      +'<span class="today-log-when">'+(w.time?formatTime12(w.time):'')+'</span>'
+      +'<button class="today-log-delete" title="Delete">×</button>';
+    li.querySelector('.today-log-delete').addEventListener('click',function(){
+      const arr=getWorkouts();arr.splice(idx,1);setWorkouts(arr);renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+    });
+    list.appendChild(li);
+  });
+}
+
+// Init workouts
+renderTimerControls();
+renderWeeklyChart();
+renderTodayLog();
+renderWorkoutStats();
+
+/* ════════════ FINANCE ════════════ */
+const EXPENSE_COLORS={
+  Housing:'#5BA4E3',Food:'#6BE3A4',Transport:'#F2C063',Utilities:'#E25D7A',
+  Entertainment:'#B07AE8',Shopping:'#FF9F6B',Health:'#5BE3D4',Education:'#8BA8C7',Other:'#76746E'
+};
+
+function getMonthlyIncome(){
+  const inc=storeGet('finance:income');
+  if(!inc||!inc.amount)return 0;
+  if(inc.freq==='weekly')return inc.amount*52/12;
+  if(inc.freq==='biweekly')return inc.amount*26/12;
+  return inc.amount;
+}
+
+function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+
+// Income
+function renderIncome(){
+  const inc=storeGet('finance:income');
+  const display=document.getElementById('incomeDisplay');
+  const form=document.getElementById('incomeForm');
+  if(inc&&inc.amount){
+    display.style.display='block';form.style.display='none';
+    document.getElementById('incomeNum').textContent=fmtMoney(inc.amount);
+    const freqLabels={weekly:'/ week',biweekly:'/ 2 weeks',monthly:'/ month'};
+    document.getElementById('incomeFreqLabel').textContent=freqLabels[inc.freq]||'/ month';
+    const monthly=getMonthlyIncome();
+    document.getElementById('incomeMonthlyLabel').textContent='';
+  }else{
+    display.style.display='none';form.style.display='block';
+  }
+  renderBudget();
+  renderExpenseHome();
+}
+
+document.getElementById('incomeSaveBtn').addEventListener('click',function(){
+  const amount=parseFloat(document.getElementById('incomeAmount').value)||0;
+  const freq=document.getElementById('incomeFreq').value;
+  if(!amount)return;
+  storeSet('finance:income',{amount:amount,freq:freq});
+  renderIncome();
+});
+document.getElementById('incomeEditBtn').addEventListener('click',function(){
+  const inc=storeGet('finance:income')||{};
+  document.getElementById('incomeAmount').value=inc.amount||'';
+  document.getElementById('incomeFreq').value=inc.freq||'monthly';
+  document.getElementById('incomeDisplay').style.display='none';
+  document.getElementById('incomeForm').style.display='block';
+});
+
+// Budget
+function renderBudget(){
+  const monthly=getMonthlyIncome();
+  const adviceEl=document.getElementById('budgetAdvice');
+  if(!monthly){adviceEl.innerHTML='<div class="budget-empty">Set your income above to see budget advice.</div>';return}
+
+  const needs=monthly*0.50,wants=monthly*0.30,savings=monthly*0.20;
+  adviceEl.innerHTML='<div class="budget-grid">'
+    +'<div class="budget-item"><div class="budget-pct" style="color:#6BE3A4">50%</div><div class="budget-label">Needs</div><div class="budget-amount">'+fmtMoney(needs)+'</div></div>'
+    +'<div class="budget-item"><div class="budget-pct" style="color:#F2C063">30%</div><div class="budget-label">Wants</div><div class="budget-amount">'+fmtMoney(wants)+'</div></div>'
+    +'<div class="budget-item"><div class="budget-pct" style="color:#5BA4E3">20%</div><div class="budget-label">Savings</div><div class="budget-amount">'+fmtMoney(savings)+'</div></div>'
+    +'</div>';
+}
+
+// Expenses
+function getExpenses(){return storeGet('finance:expenses')||[]}
+function setExpenses(e){storeSet('finance:expenses',e)}
+
+function renderExpenses(){
+  const expenses=getExpenses();
+  const list=document.getElementById('expenseList');
+  const empty=document.getElementById('expenseEmpty');
+  const totalEl=document.getElementById('expenseTotal');
+  list.innerHTML='';
+
+  const total=expenses.reduce(function(s,e){return s+e.amount},0);
+  totalEl.textContent=fmtMoney(total);
+
+  if(!expenses.length){empty.style.display='block';drawPie([]);return}
+  empty.style.display='none';
+
+  // Aggregate by category
+  const cats={};
+  expenses.forEach(function(e){cats[e.cat]=(cats[e.cat]||0)+e.amount});
+  const catEntries=Object.entries(cats).sort(function(a,b){return b[1]-a[1]});
+
+  catEntries.forEach(function(pair){
+    const li=document.createElement('li');
+    li.className='expense-item';
+    const color=EXPENSE_COLORS[pair[0]]||EXPENSE_COLORS.Other;
+    li.innerHTML='<span class="expense-cat-dot" style="background:'+color+'"></span>'
+      +'<span class="expense-cat-name">'+escHtml(pair[0])+'</span>'
+      +'<span class="expense-cat-amount">'+fmtMoney(pair[1])+'</span>';
+    list.appendChild(li);
+  });
+
+  // Add delete buttons for individual expenses
+  expenses.forEach(function(e,idx){
+    const li=document.createElement('li');
+    li.className='expense-item';
+    li.style.opacity='0.6';li.style.fontSize='11px';
+    const color=EXPENSE_COLORS[e.cat]||EXPENSE_COLORS.Other;
+    li.innerHTML='<span class="expense-cat-dot" style="background:'+color+'"></span>'
+      +'<span class="expense-cat-name" style="font-size:11px">'+escHtml(e.cat)+'</span>'
+      +'<span class="expense-cat-amount" style="font-size:11px">'+fmtMoney(e.amount)+'</span>'
+      +'<button class="expense-delete" title="Delete">×</button>';
+    li.querySelector('.expense-delete').addEventListener('click',function(){
+      const arr=getExpenses();arr.splice(idx,1);setExpenses(arr);renderExpenses();
+    });
+    list.appendChild(li);
+  });
+
+  drawPie(catEntries);
+  renderExpenseHome();
+}
+
+function drawPie(entries){
+  const canvas=document.getElementById('expenseChart');
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  const cx=w/2,cy=h/2,r=80;
+
+  ctx.clearRect(0,0,w,h);
+
+  if(!entries.length){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=20;ctx.stroke();
+    return;
+  }
+
+  const total=entries.reduce(function(s,e){return s+e[1]},0);
+  let angle=-Math.PI/2;
+
+  entries.forEach(function(pair){
+    const slice=(pair[1]/total)*Math.PI*2;
+    const color=EXPENSE_COLORS[pair[0]]||EXPENSE_COLORS.Other;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();ctx.fillStyle=color;ctx.fill();
+    angle+=slice;
+  });
+
+  // Inner circle for donut
+  ctx.beginPath();ctx.arc(cx,cy,r-16,0,Math.PI*2);
+  ctx.fillStyle='#050506';ctx.fill();
+}
+
+document.getElementById('expenseAddBtn').addEventListener('click',function(){
+  const cat=document.getElementById('expenseCatSelect').value;
+  const amount=parseFloat(document.getElementById('expenseAmount').value)||0;
+  if(!amount)return;
+  const expenses=getExpenses();
+  expenses.push({cat:cat,amount:amount,time:Date.now()});
+  setExpenses(expenses);
+  document.getElementById('expenseAmount').value='';
+  renderExpenses();
+});
+
+// Subscriptions
+function getSubs(){return storeGet('finance:subs')||[]}
+function setSubs(s){storeSet('finance:subs',s)}
+
+function subMonthlyCost(sub){
+  if(sub.cycle==='yearly')return sub.amount/12;
+  if(sub.cycle==='weekly')return sub.amount*52/12;
+  return sub.amount;
+}
+
+function renderSubs(){
+  const subs=getSubs();
+  const list=document.getElementById('subList');
+  const empty=document.getElementById('subEmpty');
+  const totalEl=document.getElementById('subTotal');
+  list.innerHTML='';
+
+  const totalMonthly=subs.reduce(function(s,sub){return s+subMonthlyCost(sub)},0);
+  totalEl.textContent=fmtMoney(totalMonthly)+'/mo total';
+
+  if(!subs.length){empty.style.display='block';return}
+  empty.style.display='none';
+
+  subs.forEach(function(sub,idx){
+    const li=document.createElement('li');
+    li.className='sub-item';
+    const cycleLabels={monthly:'/mo',yearly:'/yr',weekly:'/wk'};
+    li.innerHTML='<span class="sub-name">'+escHtml(sub.name)+'</span>'
+      +'<span class="sub-amount">'+fmtMoney(sub.amount)+'</span>'
+      +'<span class="sub-cycle">'+(cycleLabels[sub.cycle]||'/mo')+'</span>'
+      +'<button class="sub-delete" title="Delete">×</button>';
+    li.querySelector('.sub-delete').addEventListener('click',function(){
+      const arr=getSubs();arr.splice(idx,1);setSubs(arr);renderSubs();
+    });
+    list.appendChild(li);
+  });
+}
+
+document.getElementById('subAddBtn').addEventListener('click',function(){
+  const name=document.getElementById('subName').value.trim();
+  const amount=parseFloat(document.getElementById('subAmount').value)||0;
+  const cycle=document.getElementById('subCycle').value;
+  if(!name||!amount)return;
+  const subs=getSubs();
+  subs.push({name:name,amount:amount,cycle:cycle});
+  setSubs(subs);
+  document.getElementById('subName').value='';
+  document.getElementById('subAmount').value='';
+  renderSubs();
+});
+
+// Init finance
+renderIncome();
+renderExpenses();
+renderSubs();
+renderExpenseHome();
+
+/* ════════════ GOAL LIST (To Do) ════════════ */
+function renderTodayHeader(){
+  const goals=storeGet('goals:'+getActiveDateString())||[];
+  const total=goals.length,done=goals.filter(g=>g.done).length;
+  document.getElementById('todayLabel').textContent='Today — '+formatDate(getActiveDateString());
+  document.getElementById('gmProgressNum').textContent=done;
+  document.getElementById('gmProgressTotal').textContent='/ '+total;
+  const label=document.getElementById('gmProgressLabel'),card=document.getElementById('gmCardToday');
+  if(total===0){label.textContent='no goals yet';card.classList.remove('gm-all-done')}
+  else if(done===total){label.textContent='all done — solid day';card.classList.add('gm-all-done')}
+  else{label.textContent='complete';card.classList.remove('gm-all-done')}
+  const bar=document.getElementById('gmBar');bar.innerHTML='';
+  goals.forEach(function(g){const seg=document.createElement('div');seg.className='gm-bar-seg'+(g.done?' gm-bar-seg-done':'');bar.appendChild(seg)});
+}
+function renderStreak(){const s=computeWorkoutStreak();document.getElementById('gmStreakNum').textContent=s;const el=document.getElementById('gmStreak');if(s>0)el.classList.add('gm-streak-active');else el.classList.remove('gm-streak-active')}
+
+function buildGoalRow(g,idx,key,listEl,emptyEl,readOnly,loadFn){
+  const li=document.createElement('li');li.className='goal-item'+(g.done?' gm-done':'')+(g.queued?' gm-queued':'');li.draggable=true;li.dataset.idx=idx;
+  const handle=document.createElement('span');handle.className='goal-handle';handle.textContent='⋮⋮';
+  const cb=document.createElement('input');cb.type='checkbox';cb.className='goal-checkbox';cb.checked=!!g.done;if(readOnly){cb.disabled=true;cb.title='Activates at 6 AM tomorrow'}
+  const text=document.createElement('span');text.className='goal-text';text.textContent=g.text;
+  const qBtn=document.createElement('button');qBtn.className='gm-queue-btn'+(g.queued?' gm-queue-active':'');qBtn.textContent='⚡';qBtn.title='Queue for productivity window';
+  const delBtn=document.createElement('button');delBtn.className='goal-delete';delBtn.textContent='×';delBtn.title='Delete';
+  li.append(handle,cb,text,qBtn,delBtn);
+  cb.addEventListener('change',function(){const goals=storeGet(key)||[];goals[idx].done=cb.checked;if(cb.checked)goals[idx].doneAt=Date.now();else delete goals[idx].doneAt;storeSet(key,goals);loadFn();window.dispatchEvent(new CustomEvent('goals-changed'))});
+  makeInlineEdit(text,key,idx,loadFn);
+  qBtn.addEventListener('click',function(){const goals=storeGet(key)||[];goals[idx].queued=!goals[idx].queued;storeSet(key,goals);li.classList.add('is-queue-flashing');setTimeout(()=>{loadFn();window.dispatchEvent(new CustomEvent('goals-changed'))},480)});
+  delBtn.addEventListener('click',function(){const goals=storeGet(key)||[];goals.splice(idx,1);storeSet(key,goals);loadFn();window.dispatchEvent(new CustomEvent('goals-changed'))});
+  wireDragReorder(li,key,loadFn);
+  return li;
+}
+function makeInlineEdit(el,key,idx,loadFn){
+  el.addEventListener('click',function(){
+    if(el.contentEditable==='true')return;el.contentEditable='true';el.focus();
+    const range=document.createRange();range.selectNodeContents(el);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+    function commit(){el.contentEditable='false';const nt=el.textContent.trim();if(nt){const goals=storeGet(key)||[];if(goals[idx]){goals[idx].text=nt;storeSet(key,goals)}}loadFn()}
+    el.addEventListener('blur',commit,{once:true});
+    el.addEventListener('keydown',function handler(e){if(e.key==='Enter'){e.preventDefault();el.blur();el.removeEventListener('keydown',handler)}if(e.key==='Escape'){el.contentEditable='false';loadFn();el.removeEventListener('keydown',handler)}});
+  });
+}
+function wireDragReorder(li,key,loadFn){
+  li.addEventListener('dragstart',function(e){e.dataTransfer.setData('text/plain',li.dataset.idx);li.style.opacity='0.5'});
+  li.addEventListener('dragend',function(){li.style.opacity=''});
+  li.addEventListener('dragover',function(e){e.preventDefault();li.classList.add('drag-over')});
+  li.addEventListener('dragleave',function(){li.classList.remove('drag-over')});
+  li.addEventListener('drop',function(e){e.preventDefault();li.classList.remove('drag-over');const from=parseInt(e.dataTransfer.getData('text/plain'));const to=parseInt(li.dataset.idx);if(from===to)return;const goals=storeGet(key)||[];const item=goals.splice(from,1)[0];goals.splice(to,0,item);storeSet(key,goals);loadFn();window.dispatchEvent(new CustomEvent('goals-changed'))});
+}
+function renderListInto(goals,listEl,emptyEl,key,readOnly,loadFn){
+  listEl.innerHTML='';const COLLAPSE_AT=5;let showAll=listEl.dataset.showAll==='true';
+  const visible=(!showAll&&goals.length>COLLAPSE_AT)?goals.slice(0,COLLAPSE_AT):goals;
+  visible.forEach(function(g,i){listEl.appendChild(buildGoalRow(g,i,key,listEl,emptyEl,readOnly,loadFn))});
+  const em=listEl.parentNode.querySelector('.gm-show-more');if(em)em.remove();
+  if(goals.length>COLLAPSE_AT){const btn=document.createElement('button');btn.className='gm-show-more';if(showAll){btn.textContent='Show less ▴';btn.addEventListener('click',function(){listEl.dataset.showAll='false';loadFn()})}else{btn.textContent='Show '+(goals.length-COLLAPSE_AT)+' more ▾';btn.addEventListener('click',function(){listEl.dataset.showAll='true';loadFn()})}listEl.parentNode.insertBefore(btn,listEl.nextSibling)}
+  emptyEl.style.display=goals.length?'none':'block';
+}
+function loadToday(){const key='goals:'+getActiveDateString();renderListInto(storeGet(key)||[],document.getElementById('goalList'),document.getElementById('emptyState'),key,false,loadToday);renderTodayHeader();window.dispatchEvent(new CustomEvent('goals-changed'))}
+
+function makeAddHandlers(input,addBtn,polishBtn,key,statusEl,reloadFn){
+  function addGoal(text){const t=text.trim();if(!t)return;const goals=storeGet(key)||[];goals.push({text:t,done:false});storeSet(key,goals);input.value='';reloadFn();window.dispatchEvent(new CustomEvent('goals-changed'))}
+  addBtn.addEventListener('click',function(){addGoal(input.value)});input.addEventListener('keydown',function(e){if(e.key==='Enter')addGoal(input.value)});
+  polishBtn.addEventListener('click',async function(){
+    const text=input.value.trim();if(!text)return;
+    try{statusEl.textContent='Polishing…';statusEl.className='gm-status';
+    const resp=await fetch('/api/polish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})});
+    const data=await resp.json();if(data.error){addGoal(text);statusEl.textContent=data.error;statusEl.className='gm-status gm-status-error'}
+    else{const parsed=JSON.parse(data.content);if(Array.isArray(parsed)&&parsed.length){addGoal(parsed[0]);statusEl.textContent='Polished!';statusEl.className='gm-status'}else{addGoal(text)}}}catch(e){addGoal(text);statusEl.textContent='Polish failed — added as-typed.';statusEl.className='gm-status gm-status-error'}
+    setTimeout(()=>{statusEl.textContent=''},3500);
+  });
+}
+
+
+/* ════════════ EXPENSE HOME ════════════ */
+function renderExpenseHome(){
+  const expenses=getExpenses();
+  const total=expenses.reduce(function(s,e){return s+e.amount},0);
+  const monthly=getMonthlyIncome();
+  const fill=document.getElementById('moneyRingFill');
+  const valEl=document.getElementById('moneyRingVal');
+  const pctEl=document.getElementById('moneyRingPct');
+  if(!fill||!valEl||!pctEl)return;
+  valEl.textContent=fmtMoney(total);
+  if(!monthly){
+    fill.style.stroke='#4D4B47';
+    fill.style.strokeDashoffset=MONEY_CIRC;
+    pctEl.textContent='--';
+  }else{
+    const pct=Math.min(total/monthly,1);
+    const pctDisplay=Math.round((total/monthly)*100);
+    pctEl.textContent=pctDisplay+'%';
+    fill.style.strokeDashoffset=MONEY_CIRC*(1-pct);
+    if(pct<=0.5){fill.style.stroke='#6BE3A4'}
+    else if(pct<=0.8){fill.style.stroke='#F2C063'}
+    else{fill.style.stroke='#FF6B6B'}
+  }
+}
+var moneyContainer=document.getElementById('moneyRingFill');
+if(moneyContainer){
+  var ringWrap=moneyContainer.closest('.ring-container')||moneyContainer.parentElement&&moneyContainer.parentElement.parentElement;
+  if(ringWrap){
+    ringWrap.style.cursor='pointer';
+    ringWrap.addEventListener('click',function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+      document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
+      document.querySelector('[data-tab="tab-finance"]').classList.add('active');
+      document.getElementById('tab-finance').classList.add('active');
+    });
+  }
+}
+
+/* ════════════ SLEEP CHECK-IN ════════════ */
+function getSleepKey(){return 'sleep:'+getActiveDateString()}
+function getSleep(){return storeGet(getSleepKey())||{}}
+function setSleep(d){storeSet(getSleepKey(),d)}
+
+function calcSleepHoursFromTs(checkIn,checkOut){
+  return((checkOut-checkIn)/3600000).toFixed(1);
+}
+
+function renderSleep(){
+  const SLEEP_CIRC=2*Math.PI*52;
+  const SLEEP_GOAL=8;
+  const s=getSleep();
+  const fill=document.getElementById('sleepRingFill');
+  const iconEl=document.getElementById('sleepRingIcon');
+  const valEl=document.getElementById('sleepRingVal');
+  const btnEl=document.getElementById('sleepCheckBtn');
+  const hoursEl=document.getElementById('sleepHours');
+  const detailEl=document.getElementById('sleepHealthDetail');
+  if(!fill||!iconEl||!valEl||!btnEl)return;
+
+  if(s.checkIn&&!s.checkOut){
+    // Awake
+    const elapsed=((Date.now()-s.checkIn)/3600000).toFixed(1);
+    iconEl.textContent='☀️';
+    valEl.textContent=elapsed+'h';
+    fill.style.stroke='#F2C063';
+    fill.style.strokeDashoffset=SLEEP_CIRC*(1-Math.min(elapsed/SLEEP_GOAL,1));
+    btnEl.textContent='Check Out';
+    btnEl.className='sleep-btn check-out';
+    if(hoursEl)hoursEl.textContent='--';
+    if(detailEl)detailEl.textContent='Awake since '+formatTime12(s.checkIn);
+  }else if(s.checkIn&&s.checkOut){
+    // Slept
+    const hrs=calcSleepHoursFromTs(s.checkIn,s.checkOut);
+    iconEl.textContent='🌙';
+    valEl.textContent=hrs+'h';
+    fill.style.stroke=parseFloat(hrs)>=SLEEP_GOAL?'#6BE3A4':'#7B68EE';
+    fill.style.strokeDashoffset=SLEEP_CIRC*(1-Math.min(parseFloat(hrs)/SLEEP_GOAL,1));
+    btnEl.textContent='Reset';
+    btnEl.className='sleep-btn';
+    btnEl.style.opacity='';btnEl.style.pointerEvents='';
+    if(hoursEl)hoursEl.textContent=hrs;
+    if(detailEl)detailEl.textContent=formatTime12(s.checkIn)+' → '+formatTime12(s.checkOut);
+  }else{
+    // Not checked in
+    iconEl.textContent='🌙';
+    valEl.textContent='--';
+    fill.style.stroke='#4D4B47';
+    fill.style.strokeDashoffset=SLEEP_CIRC;
+    btnEl.textContent='Check In';
+    btnEl.className='sleep-btn';
+    btnEl.style.opacity='';btnEl.style.pointerEvents='';
+    if(hoursEl)hoursEl.textContent='--';
+    if(detailEl)detailEl.textContent='Check in when you wake up';
+  }
+}
+
+document.getElementById('sleepCheckBtn').addEventListener('click',function(){
+  const s=getSleep();
+  if(!s.checkIn){
+    // Check in
+    s.checkIn=Date.now();
+    setSleep(s);
+  }else if(s.checkIn&&!s.checkOut){
+    // Check out
+    s.checkOut=Date.now();
+    setSleep(s);
+  }else if(s.checkIn&&s.checkOut){
+    // Reset
+    storeDelete(getSleepKey());
+  }
+  renderSleep();
+});
+
+/* ════════════ WORKOUT STATS ════════════ */
+function renderWorkoutStats(){
+  const todayStr=getActiveDateString();
+  const todayWorkouts=storeGet('workouts:'+todayStr)||[];
+  const todayMins=Math.round(todayWorkouts.reduce(function(s,w){return s+(w.duration||0)},0)/60);
+
+  const weekDates=getWeekDates();
+  let weekMins=0;
+  weekDates.forEach(function(d){
+    const ws=storeGet('workouts:'+d)||[];
+    weekMins+=ws.reduce(function(s,w){return s+(w.duration||0)},0);
+  });
+  weekMins=Math.round(weekMins/60);
+
+  document.getElementById('wstatToday').textContent=todayMins+'m';
+  document.getElementById('wstatWeek').textContent=weekMins+'m';
+  document.getElementById('wstatStreak').textContent=computeWorkoutStreak();
+}
+
+/* ════════════ CALENDAR ════════════ */
+const CAL_URL_KEY='calendar_ics_url';
+const CAL_CACHE_KEY='calendar_cache_v1';
+
+function loadCalendar(){
+  const url=storeGet(CAL_URL_KEY);
+  if(url)document.getElementById('calUrlInput').value=url;
+  const cached=storeGet(CAL_CACHE_KEY);
+  if(cached&&cached.events){
+    renderCalendarStrip(cached.events);
+    selectCalendarDay(0,cached.events);
+  }
+  if(url)fetchCalendar(url);
+}
+
+function fetchCalendar(url){
+  fetch('/api/calendar?url='+encodeURIComponent(url)+'&days=7')
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+    .then(function(data){
+      storeSet(CAL_CACHE_KEY,data);
+      renderCalendarStrip(data.events);
+      var activeDay=document.querySelector('.cal-day.active');
+      var idx=activeDay?parseInt(activeDay.dataset.index,10):0;
+      selectCalendarDay(idx,data.events);
+    })
+    .catch(function(err){
+      console.warn('Calendar fetch failed:',err);
+      var cached=storeGet(CAL_CACHE_KEY);
+      if(!cached||!cached.events){
+        document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Calendar unavailable</div>';
+      }
+    });
+}
+
+function getWeekMonday(){
+  var now=new Date();
+  var dow=now.getDay(); // 0=Sun
+  var mon=new Date(now);
+  mon.setDate(now.getDate()-((dow+6)%7));
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function renderCalendarStrip(events){
+  var strip=document.getElementById('calStrip');
+  strip.innerHTML='';
+  var dowNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var monday=getWeekMonday();
+  var todayStr=dateStrLocal(new Date());
+  for(var i=0;i<7;i++){
+    var d=new Date(monday);
+    d.setDate(monday.getDate()+i);
+    var dateStr=dateStrLocal(d);
+    var isToday=dateStr===todayStr;
+    var hasEvents=events.some(function(e){return dateStrLocal(new Date(e.start))===dateStr});
+    var el=document.createElement('div');
+    el.className='cal-day'+(isToday?' today':'')+(hasEvents?' has-events':'');
+    if(isToday)el.classList.add('active');
+    el.dataset.index=i;
+    el.dataset.date=dateStr;
+    el.innerHTML='<span class="cal-day-dow">'+dowNames[d.getDay()===0?6:d.getDay()-1]+'</span><span class="cal-day-num">'+d.getDate()+'</span>';
+    el.addEventListener('click',function(){
+      selectCalendarDay(parseInt(this.dataset.index,10),events);
+    });
+    strip.appendChild(el);
+  }
+}
+
+function selectCalendarDay(index,events){
+  document.querySelectorAll('.cal-day').forEach(function(el){
+    el.classList.toggle('active',parseInt(el.dataset.index,10)===index);
+  });
+  var monday=getWeekMonday();
+  var d=new Date(monday);
+  d.setDate(monday.getDate()+index);
+  var dateStr=dateStrLocal(d);
+  var dayEvents=events.filter(function(e){return dateStrLocal(new Date(e.start))===dateStr})
+    .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
+  renderAgenda(dayEvents);
+}
+
+function renderAgenda(events){
+  var agenda=document.getElementById('calAgenda');
+  if(!events.length){
+    agenda.innerHTML='<div class="cal-empty">No events</div>';
+    return;
+  }
+  agenda.innerHTML=events.map(function(e){
+    var allDay=e.allDay;
+    var timeStr=allDay?'All day':formatTime12(e.start);
+    var rangeStr=allDay?'':formatTime12(e.start)+' \u2013 '+formatTime12(e.end);
+    return '<div class="cal-event'+(allDay?' all-day':'')+'">'+
+      '<div class="cal-event-time">'+escHtml(timeStr)+'</div>'+
+      '<div class="cal-event-bar"></div>'+
+      '<div class="cal-event-body">'+
+        '<div class="cal-event-title">'+escHtml(e.title)+'</div>'+
+        (rangeStr?'<div class="cal-event-range">'+escHtml(rangeStr)+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('calUrlBtn').addEventListener('click',function(){
+  var url=document.getElementById('calUrlInput').value.trim();
+  if(!url)return;
+  storeSet(CAL_URL_KEY,url);
+  document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Loading…</div>';
+  fetchCalendar(url);
+});
+
+document.getElementById('calReloadBtn').addEventListener('click',function(){
+  var url=storeGet(CAL_URL_KEY);
+  if(!url)return;
+  document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Reloading…</div>';
+  fetchCalendar(url);
+});
+
+document.getElementById('calUrlInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')document.getElementById('calUrlBtn').click();
+});
+
+document.getElementById('calToggleBtn').addEventListener('click',function(){
+  var wrap=document.getElementById('calUrlWrap');
+  var open=wrap.style.display!=='none';
+  wrap.style.display=open?'none':'flex';
+  this.style.opacity=open?'0.4':'1';
+});
+
+/* ════════════ CHAT (Aura) ════════════ */
+var chatMessages=[]; // role/content pairs sent to server
+var chatStreaming=false;
+var chatAbort=null;
+
+function gatherContext(){
+  // Workout
+  var todayWorkouts=getWorkouts();
+  var todayMin=Math.round(todayWorkouts.reduce(function(s,w){return s+(w.duration||0)},0)/60);
+  var weekDates=getWeekDates();
+  var weekMin=0;
+  weekDates.forEach(function(d){var ws=storeGet('workouts:'+d)||[];weekMin+=ws.reduce(function(s,w){return s+(w.duration||0)},0)});
+  weekMin=Math.round(weekMin/60);
+  var weekSess=0;
+  weekDates.forEach(function(d){var ws=storeGet('workouts:'+d)||[];weekSess+=ws.length});
+  var recentTypes=[];
+  todayWorkouts.concat(weekDates.map(function(d){return storeGet('workouts:'+d)||[]}).flat()).forEach(function(w){if(w.type&&recentTypes.indexOf(w.type)===-1)recentTypes.push(w.type)});
+
+  // Finance — itemized + subscriptions
+  var expenses=getExpenses();
+  var totalSpent=expenses.reduce(function(s,e){return s+e.amount},0);
+  var income=getMonthlyIncome();
+  var weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());weekStart.setHours(0,0,0,0);
+  var weekExpenses=expenses.filter(function(e){return e.time>=weekStart.getTime()});
+  var itemized=weekExpenses.map(function(e){return{name:e.cat,amount:e.amount.toFixed(2)}}).slice(-10);
+  var subs=getSubs().map(function(s){return{name:s.name,amount:s.amount.toFixed(2),cycle:s.cycle}});
+
+  // Health
+  var water=getWater();
+  var sleep=getSleep();
+  var suppDay=getSupplDay();
+  var suppMaster=getSupplMaster();
+  var suppTaken=Object.values(suppDay).filter(Boolean).length;
+
+  // Calendar — 7-day window, formatted as grouped string block
+  var calData=storeGet('calendar_cache_v1');
+  var calendarSummary='';
+  if(calData&&calData.events&&calData.events.length){
+    var now=new Date();var rangeEnd=new Date();rangeEnd.setDate(rangeEnd.getDate()+7);rangeEnd.setHours(23,59,59,999);
+    var upcoming=calData.events.filter(function(e){var s=new Date(e.start);return s>=now&&s<=rangeEnd})
+      .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
+    if(upcoming.length){
+      var grouped={};
+      upcoming.forEach(function(e){var d=dateStrLocal(new Date(e.start));if(!grouped[d])grouped[d]=[];grouped[d].push(e)});
+      var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var parts=[];
+      Object.keys(grouped).sort().forEach(function(dateKey){
+        var dt=new Date(dateKey+'T12:00:00');
+        var label=dayNames[dt.getDay()]+', '+monthNames[dt.getMonth()]+' '+dt.getDate();
+        var items=grouped[dateKey].map(function(e){return(e.allDay?'All day':formatTime12(e.start))+': '+e.title});
+        parts.push('- '+label+': '+items.join(', '));
+      });
+      calendarSummary='CALENDAR EVENTS FOUND:\n'+parts.join('\n');
+    }else{
+      calendarSummary='System Status: The calendar data sync is active, but there are 0 events scheduled on the user\'s calendar for the next 7 days.';
+    }
+  }else{
+    calendarSummary='System Status: No calendar connected. User has not set up an ICS URL yet.';
+  }
+
+  // Current date string
+  var dateStr=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  return{
+    currentDate:dateStr,
+    workout:{
+      todaySessions:todayWorkouts.length,todayMinutes:todayMin,
+      weekSessions:weekSess,weekMinutes:weekMin,
+      streak:computeWorkoutStreak(),
+      recentTypes:recentTypes.join(', ')||'none'
+    },
+    calendarSummary:calendarSummary,
+    finance:{
+      totalSpent:totalSpent.toFixed(2),
+      income:income?income.toFixed(2):null,
+      budgetPct:income?Math.round((totalSpent/income)*100):null,
+      itemizedExpenses:itemized,
+      activeSubscriptions:subs
+    },
+    health:{
+      waterSummary:'Water intake: '+water.glasses+' units logged out of a total target of '+WATER_GOAL,
+      sleepHours:sleep.checkIn&&sleep.checkOut?calcSleepHoursFromTs(sleep.checkIn,sleep.checkOut):null,
+      sleepStatus:sleep.checkIn&&!sleep.checkOut?'awake':sleep.checkIn&&sleep.checkOut?'slept':'not tracked',
+      supplementSummary:'Supplements completed today: '+suppTaken+' out of '+suppMaster.length
+    }
+  };
+}
+
+function chatAppendBubble(role,text){
+  var log=document.getElementById('chatLog');
+  var msg=document.createElement('div');
+  msg.className='chat-msg '+role;
+  var bubble=document.createElement('div');
+  bubble.className='chat-bubble';
+  bubble.textContent=text||'';
+  if(role==='aura'&&!text){
+    var cursor=document.createElement('span');
+    cursor.className='chat-cursor';
+    bubble.appendChild(cursor);
+  }
+  msg.appendChild(bubble);
+  log.appendChild(msg);
+  log.scrollTop=log.scrollHeight;
+  return bubble;
+}
+
+function sendChat(){
+  var input=document.getElementById('chatInput');
+  var btn=document.getElementById('chatSendBtn');
+  var text=input.value.trim();
+  if(!text||chatStreaming)return;
+  input.value='';
+
+  chatAppendBubble('user',text);
+  chatMessages.push({role:'user',content:text});
+
+  var bubble=chatAppendBubble('aura','');
+  var cursor=bubble.querySelector('.chat-cursor');
+  var fullText='';
+  chatStreaming=true;
+  btn.disabled=true;
+  chatAbort=new AbortController();
+
+  fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:chatMessages.slice(-20),context:gatherContext()}),
+    signal:chatAbort.signal
+  }).then(function(resp){
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var reader=resp.body.getReader();
+    var decoder=new TextDecoder();
+    var buffer='';
+
+    function pump(){
+      reader.read().then(function(result){
+        if(result.done){
+          if(cursor)cursor.remove();
+          chatMessages.push({role:'assistant',content:fullText});
+          chatStreaming=false;
+          btn.disabled=false;
+          input.focus();
+          return;
+        }
+        buffer+=decoder.decode(result.value,{stream:true});
+        var lines=buffer.split('\n');
+        buffer=lines.pop();
+        for(var i=0;i<lines.length;i++){
+          var line=lines[i].trim();
+          if(line.indexOf('data: ')!==0||line.length<7)continue;
+          var data=line.slice(6);
+          if(data==='[DONE]'){
+            if(cursor)cursor.remove();
+            chatMessages.push({role:'assistant',content:fullText});
+            chatStreaming=false;
+            btn.disabled=false;
+            input.focus();
+            return;
+          }
+          try{
+            var parsed=JSON.parse(data);
+            if(parsed.content){
+              fullText+=parsed.content;
+              if(cursor){bubble.removeChild(cursor);bubble.textContent=fullText;bubble.appendChild(cursor)}
+              else{bubble.textContent=fullText}
+              document.getElementById('chatLog').scrollTop=document.getElementById('chatLog').scrollHeight;
+            }
+          }catch(e){}
+        }
+        pump();
+      });
+    }
+    pump();
+  }).catch(function(err){
+    if(cursor)cursor.remove();
+    bubble.textContent='Sorry, something went wrong. Try again.';
+    chatStreaming=false;
+    btn.disabled=false;
+    input.focus();
+  });
+}
+
+document.getElementById('chatSendBtn').addEventListener('click',sendChat);
+document.getElementById('chatResetBtn').addEventListener('click',function(){
+  if(chatAbort)chatAbort.abort();
+  chatMessages=[];
+  chatStreaming=false;
+  document.getElementById('chatSendBtn').disabled=false;
+  var log=document.getElementById('chatLog');
+  log.innerHTML='<div class="chat-msg aura"><div class="chat-bubble">Chat reset. How can I help you?</div></div>';
+});
+document.getElementById('chatInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}
+});
+
+/* ════════════ VOICE LOG ════════════ */
+(function(){
+  var input=document.getElementById('voiceInput');
+  var btn=document.getElementById('voiceLogBtn');
+  var feedback=document.getElementById('voiceFeedback');
+
+  function processLog(){
+    var text=input.value.trim();
+    if(!text)return;
+    btn.disabled=true;btn.textContent='Logging...';
+    feedback.textContent='';feedback.style.color='';
+
+    fetch('/api/parse-voice',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:text})
+    }).then(function(r){return r.json()}).then(function(data){
+      var items=[];
+
+      // Water — press the +1 button for each glass
+      if(data.health&&data.health.water_oz){
+        var glasses=Math.max(1,Math.round(data.health.water_oz/8));
+        for(var i=0;i<glasses;i++) addGlass();
+        items.push(glasses+' glass'+(glasses>1?'es':'')+' of water');
+      }
+
+      // Supplements
+      if(data.health&&data.health.supplements&&data.health.supplements.length){
+        items.push(data.health.supplements.join(', '));
+      }
+
+      // Workout — save like the timer Stop button does
+      if(data.workout&&data.workout.type){
+        var secs=(data.workout.duration_minutes||10)*60;
+        var wk=getWorkouts();
+        wk.push({type:data.workout.type,duration:secs,time:Date.now()});
+        setWorkouts(wk);
+        renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+        items.push(data.workout.type+' '+(data.workout.duration_minutes||10)+'min');
+      }
+
+      // Finance — save like the expense Add button does
+      if(data.finance&&(data.finance.amount>0)){
+        var amt=parseFloat(data.finance.amount)||0;
+        var cat=data.finance.category||'other';
+        var desc=data.finance.description||'';
+        var catMap={food:'food',grocery:'food',groceries:'food',restaurant:'food',coffee:'food',lunch:'food',dinner:'food',snack:'food',breakfast:'food',
+          transport:'transportation',transportation:'transportation',uber:'transportation',lyft:'transportation',gas:'transportation',taxi:'transportation',
+          entertainment:'entertainment',movie:'entertainment',game:'entertainment',
+          subscription:'subscriptions',subscriptions:'subscriptions',netflix:'subscriptions',spotify:'subscriptions',
+          shopping:'shopping',clothes:'shopping',amazon:'shopping',
+          health:'health',medicine:'health',doctor:'health',pharmacy:'health',
+          bills:'bills',rent:'bills',electric:'bills',internet:'bills',phone:'bills',
+          other:'other'};
+        cat=catMap[cat.toLowerCase()]||cat.toLowerCase();
+        var expenses=getExpenses();
+        expenses.push({cat:cat,amount:amt,time:Date.now()});
+        setExpenses(expenses);
+        renderExpenses();renderExpenseHome();
+        items.push('$'+amt.toFixed(2)+' on '+(desc||cat));
+      }
+
+      // Goal — add like the goal Add button does
+      if(data.calendar&&data.calendar.task_title){
+        addGoal(data.calendar.task_title);
+        items.push('goal: '+data.calendar.task_title);
+      }
+
+      if(items.length){
+        feedback.textContent='Logged: '+items.join(' | ');
+        feedback.style.color='var(--success)';
+      }else{
+        feedback.textContent='Couldn\'t extract anything — try rephrasing.';
+        feedback.style.color='var(--warning)';
+      }
+      input.value='';
+      // Persist parsed data to server-side files (fire-and-forget)
+      fetch('/api/v1/quick-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(){});
+      syncContextToServer();
+    }).catch(function(){
+      feedback.textContent='Error — try again.';
+      feedback.style.color='var(--danger)';
+    }).finally(function(){
+      btn.disabled=false;btn.textContent='Log';
+      setTimeout(function(){feedback.textContent=''},4000);
+    });
+  }
+
+  btn.addEventListener('click',processLog);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();processLog()}});
+})();
+
+/* ════════════ INIT ════════════ */
+rollover();
+renderStreak();
+loadToday();
+updateDayBar();
+setInterval(function(){updateDayBar();renderSleep()},60000);
+
+makeAddHandlers(document.getElementById('goalInput'),document.getElementById('goalAddBtn'),document.getElementById('goalPolishBtn'),'goals:'+getActiveDateString(),document.getElementById('polishStatus'),loadToday);
+
+renderWater();
+renderSuppl();
+startTicker();
+renderSleep();
+loadCalendar();
+
+/* ════════════ PWA + PUSH NOTIFICATIONS ════════════ */
+(function setupPush() {
+  var statusEl = document.getElementById('notifStatus');
+  var toggleBtn = document.getElementById('notifToggleBtn');
+  var testBtn = document.getElementById('notifTestBtn');
+  var swReg = null;
+  var vapidKey = null;
+
+  function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var raw = atob(base64);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+
+  function setStatus(on) {
+    statusEl.textContent = on ? 'On' : 'Off';
+    statusEl.className = 'notif-bar-status ' + (on ? 'on' : 'off');
+    toggleBtn.textContent = on ? 'Turn Off' : 'Turn On';
+    testBtn.style.display = on ? '' : 'none';
+  }
+
+  function registerSub(sub) {
+    return fetch('/api/notifications/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub)
+    }).then(function(r) { return r.json(); });
+  }
+
+  function subscribe() {
+    return swReg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey)
+    });
+  }
+
+  // Toggle button
+  toggleBtn.addEventListener('click', function() {
+    toggleBtn.disabled = true;
+    if (toggleBtn.textContent === 'Turn Off') {
+      // Unsubscribe
+      swReg.pushManager.getSubscription().then(function(sub) {
+        if (sub) return sub.unsubscribe();
+      }).then(function() {
+        setStatus(false);
+        toggleBtn.disabled = false;
+      });
+      return;
+    }
+
+    // Turn on
+    Notification.requestPermission().then(function(perm) {
+      if (perm !== 'granted') {
+        toggleBtn.disabled = false;
+        return;
+      }
+      return subscribe().then(function(sub) {
+        return registerSub(sub);
+      }).then(function() {
+        setStatus(true);
+        toggleBtn.disabled = false;
+      });
+    });
+  });
+
+  // Test button
+  testBtn.addEventListener('click', function() {
+    testBtn.disabled = true;
+    testBtn.textContent = 'Sending…';
+    fetch('/api/notifications/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+        testBtn.textContent = 'Sent!';
+        setTimeout(function() {
+          testBtn.textContent = 'Send Test';
+          testBtn.disabled = false;
+        }, 2000);
+      })
+      .catch(function() {
+        testBtn.textContent = 'Failed';
+        setTimeout(function() {
+          testBtn.textContent = 'Send Test';
+          testBtn.disabled = false;
+        }, 2000);
+      });
+  });
+
+  // Init: register SW, get VAPID key, check existing subscription
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (isIOS && !isStandalone) {
+      toggleBtn.textContent = 'Install App First';
+      toggleBtn.title = 'On iPhone: tap Share → Add to Home Screen, then open from home screen';
+    } else {
+      toggleBtn.textContent = 'Not Supported';
+    }
+    toggleBtn.disabled = true;
+    return;
+  }
+
+  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+    swReg = reg;
+    return fetch('/api/notifications/vapid-public-key');
+  }).then(function(r) { return r.json(); })
+    .then(function(data) {
+      vapidKey = data.publicKey;
+      return swReg.pushManager.getSubscription();
+    })
+    .then(function(existing) {
+      if (existing) {
+        setStatus(true);
+        registerSub(existing); // re-sync in case server lost it
+      } else {
+        setStatus(false);
+      }
+    })
+    .catch(function(err) {
+      console.error('Push init error:', err);
+    });
+})();
+
+/* ════════════ AI INSIGHTS ════════════ */
+(function(){
+  var body=document.getElementById('insightsBody');
+  var skeleton=document.getElementById('insightsSkeleton');
+  var footer=document.getElementById('insightsFooter');
+  var tsEl=document.getElementById('insightsTimestamp');
+
+  function timeAgo(isoStr){
+    var diff=Date.now()-new Date(isoStr).getTime();
+    var mins=Math.floor(diff/60000);
+    if(mins<1)return 'just now';
+    if(mins<60)return 'Updated '+mins+'m ago';
+    var hrs=Math.floor(mins/60);
+    if(hrs<24)return 'Updated '+hrs+'h ago';
+    return 'Updated '+Math.floor(hrs/24)+'d ago';
+  }
+
+  function showText(text){
+    skeleton.style.display='none';
+    var p=document.createElement('p');
+    p.className='insights-text';
+    p.textContent=text;
+    body.innerHTML='';
+    body.appendChild(p);
+    requestAnimationFrame(function(){p.classList.add('visible')});
+  }
+
+  function showFallback(){
+    skeleton.style.display='none';
+    var p=document.createElement('p');
+    p.className='insights-fallback';
+    p.textContent='Aura is studying your logs. Keep tracking your hydration, budget, and movement to unlock your next briefing!';
+    body.innerHTML='';
+    body.appendChild(p);
+  }
+
+  function fetchLatestAiInsights(){
+    fetch('/api/v1/insights/latest')
+      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+      .then(function(data){
+        if(data&&data.text){
+          showText(data.text);
+          if(data.generatedAt){
+            tsEl.textContent=timeAgo(data.generatedAt);
+            footer.style.display='flex';
+          }
+        }else{
+          showFallback();
+        }
+      })
+      .catch(function(){showFallback()});
+  }
+
+  fetchLatestAiInsights();
+})();
+
+/* ════════════ CONTEXT SYNC TO SERVER ════════════ */
+// Send localStorage context to server so scheduled briefings have real data
+function syncContextToServer() {
+  try {
+    var ctx = gatherContext();
+    fetch('/api/context', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ctx)
+    }).then(function(r) { return r.json(); })
+      .catch(function(e) { console.warn('Context sync failed:', e); });
+  } catch (e) {
+    console.warn('Context sync error:', e);
+  }
+}
+
+// Sync immediately on load, then every 5 minutes
+syncContextToServer();
+setInterval(syncContextToServer, 5 * 60 * 1000);
+
+})();
+</script>
+</body>
+</html>
