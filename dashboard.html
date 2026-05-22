@@ -363,7 +363,7 @@ body{
 .water-bottle-svg{width:100%;height:auto;filter:drop-shadow(0 4px 20px rgba(100,210,255,0.1))}
 .water-bottle-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;gap:2px}
 .water-bottle-num{font-size:36px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.04em;line-height:1;color:#fff}
-.water-bottle-unit{font-family:"SF Mono",ui-monospace;font-size:12px;font-weight:600;letter-spacing:0.06em;color:rgba(255,255,255,0.5);align-self:flex-end;margin-bottom:6px}
+.water-bottle-unit{font-family:"SF Mono",ui-monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,0.4);align-self:flex-end;margin-bottom:5px;line-height:1}
 .water-bottle-sub{font-family:"SF Mono",ui-monospace;font-size:12px;color:var(--text-tertiary);text-align:center;margin-bottom:4px}
 .water-log{margin-top:10px;font-family:"SF Mono",ui-monospace;font-size:11px;color:var(--text-tertiary);max-height:60px;overflow-y:auto}
 .water-log span{display:block;padding:1px 0}
@@ -605,7 +605,7 @@ body{
 /* ── Telemetry Strip ── */
 .tile-water-bottle{position:relative;width:28px;height:38px;flex-shrink:0}
 .tile-water-bottle-svg{width:100%;height:100%}
-.tile-water-fill{transition:height 0.5s cubic-bezier(0.22,1,0.36,1)}
+.tile-water-fill{transition:height 0.5s cubic-bezier(0.22,1,0.36,1),y 0.5s cubic-bezier(0.22,1,0.36,1)}
 .tile-water-wave{animation:waveRipple 3s ease-in-out infinite}
 @keyframes waveRipple{0%,100%{d:path('M0,6 Q7,2 14,6 Q21,10 28,6 L28,10 L0,10 Z')}50%{d:path('M0,6 Q7,10 14,6 Q21,2 28,6 L28,10 L0,10 Z')}}
 .sleep-tile-active{animation:sleepGlow 3s ease-in-out infinite}
@@ -975,11 +975,13 @@ body{
       <div class="flex-1 flex items-center gap-2.5 px-2 cursor-pointer" id="waterTileHome" title="Tap to add 8oz">
         <div class="tile-water-bottle">
           <svg class="tile-water-bottle-svg" viewBox="0 0 28 38" fill="none">
-            <defs><clipPath id="bottleClipTile"><rect x="6" y="6" width="16" height="28" rx="3"/></clipPath></defs>
-            <rect x="6" y="6" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-            <rect x="10" y="3" width="8" height="4" rx="1.5" fill="rgba(255,255,255,0.06)"/>
-            <rect id="tileWaterFluid" x="6" y="32" width="16" height="0" rx="2" fill="#38bdf8" fill-opacity="0.6" class="tile-water-fill"/>
-            <path id="tileWaterWave" d="" fill="#38bdf8" fill-opacity="0.25" class="tile-water-wave"/>
+            <defs><clipPath id="bottleClipTile"><path d="M6,6 L6,32 Q6,34 8,34 L20,34 Q22,34 22,32 L22,6 Q22,4 20,4 L8,4 Q6,4 6,6 Z"/></clipPath></defs>
+            <rect x="10" y="1" width="8" height="4" rx="1.5" fill="rgba(255,255,255,0.06)"/>
+            <g clip-path="url(#bottleClipTile)">
+              <rect id="tileWaterFluid" x="6" y="32" width="16" height="0" fill="#38bdf8" fill-opacity="0.6" class="tile-water-fill"/>
+              <path id="tileWaterWave" d="" fill="#38bdf8" fill-opacity="0.25" class="tile-water-wave"/>
+            </g>
+            <path d="M6,6 L6,32 Q6,34 8,34 L20,34 Q22,34 22,32 L22,6 Q22,4 20,4 L8,4 Q6,4 6,6 Z" stroke="rgba(255,255,255,0.12)" stroke-width="1" fill="none"/>
           </svg>
         </div>
         <div class="flex-1 min-w-0">
