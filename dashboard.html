@@ -1084,14 +1084,15 @@ body{
       </div>
     </div>
 
-    <!-- Calendar (local, duplicate placeholder for scroll) -->
-    <div class="section">
-      <div class="section-title">Upcoming</div>
-      <div class="cal-ribbon" id="calRibbon2"></div>
-      <div class="card" style="padding:16px 18px">
-        <div class="cal-event-list" id="calEventList2">
-          <div class="cal-empty">Select a date above</div>
-        </div>
+    <!-- ═══ Calendar: Horizontal Rolling Date Ribbon ═══ -->
+    <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-5 mt-4">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-sm font-semibold text-slate-300" id="calMonthLabel">May 2026</span>
+      </div>
+      <div class="flex gap-3 overflow-x-auto pb-3 pt-1 snap-x" id="calDateRibbon" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
+      </div>
+      <div class="cal-event-list mt-1" id="calDateEventList">
+        <div class="cal-empty" id="calDateEmpty">Select a date above</div>
       </div>
     </div>
   </div>
@@ -2878,7 +2879,7 @@ function selectCalDate(dateStr){
   });
   var dayEvents=calendarEvents.filter(function(e){return e.date===dateStr})
     .sort(function(a,b){return (a.time||'')>(b.time||'')?1:-1});
-  var lists=[document.getElementById('calEventList'),document.getElementById('calEventList2')];
+  var lists=[document.getElementById('calEventList'),document.getElementById('calDateEventList')];
   for(var i=0;i<lists.length;i++){
     if(!lists[i])continue;
     if(!dayEvents.length){
@@ -2896,6 +2897,7 @@ function selectCalDate(dateStr){
       }).join('');
     }
   }
+  renderDateChips();
 }
 
 function updateHomeEvents(){
@@ -2903,6 +2905,43 @@ function updateHomeEvents(){
   var todayEvents=calendarEvents.filter(function(e){return e.date===todayStr})
     .sort(function(a,b){return (a.time||'')>(b.time||'')?1:-1});
   // Update home page events section header directly via selectCalDate
+}
+
+/* ════════════ CALENDAR DATE CHIPS (bottom ribbon) ════════════ */
+function renderDateChips(){
+  var ribbon=document.getElementById('calDateRibbon');
+  var monthLabel=document.getElementById('calMonthLabel');
+  if(!ribbon)return;
+  var todayStr=dateStrLocal(new Date());
+  var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var start=new Date();
+  ribbon.innerHTML='';
+  for(var i=0;i<14;i++){
+    var d=new Date(start);
+    d.setDate(start.getDate()+i);
+    var ds=dateStrLocal(d);
+    var isToday=ds===todayStr;
+    var isActive=ds===activeCalDate;
+    var chip=document.createElement('div');
+    chip.className='snap-center flex-shrink-0 w-14 h-18 bg-slate-900/60 border rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
+    chip.dataset.date=ds;
+    chip.innerHTML='<span class="text-[10px] font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
+      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-white')+'">'+d.getDate()+'</span>';
+    chip.addEventListener('click',function(){
+      selectCalDate(this.dataset.date);
+      renderDateChips();
+    });
+    ribbon.appendChild(chip);
+  }
+  if(monthLabel){
+    var now=new Date();
+    monthLabel.textContent=monthNames[now.getMonth()]+' '+now.getFullYear();
+  }
+  // Scroll active chip into view
+  var target=activeCalDate?activeCalDate:todayStr;
+  var activeChip=ribbon.querySelector('[data-date="'+target+'"]');
+  if(activeChip)activeChip.scrollIntoView({inline:'center',behavior:'instant'});
 }
 
 /* ════════════ CHAT (Aura) ════════════ */
@@ -3172,6 +3211,17 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
         items.push('goal: '+data.calendar.task_title);
       }
 
+      // Calendar event — push to local array for instant display
+      if(data.calendar&&data.calendar.event_title){
+        calendarEvents.push({
+          date: data.calendar.date||dateStrLocal(new Date()),
+          title: data.calendar.event_title,
+          time: data.calendar.time||''
+        });
+        selectCalDate(activeCalDate||dateStrLocal(new Date()));
+        items.push('event: '+data.calendar.event_title);
+      }
+
       input.value='';
 
       // Persist to server and use response for toast + full UI refresh
@@ -3191,6 +3241,11 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
           // If calendar events were mutated, reload the calendar list
           if(result&&result.mutations&&(result.mutations.indexOf('created_calendar_event')!==-1||result.mutations.indexOf('deleted_calendar_event')!==-1)){
             loadCalendar();
+          }
+          // Immediately push calendar event to local array for instant UI update
+          if(result&&result.calendar_event){
+            calendarEvents.push(result.calendar_event);
+            selectCalDate(activeCalDate||dateStrLocal(new Date()));
           }
         })
         .catch(function(){});
@@ -3321,6 +3376,7 @@ loadSupplFromServer().then(renderSuppl);
 startTicker();
 renderSleep();
 loadCalendar();
+renderDateChips();
 
 /* ════════════ PWA + PUSH NOTIFICATIONS ════════════ */
 (function setupPush() {
@@ -3581,59 +3637,56 @@ loadCalendar();
     return 'Updated '+Math.floor(hrs/24)+'d ago';
   }
 
-  function showText(text){
+  function renderInsight(text,ts){
     if(loaded)return;loaded=true;
     if(skeleton)skeleton.style.display='none';
+    body.innerHTML='';
     var p=document.createElement('p');
     p.className='insights-text';
     p.textContent=text;
-    body.innerHTML='';
     body.appendChild(p);
     requestAnimationFrame(function(){p.classList.add('visible')});
+    if(ts&&tsEl&&footer){
+      tsEl.textContent=timeAgo(ts);
+      footer.style.display='flex';
+    }else if(footer){
+      footer.style.display='none';
+    }
   }
 
-  function showFallback(){
+  function showFallback(msg){
     if(loaded)return;loaded=true;
     if(skeleton)skeleton.style.display='none';
+    body.innerHTML='';
     var p=document.createElement('p');
     p.className='insights-fallback';
-    p.textContent='Nothing logged yet — tap quick-log to start.';
-    body.innerHTML='';
+    p.textContent=msg||'Nothing logged yet — tap quick-log to start.';
     body.appendChild(p);
+    if(footer)footer.style.display='none';
   }
 
-  function fetchLatestAiInsights(){
+  function loadInsights(){
     fetch('/api/v1/insights/latest')
       .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
       .then(function(data){
-        if(data&&data.text){
-          showText(data.text);
-          if(data.generatedAt&&tsEl&&footer){
-            tsEl.textContent=timeAgo(data.generatedAt);
-            footer.style.display='flex';
-          }
-        }else{
-          showFallback();
-        }
+        if(data&&data.text)renderInsight(data.text,data.generatedAt);
+        else showFallback();
       })
       .catch(function(){showFallback()});
   }
 
-  fetchLatestAiInsights();
-  // Safety: if nothing loaded in 10s, show fallback
-  setTimeout(function(){if(!loaded)showFallback()},10000);
+  loadInsights();
+  setTimeout(function(){if(!loaded)showFallback('Still loading… tap ↻ to retry')},8000);
 
-  // Manual refresh
   if(refreshBtn)refreshBtn.addEventListener('click',function(){
     loaded=false;
     body.innerHTML='';
-    body.appendChild(skeleton);
-    if(skeleton)skeleton.style.display='';
+    if(skeleton){skeleton.style.display='';body.appendChild(skeleton)}
     if(footer)footer.style.display='none';
     fetch('/api/v1/insights/refresh',{method:'POST'})
       .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
       .then(function(data){
-        if(data&&data.text)showText(data.text);
+        if(data&&data.text)renderInsight(data.text,data.generatedAt);
         else showFallback();
       })
       .catch(function(){showFallback()});
