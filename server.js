@@ -7,43 +7,11 @@ const fs = require('fs');
 const webpush = require('web-push');
 const cron = require('node-cron');
 
-/* ════════════ WEB PUSH SETUP ════════════ */
-webpush.setVapidDetails(
-  'mailto:' + (process.env.VAPID_CONTACT || 'dev@example.com'),
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
-
-const SUBS_FILE = path.join(__dirname, 'data', 'push_subscriptions.json');
-
-function loadSubscriptions() {
-  try {
-    return JSON.parse(fs.readFileSync(SUBS_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function saveSubscriptions(subs) {
-  fs.writeFileSync(SUBS_FILE, JSON.stringify(subs, null, 2));
-}
-
-const CTX_FILE = path.join(__dirname, 'data', 'user_context.json');
-
-function loadUserContext() {
-  try {
-    return JSON.parse(fs.readFileSync(CTX_FILE, 'utf8'));
-  } catch {
-    return null;
-  }
-}
-
-function saveUserContext(ctx) {
-  fs.writeFileSync(CTX_FILE, JSON.stringify(ctx, null, 2));
-}
-
-/* ════════════ QUICK-LOG DATA FILES ════════════ */
-const DATA_DIR = path.join(__dirname, 'data');
+/* ════════════ DATA DIRECTORY (absolute, volume-safe) ════════════ */
+// On Railway: __dirname = /app → DATA_DIR = /app/data (volume mount target)
+// Locally: __dirname = project root → DATA_DIR = ./data
+const DATA_DIR = path.resolve(__dirname, 'data');
+fs.mkdirSync(DATA_DIR, { recursive: true }); // ensure mount point exists
 
 function dataFilePath(name) { return path.join(DATA_DIR, name + '.json'); }
 
@@ -55,7 +23,98 @@ function saveDataFile(name, data) {
   fs.writeFileSync(dataFilePath(name), JSON.stringify(data, null, 2));
 }
 
-const INSIGHTS_CACHE = path.join(DATA_DIR, 'insights_cache.json');
+/* ════════════ WEB PUSH SETUP ════════════ */
+webpush.setVapidDetails(
+  'mailto:' + (process.env.VAPID_CONTACT || 'dev@example.com'),
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
+function loadSubscriptions() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFilePath('push_subscriptions'), 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveSubscriptions(subs) {
+  fs.writeFileSync(dataFilePath('push_subscriptions'), JSON.stringify(subs, null, 2));
+}
+
+function loadUserContext() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFilePath('user_context'), 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function saveUserContext(ctx) {
+  fs.writeFileSync(dataFilePath('user_context'), JSON.stringify(ctx, null, 2));
+}
+
+const INSIGHTS_CACHE = dataFilePath('insights_cache');
+
+/* ════════════ WORKOUT DATA (structured: today + history + streak) ════════════ */
+function loadWorkoutData() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(dataFilePath('workouts'), 'utf8'));
+    // Migrate old flat array format → new structured format
+    if (Array.isArray(raw)) {
+      const history = [];
+      const todayStr = userDateStr('America/New_York');
+      let today_workouts = [];
+      for (const entry of raw) {
+        if (entry.date === todayStr) {
+          today_workouts = today_workouts.concat(entry.sessions || []);
+        } else {
+          history.push(entry);
+        }
+      }
+      return { today_workouts, streak_count: 0, history };
+    }
+    // Ensure all fields exist
+    return {
+      today_workouts: raw.today_workouts || [],
+      streak_count: raw.streak_count || 0,
+      history: raw.history || [],
+    };
+  } catch {
+    return { today_workouts: [], streak_count: 0, history: [] };
+  }
+}
+function saveWorkoutData(data) {
+  fs.writeFileSync(dataFilePath('workouts'), JSON.stringify(data, null, 2));
+}
+function computeServerStreak(wkData) {
+  // Build a set of dates that had workouts (from history + today)
+  const datesWithWorkouts = new Set();
+  if (wkData.today_workouts && wkData.today_workouts.length) {
+    datesWithWorkouts.add(userDateStr('America/New_York'));
+  }
+  for (const entry of (wkData.history || [])) {
+    if (entry.sessions && entry.sessions.length) {
+      datesWithWorkouts.add(entry.date);
+    }
+  }
+  // Walk backward from today, count consecutive days
+  let streak = 0;
+  let gapDays = 0;
+  const check = new Date();
+  const todayStr = userDateStr('America/New_York');
+  if (!datesWithWorkouts.has(todayStr)) {
+    check.setDate(check.getDate() - 1);
+    gapDays = 1;
+  }
+  while (gapDays < 3) {
+    const ds = check.getFullYear() + '-' + String(check.getMonth() + 1).padStart(2, '0') + '-' + String(check.getDate()).padStart(2, '0');
+    if (datesWithWorkouts.has(ds)) { streak++; gapDays = 0; } else { gapDays++; }
+    check.setDate(check.getDate() - 1);
+    if (streak > 365) break;
+  }
+  return streak;
+}
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -146,8 +205,8 @@ app.get('/api/calendar', async (req, res) => {
       }
     }
 
-    // Sort by start time
-    events.sort((a, b) => a.start.localeCompare(b.start));
+    // Sort by start time (numeric timestamp for timezone-safe ordering)
+    events.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     // Update cache
     cache.set(icsUrl, { events, fetchedAt: Date.now() });
@@ -474,6 +533,15 @@ app.post('/api/polish', async (req, res) => {
   }
 });
 
+/* ════════════ TIMEZONE HELPERS ════════════ */
+
+function userDateStr(tz) {
+  return new Date().toLocaleDateString('en-CA', { timeZone: tz || 'UTC' });
+}
+function userDayName(tz) {
+  return new Date().toLocaleDateString('en-US', { timeZone: tz || 'UTC', weekday: 'long' });
+}
+
 /* ════════════ VOICE LOG PARSER ════════════ */
 
 const VOICE_SYSTEM_PROMPT = `You are a specialized NLP engine responsible for parsing unstructured user voice logs into a structured JSON payload for a personal tracking app.
@@ -527,12 +595,12 @@ app.post('/api/parse-voice', async (req, res) => {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return res.status(400).json({ error: 'GROQ_API_KEY not configured' });
 
-  const { text } = req.body;
+  const { text, user_timezone } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'Missing text' });
 
-  const now = new Date();
-  const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-  const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+  const tz = user_timezone || 'America/New_York';
+  const dateStr = userDateStr(tz);
+  const dayName = userDayName(tz);
 
   try {
     const groqResp = await fetch(GROQ_URL, {
@@ -545,7 +613,7 @@ app.post('/api/parse-voice', async (req, res) => {
         model: 'llama-3.1-8b-instant',
         stream: false,
         messages: [
-          { role: 'system', content: VOICE_SYSTEM_PROMPT + '\n\nCurrent Date: ' + dateStr + ' (' + dayName + ')' },
+          { role: 'system', content: VOICE_SYSTEM_PROMPT + '\n\nThe user\'s current local date, time, and timezone profile is: ' + dateStr + ' at ' + new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true }) + ' (' + dayName + ') (' + tz + '). Interpret relative terms like "today", "tomorrow", "tonight", or "3 PM" strictly matching this specific geographic timeline context.' },
           { role: 'user', content: text }
         ],
         max_tokens: 300,
@@ -586,7 +654,7 @@ app.post('/api/v1/quick-log', (req, res) => {
     return res.status(400).json({ error: 'Missing or invalid payload' });
   }
 
-  const dateStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local TZ
+  const dateStr = userDateStr(payload.user_timezone || 'America/New_York');
   const now = Date.now();
   const mutations = [];
   const summaryParts = [];
@@ -594,7 +662,7 @@ app.post('/api/v1/quick-log', (req, res) => {
   // Snapshot current state of all files for rollback
   const snapshot = {
     water:           loadDataFile('water'),
-    workouts:        loadDataFile('workouts'),
+    workouts:        loadWorkoutData(),
     expenses:        loadDataFile('expenses'),
     goals:           loadDataFile('goals'),
     calendar_events: loadDataFile('calendar_events'),
@@ -619,17 +687,13 @@ app.post('/api/v1/quick-log', (req, res) => {
       summaryParts.push(glasses + ' glass' + (glasses > 1 ? 'es' : '') + ' of water');
     }
 
-    // ── Workout ──
+    // ── Workout (structured: today_workouts + history + streak) ──
     if (payload.workout && payload.workout.type) {
       const secs = (payload.workout.duration_minutes || 10) * 60;
-      const wkData = snapshot.workouts;
-      let dayEntry = wkData.find(e => e.date === dateStr);
-      if (!dayEntry) {
-        dayEntry = { date: dateStr, sessions: [] };
-        wkData.push(dayEntry);
-      }
-      dayEntry.sessions.push({ type: payload.workout.type, duration: secs, time: now });
-      saveDataFile('workouts', wkData);
+      const wkData = loadWorkoutData();
+      wkData.today_workouts.push({ type: payload.workout.type, duration: secs, time: now });
+      wkData.streak_count = computeServerStreak(wkData);
+      saveWorkoutData(wkData);
       mutations.push('logged_workout');
       summaryParts.push(payload.workout.type + ' ' + (payload.workout.duration_minutes || 10) + 'min');
     }
@@ -714,7 +778,7 @@ app.post('/api/v1/quick-log', (req, res) => {
     // Rollback — restore all files to their snapshot state
     console.error('Quick-log error, rolling back:', err.message);
     saveDataFile('water',           snapshot.water);
-    saveDataFile('workouts',        snapshot.workouts);
+    saveWorkoutData(snapshot.workouts);
     saveDataFile('expenses',        snapshot.expenses);
     saveDataFile('goals',           snapshot.goals);
     saveDataFile('calendar_events', snapshot.calendar_events);
@@ -752,7 +816,13 @@ function getHistoricalMatrix(daysBack) {
   }
 
   var water = byDate(loadDataFile('water'), 'time');
-  var workouts = byDate(loadDataFile('workouts'), 'time');
+  var wkRaw = loadWorkoutData();
+  var todayStr = userDateStr('America/New_York');
+  var allWorkouts = wkRaw.history.slice();
+  if (wkRaw.today_workouts && wkRaw.today_workouts.length) {
+    allWorkouts.push({ date: todayStr, sessions: wkRaw.today_workouts });
+  }
+  var workouts = byDate(allWorkouts, 'time');
   var expenses = byDate(loadDataFile('expenses'), 'time');
   var goals = byDate(loadDataFile('goals'), 'time');
 
@@ -943,6 +1013,62 @@ app.post('/api/v1/insights/refresh', async function(req, res) {
 
 // Auto-refresh insights every 12 hours
 cron.schedule('0 */12 * * *', function() { generateInsights(); }, { timezone: 'America/New_York' });
+
+/* ════════════ WORKOUT DATA ENDPOINTS ════════════ */
+
+// GET /api/v1/workouts — returns structured workout data with streak
+app.get('/api/v1/workouts', (req, res) => {
+  const wkData = loadWorkoutData();
+  res.json(wkData);
+});
+
+// Midnight rollover: archive today's workouts to history, recompute streak
+cron.schedule('55 23 * * *', function() {
+  try {
+    const wkData = loadWorkoutData();
+    const todayStr = userDateStr('America/New_York');
+    if (wkData.today_workouts && wkData.today_workouts.length) {
+      wkData.history.push({ date: todayStr, sessions: wkData.today_workouts });
+    }
+    wkData.streak_count = computeServerStreak(wkData);
+    wkData.today_workouts = [];
+    saveWorkoutData(wkData);
+    console.log('Workout midnight rollover complete. Streak:', wkData.streak_count);
+  } catch (err) {
+    console.error('Workout rollover error:', err.message);
+  }
+}, { timezone: 'America/New_York' });
+
+/* ════════════ HEALTH / SUPPLEMENT ENDPOINTS ════════════ */
+
+function loadHealthData() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFilePath('health'), 'utf8'));
+  } catch {
+    return { checked_supplements: [] };
+  }
+}
+function saveHealthData(data) {
+  fs.writeFileSync(dataFilePath('health'), JSON.stringify(data, null, 2));
+}
+
+// GET /api/v1/health/supplements — returns today's checked supplement state from server
+app.get('/api/v1/health/supplements', (req, res) => {
+  const health = loadHealthData();
+  res.json({ checked_supplements: health.checked_supplements || [] });
+});
+
+// POST /api/v1/health/supplements — updates checked supplements on server
+app.post('/api/v1/health/supplements', express.json(), (req, res) => {
+  const { checked_supplements } = req.body;
+  if (!Array.isArray(checked_supplements)) {
+    return res.status(400).json({ error: 'checked_supplements must be an array' });
+  }
+  const health = loadHealthData();
+  health.checked_supplements = checked_supplements;
+  saveHealthData(health);
+  res.json({ ok: true });
+});
 
 /* ════════════ SCHEDULED BRIEFINGS ════════════ */
 
