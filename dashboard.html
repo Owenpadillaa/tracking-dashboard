@@ -773,6 +773,24 @@ body{
 .cal-event-title{font-size:14px;font-weight:500;color:var(--text-primary)}
 .cal-event-title small{font-size:11px;color:var(--text-tertiary);font-weight:400}
 
+/* ── Multi-View Calendar ── */
+.calendar-view-btn{color:var(--text-tertiary)}
+.calendar-view-btn.active{background:rgba(30,41,59,1);color:#22d3ee;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.monthly-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-size:12px;font-weight:500;color:var(--text-secondary);position:relative}
+.monthly-cell:hover{background:rgba(255,255,255,0.05)}
+.monthly-cell.today{border:1px solid rgba(14,165,233,0.3)}
+.monthly-cell.active{background:rgba(14,165,233,0.12);color:#22d3ee}
+.monthly-cell.other-month{opacity:0.25}
+.monthly-cell .monthly-dot{width:4px;height:4px;border-radius:50%;background:#22d3ee;position:absolute;bottom:5px;left:50%;margin-left:-2px}
+.monthly-header-cell{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:6px}
+.yearly-month-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:8px;cursor:pointer;transition:all 0.2s}
+.yearly-month-block:hover{border-color:rgba(14,165,233,0.3);background:rgba(14,165,233,0.04)}
+.yearly-month-label{font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;text-align:center}
+.yearly-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.yearly-day{aspect-ratio:1;border-radius:2px;font-size:5px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);position:relative}
+.yearly-day.has-event{background:rgba(14,165,233,0.15)}
+.yearly-day.today{border:0.5px solid rgba(14,165,233,0.4)}
+
 /* ── Chat widget ── */
 .chat-card{padding:0;overflow:hidden}
 .chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px;font-weight:600;color:var(--text-tertiary)}
@@ -1086,16 +1104,38 @@ body{
       </div>
     </div>
 
-    <!-- ═══ Calendar: Horizontal Rolling Date Ribbon ═══ -->
+    <!-- ═══ Calendar: Multi-View Hybrid ═══ -->
     <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-5 mt-4">
-      <div class="flex items-center gap-2 mb-3">
-        <span class="text-sm font-semibold text-slate-300" id="calMonthLabel">May 2026</span>
+
+      <!-- View Switcher -->
+      <div class="flex bg-slate-950/60 p-1 rounded-xl mb-4 max-w-xs mx-auto">
+        <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn active" data-view="weekly" onclick="switchCalendarView('weekly')">Weekly</button>
+        <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="monthly" onclick="switchCalendarView('monthly')">Monthly</button>
+        <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="yearly" onclick="switchCalendarView('yearly')">Yearly</button>
       </div>
-      <div class="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x" id="calendar-date-ribbon">
+
+      <!-- ═══ WEEKLY VIEW (ribbon + agenda) ═══ -->
+      <div id="calendar-view-weekly">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-sm font-semibold text-slate-300" id="calMonthLabel">May 2026</span>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x" id="calendar-date-ribbon">
+        </div>
+        <div class="cal-event-list mt-1" id="calDateEventList">
+          <div class="cal-empty" id="calDateEmpty">Select a date above</div>
+        </div>
       </div>
-      <div class="cal-event-list mt-1" id="calDateEventList">
-        <div class="cal-empty" id="calDateEmpty">Select a date above</div>
+
+      <!-- ═══ MONTHLY VIEW (7x5 dot grid) ═══ -->
+      <div id="calendar-view-monthly" class="hidden">
+        <div class="grid grid-cols-7 gap-0" id="monthlyGrid"></div>
       </div>
+
+      <!-- ═══ YEARLY VIEW (3x4 micro-matrix) ═══ -->
+      <div id="calendar-view-yearly" class="hidden">
+        <div class="grid grid-cols-3 gap-2" id="yearlyGrid"></div>
+      </div>
+
     </div>
   </div>
 
@@ -2829,11 +2869,14 @@ function renderWorkoutStats(){
 /* ════════════ LOCAL CALENDAR (horizontal rolling ribbon) ════════════ */
 var calendarEvents=[];
 var activeCalDate=null;
+var currentView='weekly';
 
 function loadCalendar(){
   fetch('/api/v1/calendar').then(function(r){return r.json()}).then(function(data){
     calendarEvents=data.events||[];
     renderDateRibbon();
+    renderMonthlyView();
+    renderYearlyView();
     if(!activeCalDate)activeCalDate=dateStrLocal(new Date());
     selectCalDate(activeCalDate);
   }).catch(function(){
@@ -2901,6 +2944,8 @@ function selectCalDate(dateStr){
     }
   }
   renderDateChips();
+  renderMonthlyView();
+  renderYearlyView();
 }
 
 function updateHomeEvents(){
@@ -2947,7 +2992,99 @@ function renderDateChips(){
   if(activeChip)activeChip.scrollIntoView({inline:'center',behavior:'instant'});
 }
 
-/* ════════════ CHAT (Aura) ════════════ */
+/* ════════════ MULTI-VIEW CALENDAR SWITCHER ════════════ */
+window.switchCalendarView=function(viewName){
+  currentView=viewName;
+  document.querySelectorAll('.calendar-view-btn').forEach(function(b){
+    b.classList.toggle('active',b.dataset.view===viewName);
+  });
+  document.getElementById('calendar-view-weekly').classList.toggle('hidden',viewName!=='weekly');
+  document.getElementById('calendar-view-monthly').classList.toggle('hidden',viewName!=='monthly');
+  document.getElementById('calendar-view-yearly').classList.toggle('hidden',viewName!=='yearly');
+};
+
+function getMonthGrid(year,month){
+  var firstDow=new Date(year,month,1).getDay();
+  var daysInMonth=new Date(year,month+1,0).getDate();
+  var daysInPrev=new Date(year,month,0).getDate();
+  var cells=[];
+  // leading blanks from prev month
+  for(var i=firstDow-1;i>=0;i--){
+    var d=daysInPrev-i;
+    cells.push({day:d,other:true,date:new Date(year,month-1,d)});
+  }
+  for(var d=1;d<=daysInMonth;d++){
+    cells.push({day:d,other:false,date:new Date(year,month,d)});
+  }
+  // trailing blanks to fill 42 cells
+  var remaining=42-cells.length;
+  for(var d=1;d<=remaining;d++){
+    cells.push({day:d,other:true,date:new Date(year,month+1,d)});
+  }
+  return cells;
+}
+
+function renderMonthlyView(){
+  var grid=document.getElementById('monthlyGrid');
+  if(!grid)return;
+  var now=new Date();
+  var year=now.getFullYear(),month=now.getMonth();
+  var todayStr=dateStrLocal(now);
+  var cells=getMonthGrid(year,month);
+  var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var html='';
+  dayNames.forEach(function(n){
+    html+='<div class="monthly-header-cell">'+n.slice(0,3)+'</div>';
+  });
+  cells.forEach(function(c){
+    var ds=dateStrLocal(c.date);
+    var hasEvent=calendarEvents.some(function(e){return e.date===ds});
+    var isToday=ds===todayStr;
+    var isActive=ds===activeCalDate;
+    var cls='monthly-cell';
+    if(c.other)cls+=' other-month';
+    if(isToday)cls+=' today';
+    if(isActive)cls+=' active';
+    html+='<div class="'+cls+'" data-date="'+ds+'" onclick="selectCalDate(\''+ds+'\')">'
+      +'<span>'+c.day+'</span>'
+      +(hasEvent?'<span class="monthly-dot"></span>':'')
+      +'</div>';
+  });
+  grid.innerHTML=html;
+}
+
+function renderYearlyView(){
+  var grid=document.getElementById('yearlyGrid');
+  if(!grid)return;
+  var now=new Date();
+  var year=now.getFullYear();
+  var todayStr=dateStrLocal(now);
+  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dayAbbr=['S','M','T','W','T','F','S'];
+  var html='';
+  for(var m=0;m<12;m++){
+    var cells=getMonthGrid(year,m);
+    html+='<div class="yearly-month-block" data-month="'+m+'" onclick="renderMonthlyView();switchCalendarView(\'monthly\')">'
+      +'<div class="yearly-month-label">'+monthNames[m]+'</div>'
+      +'<div class="yearly-grid">';
+    dayAbbr.forEach(function(a){html+='<div class="yearly-day" style="font-size:4px;color:rgba(255,255,255,0.15)">'+a+'</div>'});
+    cells.forEach(function(c){
+      var ds=dateStrLocal(c.date);
+      var hasEvent=calendarEvents.some(function(e){return e.date===ds});
+      var isToday=ds===todayStr;
+      var cls='yearly-day';
+      if(hasEvent)cls+=' has-event';
+      if(isToday)cls+=' today';
+      if(c.other)cls+=''// keep subtle
+      html+='<div class="'+cls+'">'+c.day+'</div>';
+    });
+    html+='</div></div>';
+  }
+  grid.innerHTML=html;
+}
+window.renderMonthlyView=renderMonthlyView;
+window.renderYearlyView=renderYearlyView;
+window.selectCalDate=selectCalDate;
 var chatMessages=[]; // role/content pairs sent to server
 var chatStreaming=false;
 var chatAbort=null;
