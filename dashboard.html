@@ -17,7 +17,7 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        aura: { bg: '#050506', card: 'rgba(255,255,255,0.04)', water: '#5BA4E3', success: '#6BE3A4', warning: '#F2C063', danger: '#FF6B6B', accent: '#2DD4BF' },
+        aura: { bg: '#000000', card: 'rgba(22,22,23,0.4)', water: '#38bdf8', success: '#4ade80', warning: '#fbbf24', danger: '#f87171', accent: '#0ea5e9' },
       },
       fontFamily: { mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'] },
     }
@@ -29,73 +29,87 @@ tailwind.config = {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --text-primary:#F5F5F7;
-  --text-secondary:#A1A1A6;
-  --text-tertiary:#6E6E73;
-  --success:#30D158;
-  --warning:#FFD60A;
-  --danger:#FF453A;
-  --water:#64D2FF;
-  --water-glow:rgba(100,210,255,0.25);
-  --accent:#0A84FF;
-  --card-bg:rgba(28,28,30,0.72);
+  --text-secondary:#94a3b8;
+  --text-tertiary:#64748b;
+  --success:#4ade80;
+  --warning:#fbbf24;
+  --danger:#f87171;
+  --water:#38bdf8;
+  --water-glow:rgba(56,189,248,0.25);
+  --accent:#0ea5e9;
+  --accent-glow:rgba(14,165,233,0.15);
+  --card-bg:rgba(22,22,23,0.4);
   --card-border:rgba(255,255,255,0.06);
-  --input-bg:rgba(118,118,128,0.24);
-  --glass:rgba(255,255,255,0.03);
+  --input-bg:rgba(30,41,59,0.5);
+  --glass:rgba(14,165,233,0.04);
 }
-html{height:100%}
+
+/* ── 100dvh Flex Layout ── */
+html{height:100dvh;overflow:hidden}
 body{
-  min-height:100%;
-  background:#000;
+  display:flex;flex-direction:column;
+  height:100dvh;overflow:hidden;
+  background:#000000;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
   color:var(--text-primary);
-  padding:max(env(safe-area-inset-top,20px),20px) 20px 100px;
   -webkit-text-size-adjust:100%;
   -webkit-tap-highlight-color:transparent;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
-.container{max-width:1100px;margin:0 auto}
+.app-scroll{flex:1;min-height:0;position:relative;overflow:hidden}
+.container{max-width:1100px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
 
-/* ── Tab system ── */
-.tab-page{display:none;animation:fadeUp .35s cubic-bezier(.23,1,.32,1) both}
+/* ── Tab system: each tab is an independent scroll container ── */
+.tab-page{
+  display:none;
+  height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding:max(env(safe-area-inset-top,16px),16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);
+  animation:fadeUp .35s cubic-bezier(.23,1,.32,1) both;
+}
 .tab-page.active{display:block}
+.tab-page#tab-ai.active{display:flex;flex-direction:column}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Floating tab bar (Apple-style) ── */
+/* ── Locked bottom tab bar ── */
 .tab-bar{
-  position:fixed;bottom:max(20px,env(safe-area-inset-bottom,0px));
-  left:50%;transform:translateX(-50%);z-index:100;
-  display:flex;gap:4px;
-  background:rgba(28,28,30,0.86);
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border:0.5px solid rgba(255,255,255,0.12);
-  border-radius:28px;padding:6px 6px;
-  box-shadow:0 0 0 .5px rgba(0,0,0,.3),0 2px 16px rgba(0,0,0,.4);
+  flex-shrink:0;display:flex;gap:2px;
+  width:100%;box-sizing:border-box;
+  padding:6px 8px;
+  padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
+  background:rgba(22,22,23,0.75);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,0.08);
 }
 .tab-btn{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:10px 14px;border:none;background:none;cursor:pointer;
-  border-radius:22px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  flex:1;padding:8px 6px;border:none;background:none;cursor:pointer;
+  border-radius:14px;
   color:var(--text-tertiary);
-  transition:all .3s cubic-bezier(.23,1,.32,1);
-  position:relative;min-width:52px;
+  transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
 }
 .tab-btn:hover{color:var(--text-secondary)}
-.tab-btn.active{color:var(--text-primary);background:rgba(255,255,255,0.1)}
-.tab-btn .tab-icon{width:22px;height:22px;line-height:1}
-.tab-btn .tab-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:1px}
+.tab-btn.active{color:var(--accent);background:var(--accent-glow)}
+.tab-btn .tab-icon{width:20px;height:20px;line-height:1}
+.tab-btn .tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn span:not(.tab-icon){font-size:9px;font-weight:600;letter-spacing:0.04em;margin-top:1px}
 
 /* ── Card chassis ── */
 .card{
-  background:var(--card-bg);
+  background:rgba(22,22,23,0.4);
   border-radius:20px;padding:20px 24px;
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  box-shadow:0 0 0 .5px var(--card-border),0 2px 24px rgba(0,0,0,0.25);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 0 0 0.5px rgba(255,255,255,0.06),0 4px 24px rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.06);
 }
+.card-glow{box-shadow:0 0 15px rgba(14,165,233,0.15);border-color:rgba(14,165,233,0.4);}
 
 /* ── Title ── */
 .dash-title{
@@ -109,6 +123,8 @@ body{
   display:flex;align-items:center;gap:10px;
   padding:10px 14px;border-radius:14px;
   background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   box-shadow:0 0 0 .5px var(--card-border);
   position:relative;overflow:hidden;
 }
@@ -157,10 +173,12 @@ body{
   display:flex;align-items:center;gap:10px;
   padding:10px 14px;border-radius:14px;margin-bottom:14px;
   background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   box-shadow:0 0 0 .5px var(--card-border);
   cursor:pointer;transition:all .2s;
 }
-.water-bar-home:hover{background:rgba(255,255,255,0.05)}
+.water-bar-home:hover{background:rgba(255,255,255,0.06)}
 .water-bar-home:active{transform:scale(0.98)}
 .water-bar-label{
   font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -224,9 +242,9 @@ body{
 .sleep-btn{
   padding:8px 20px;border-radius:14px;border:none;cursor:pointer;font-weight:600;
   font-size:14px;font-family:inherit;
-  transition:all .2s;background:rgba(10,132,255,0.15);color:var(--accent);
+  transition:all .2s;background:var(--accent-glow);color:var(--accent);
 }
-.sleep-btn:hover{background:rgba(10,132,255,0.25)}
+.sleep-btn:hover{background:rgba(14,165,233,0.2)}
 .sleep-btn:active{transform:scale(0.96)}
 .sleep-btn.check-out{background:rgba(255,69,58,0.15);color:#FF453A}
 .sleep-btn.check-out:hover{background:rgba(255,69,58,0.25)}
@@ -259,8 +277,13 @@ body{
   font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;
   border:none;transition:all .3s cubic-bezier(.23,1,.32,1);
 }
-.gm-streak.gm-streak-active{background:rgba(255,214,10,0.12);color:#FFD60A}
+.gm-streak.gm-streak-active{background:rgba(255,214,10,0.12);color:#FFD60A;position:relative}
 .gm-streak.gm-streak-active .gm-streak-bolt{filter:drop-shadow(0 0 6px rgba(255,214,10,0.5))}
+.streak-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:99px;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid transparent;background-clip:padding-box;position:relative}
+.streak-pill::before{content:'';position:absolute;inset:0;border-radius:99px;padding:1px;background:linear-gradient(135deg,#f97316,#ef4444);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.streak-pill-icon{font-size:14px;line-height:1}
+.streak-pill-num{font-family:"SF Mono",ui-monospace;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#f97316;letter-spacing:-0.02em}
+.streak-pill-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
 .gm-streak-label{font-size:10px;letter-spacing:0.06em;text-transform:uppercase}
 .gm-bar{display:flex;gap:4px;height:6px;margin-bottom:16px}
 .gm-bar:empty{display:none}
@@ -273,6 +296,8 @@ body{
   display:flex;align-items:center;gap:12px;
   padding:14px 16px;margin-bottom:8px;border-radius:16px;
   background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   box-shadow:0 0 0 .5px var(--card-border);
   transition:all .2s cubic-bezier(.23,1,.32,1);position:relative;
 }
@@ -346,6 +371,8 @@ body{
 /* ── Health: Supplement Grid Tiles ── */
 .suppl-grid-tile{
   background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   box-shadow:0 0 0 .5px var(--card-border);
   border-radius:20px;padding:18px;cursor:pointer;
   transition:all .3s cubic-bezier(.23,1,.32,1);position:relative;user-select:none;
@@ -387,6 +414,8 @@ body{
 /* ── Workouts: Routine Cards ── */
 .routine-card{
   background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   box-shadow:0 0 0 .5px var(--card-border);
   border-radius:20px;padding:28px 16px;
   cursor:pointer;text-align:center;transition:all .3s cubic-bezier(.23,1,.32,1);user-select:none;
@@ -532,10 +561,12 @@ body{
 /* ── Finance: AI Advisory ── */
 .ai-advisory-btn{
   width:100%;padding:16px;border-radius:16px;
-  border:0.5px solid rgba(255,255,255,0.08);background:var(--card-bg);
+  border:1px solid rgba(255,255,255,0.06);background:rgba(22,22,23,0.4);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   color:var(--text-secondary);font-size:15px;font-weight:600;font-family:inherit;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .3s cubic-bezier(.23,1,.32,1);
+  transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 .ai-advisory-btn:hover{
   background:rgba(255,255,255,0.06);color:var(--text-primary);
@@ -571,6 +602,16 @@ body{
 .home-top-row .water-bar-label{text-align:center;min-width:0}
 .home-top-row .water-bar-ml{text-align:center;min-width:0}
 
+/* ── Telemetry Strip ── */
+.tile-water-bottle{position:relative;width:28px;height:38px;flex-shrink:0}
+.tile-water-bottle-svg{width:100%;height:100%}
+.tile-water-fill{transition:height 0.5s cubic-bezier(0.22,1,0.36,1)}
+.tile-water-wave{animation:waveRipple 3s ease-in-out infinite}
+@keyframes waveRipple{0%,100%{d:path('M0,6 Q7,2 14,6 Q21,10 28,6 L28,10 L0,10 Z')}50%{d:path('M0,6 Q7,10 14,6 Q21,2 28,6 L28,10 L0,10 Z')}}
+.sleep-tile-active{animation:sleepGlow 3s ease-in-out infinite}
+@keyframes sleepGlow{0%,100%{box-shadow:0 0 12px rgba(147,51,234,0.08)}50%{box-shadow:0 0 24px rgba(147,51,234,0.2)}}
+.cash-bar-razor{height:2px;border-radius:1px;transition:all 0.5s cubic-bezier(0.22,1,0.36,1)}
+
 /* ── Voice log bar ── */
 .voice-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;position:relative}
 .voice-input{flex:1;min-width:0;padding:14px 16px;font-size:16px;font-family:inherit;background:var(--input-bg);border:0.5px solid rgba(255,255,255,0.08);border-radius:14px;color:var(--text-primary);outline:none;transition:border-color .2s}
@@ -585,19 +626,21 @@ body{
 /* ── AI Insights card ── */
 .insights-card{
   position:relative;margin-bottom:18px;padding:20px 22px 16px;
-  border-radius:20px;
-  background:var(--card-bg);
-  box-shadow:0 0 0 .5px var(--card-border),0 2px 24px rgba(0,0,0,0.2);
+  border-radius:24px;
+  background:rgba(22,22,23,0.75);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 8px 40px rgba(0,0,0,0.4);
   overflow:hidden;
 }
 .insights-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(10,132,255,0.3),transparent);
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent);
 }
 .insights-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .insights-icon{
   width:30px;height:30px;border-radius:10px;
-  background:rgba(10,132,255,0.1);
+  background:var(--accent-glow);
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
@@ -605,6 +648,7 @@ body{
 .insights-label{
   font-size:12px;font-weight:600;
   color:var(--accent);
+  letter-spacing:0.02em;
 }
 .insights-text{
   font-size:15px;line-height:1.6;color:var(--text-secondary);font-weight:400;
@@ -618,19 +662,23 @@ body{
 }
 .insights-dot{
   width:6px;height:6px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 6px rgba(10,132,255,0.5);
+  box-shadow:0 0 6px rgba(14,165,233,0.5);
 }
 .insights-timestamp{
   font-family:"SF Mono",ui-monospace;
   font-size:11px;font-weight:500;color:var(--text-tertiary);
 }
 
+/* Mic FAB pulse */
+@keyframes micPulse{0%,100%{opacity:0;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+
 /* Shimmer skeleton */
-.insights-skeleton{padding:4px 0}
+.insights-skeleton{padding:6px 0}
 .insights-skeleton-bar{
-  height:10px;border-radius:5px;margin-bottom:8px;
-  background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);
+  height:10px;border-radius:5px;margin-bottom:10px;
+  background:linear-gradient(90deg,rgba(56,189,248,0.06) 25%,rgba(56,189,248,0.18) 50%,rgba(56,189,248,0.06) 75%);
   background-size:200% 100%;animation:shimmer 1.8s ease-in-out infinite;
+  box-shadow:0 0 8px rgba(56,189,248,0.05);
 }
 .insights-skeleton-bar:nth-child(1){width:92%}
 .insights-skeleton-bar:nth-child(2){width:78%}
@@ -647,8 +695,8 @@ body{
 .notif-bar-status{font-weight:600;margin-left:auto}
 .notif-bar-status.on{color:var(--success)}
 .notif-bar-status.off{color:var(--text-tertiary)}
-.notif-bar-btn{padding:6px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:12px;font-family:inherit;transition:all .2s;white-space:nowrap;background:rgba(10,132,255,0.12);color:var(--accent)}
-.notif-bar-btn:hover{background:rgba(10,132,255,0.2)}
+.notif-bar-btn{padding:6px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:12px;font-family:inherit;transition:all .2s;white-space:nowrap;background:var(--accent-glow);color:var(--accent)}
+.notif-bar-btn:hover{background:rgba(14,165,233,0.2)}
 .notif-bar-btn:disabled{opacity:0.4;cursor:default}
 .notif-bar-btn-secondary{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
 .notif-bar-btn-secondary:hover{background:rgba(255,255,255,0.1)}
@@ -659,7 +707,7 @@ body{
 .cal-day{flex:1;min-width:46px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:16px;background:rgba(255,255,255,0.03);cursor:pointer;transition:all .2s cubic-bezier(.23,1,.32,1);user-select:none}
 .cal-day:hover{background:rgba(255,255,255,0.06)}
 .cal-day.active{background:rgba(255,255,255,0.1)}
-.cal-day.today{background:rgba(10,132,255,0.12)}
+.cal-day.today{background:var(--accent-glow)}
 .cal-day.today .cal-day-dow{color:var(--accent)}
 .cal-day.today .cal-day-num{color:var(--accent)}
 .cal-day-dow{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary)}
@@ -714,12 +762,12 @@ body{
 
 /* ── Workout stats ── */
 .wstats-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.wstat-item{flex:1;min-width:80px;padding:14px;border-radius:16px;text-align:center;background:var(--card-bg);box-shadow:0 0 0 .5px var(--card-border)}
+.wstat-item{flex:1;min-width:80px;padding:14px;border-radius:16px;text-align:center;background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 .5px var(--card-border)}
 .wstat-num{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px}
 .wstat-label{font-size:11px;font-weight:600;color:var(--text-tertiary)}
 
 /* ── Toast ── */
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-120%);background:var(--card-bg);box-shadow:0 0 0 .5px var(--card-border),0 8px 32px rgba(0,0,0,0.4);color:var(--text-primary);padding:14px 20px;border-radius:16px;font-size:14px;font-weight:500;z-index:9999;max-width:90vw;transition:transform .3s cubic-bezier(.23,1,.32,1);pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-120%);background:rgba(22,22,23,0.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.08),0 8px 32px rgba(0,0,0,0.5);color:var(--text-primary);padding:14px 20px;border-radius:16px;font-size:14px;font-weight:500;z-index:9999;max-width:90vw;transition:transform .3s cubic-bezier(.23,1,.32,1);pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* ── Mobile-first input sizing (prevents iOS zoom) ── */
@@ -728,7 +776,7 @@ body{
 
 /* Responsive */
 @media(max-width:480px){
-  body{padding:max(env(safe-area-inset-top,20px),20px) 16px 100px}
+  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 14px calc(env(safe-area-inset-bottom,0px) + 12px)}
   .container{padding:0;max-width:100%}
   .dash-title{font-size:28px;margin-bottom:16px}
   .section{margin-bottom:20px}
@@ -736,11 +784,11 @@ body{
   .card{padding:16px 18px;border-radius:18px}
 
   /* Tab bar */
-  .tab-bar{bottom:max(14px,env(safe-area-inset-bottom,0px));padding:6px 8px;border-radius:24px}
-  .tab-btn{padding:10px 12px;min-width:50px;border-radius:18px}
-  .tab-btn .tab-icon{width:22px;height:22px}
-  .tab-btn .tab-icon svg{width:22px;height:22px;stroke-width:1.8}
-  .tab-btn span:not(.tab-icon){font-size:10px}
+  .tab-bar{padding:4px 6px;padding-bottom:calc(4px + env(safe-area-inset-bottom,0px));gap:1px}
+  .tab-btn{padding:8px 4px;border-radius:12px}
+  .tab-btn .tab-icon{width:20px;height:20px}
+  .tab-btn .tab-icon svg{width:20px;height:20px;stroke-width:1.8}
+  .tab-btn span:not(.tab-icon){font-size:8px}
 
   /* Goal ticker */
   .goal-ticker{padding:10px 14px;text-align:center}
@@ -818,6 +866,9 @@ body{
   .home-top-row{flex-direction:column;gap:12px;align-items:stretch}
   .home-top-row .water-bar-home{flex:auto}
 
+  /* Telemetry strip */
+  .tile-water-bottle{width:22px;height:30px}
+
   /* Notif bar */
   .notif-bar{padding:8px 12px;font-size:10px}
   .notif-bar-btn{padding:5px 12px;font-size:10px}
@@ -827,14 +878,15 @@ body{
   .insights-text{font-size:13px}
 }
 @media(max-width:360px){
-  body{padding:max(env(safe-area-inset-top,16px),16px) 14px 96px}
+  .tab-page{padding:max(env(safe-area-inset-top,12px),12px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+  .tile-water-bottle{width:18px;height:26px}
   .rings-row{gap:6px}
   .ring-container{width:82px;height:82px}
   .ring-container-lg{width:110px;height:110px}
   .day-ring-pct{font-size:26px}
-  .tab-btn{padding:8px 10px;min-width:44px}
-  .tab-btn .tab-icon{width:20px;height:20px}
-  .tab-btn .tab-icon svg{width:20px;height:20px}
+  .tab-btn{padding:6px 3px;border-radius:10px}
+  .tab-btn .tab-icon{width:18px;height:18px}
+  .tab-btn .tab-icon svg{width:18px;height:18px}
   .card{padding:14px 16px;border-radius:16px}
 }
 
@@ -847,16 +899,16 @@ body{
 .dw-pills{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
 .dw-pill{padding:10px 20px;border-radius:99px;border:0.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-secondary);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
 .dw-pill:hover{background:rgba(255,255,255,0.06);color:var(--text-primary)}
-.dw-pill.active{background:rgba(10,132,255,0.15);color:var(--accent);border-color:rgba(10,132,255,0.3)}
+.dw-pill.active{background:var(--accent-glow);color:var(--accent);border-color:rgba(14,165,233,0.3)}
 .dw-start-btn{width:100%;padding:16px;border:none;border-radius:16px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
 .dw-start-btn:hover{opacity:0.85}
 .dw-start-btn:disabled{opacity:0.4;cursor:default}
 .dw-start-btn:active{transform:scale(0.98)}
 .dw-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-.dw-metric{background:var(--card-bg);box-shadow:0 0 0 .5px var(--card-border);border-radius:20px;padding:20px;text-align:center}
+.dw-metric{background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 .5px var(--card-border);border-radius:20px;padding:20px;text-align:center}
 .dw-metric-val{font-size:24px;font-weight:700;color:#f1f5f9;line-height:1;margin-bottom:6px}
 .dw-metric-label{font-size:12px;font-weight:600;color:var(--text-tertiary)}
-.dw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.96);backdrop-filter:saturate(180%) blur(40px);-webkit-backdrop-filter:saturate(180%) blur(40px);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.dw-overlay{position:fixed;inset:0;background:#000;backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .dw-overlay.active{opacity:1;pointer-events:auto}
 .dw-overlay-timer{font-family:"SF Mono",ui-monospace;font-size:76px;font-weight:700;color:#f1f5f9;letter-spacing:-0.03em;line-height:1;margin-bottom:12px}
 .dw-overlay-intention{color:var(--text-tertiary);font-size:15px;margin-bottom:32px;max-width:80vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -868,6 +920,7 @@ body{
 </head>
 <body>
 <div id="toast"></div>
+<div class="app-scroll">
 <div class="container">
 
   <!-- ═══════ HOME TAB (Quick-Log Dashboard) ═══════ -->
@@ -883,14 +936,14 @@ body{
       </div>
     </div>
 
-    <!-- Hero Insights Block (frosted glass) -->
-    <div class="relative mb-5 p-5 rounded-2xl bg-slate-900/40 backdrop-blur-md border border-slate-800 shadow-xl overflow-hidden" id="insightsCard">
-      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent"></div>
-      <div class="flex items-center gap-2 mb-3">
-        <div class="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/15 flex items-center justify-center flex-shrink-0">
-          <svg class="w-4 h-4 stroke-teal-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <!-- Hero Insights Block (premium glass panel) -->
+    <div class="relative mb-5 p-5 rounded-[24px] overflow-hidden" id="insightsCard" style="background:rgba(22,22,23,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 8px 40px rgba(0,0,0,0.4)">
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.2)">
+          <svg class="w-4 h-4 stroke-sky-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </div>
-        <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-teal-400/85">Aura Insights</span>
+        <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-sky-400/90">Aura Insights</span>
       </div>
       <div id="insightsBody">
         <div class="insights-skeleton" id="insightsSkeleton">
@@ -915,67 +968,75 @@ body{
       </div>
     </div>
 
-    <!-- ═══ Unified Telemetry Strip ═══ -->
-    <div class="mb-5 p-3 rounded-xl bg-slate-900/40 backdrop-blur-md border border-slate-800/60 flex justify-between items-center gap-4">
+    <!-- ═══ Unified Telemetry Strip (premium 3-col) ═══ -->
+    <div class="mb-5 p-3 rounded-[18px] flex justify-between items-stretch gap-0" style="background:rgba(22,22,23,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06)">
 
-      <!-- Water -->
-      <div class="flex-1 flex items-center gap-2 cursor-pointer" id="waterTileHome" title="Tap to add 8oz">
-        <svg class="w-4 h-4 text-aura-water flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+      <!-- Water — CSS bottle silhouette -->
+      <div class="flex-1 flex items-center gap-2.5 px-2 cursor-pointer" id="waterTileHome" title="Tap to add 8oz">
+        <div class="tile-water-bottle">
+          <svg class="tile-water-bottle-svg" viewBox="0 0 28 38" fill="none">
+            <defs><clipPath id="bottleClipTile"><rect x="6" y="6" width="16" height="28" rx="3"/></clipPath></defs>
+            <rect x="6" y="6" width="16" height="28" rx="3" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <rect x="10" y="3" width="8" height="4" rx="1.5" fill="rgba(255,255,255,0.06)"/>
+            <rect id="tileWaterFluid" x="6" y="32" width="16" height="0" rx="2" fill="#38bdf8" fill-opacity="0.6" class="tile-water-fill"/>
+            <path id="tileWaterWave" d="" fill="#38bdf8" fill-opacity="0.25" class="tile-water-wave"/>
+          </svg>
+        </div>
         <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[10px] font-bold text-neutral-500 font-mono">Water</span>
-            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeWaterCount">0</span>/8</span>
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[9px] font-bold tracking-[0.1em] uppercase" style="color:rgba(255,255,255,0.35)">Water</span>
+            <span class="text-[10px] font-semibold font-mono tabular-nums" style="color:rgba(255,255,255,0.7)"><span id="homeWaterCount">0</span><span style="color:rgba(255,255,255,0.25)">/8</span></span>
           </div>
-          <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500" id="homeWaterFill" style="width:0%;background:var(--water)"></div>
+          <div class="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500" id="homeWaterFill" style="width:0%;background:linear-gradient(90deg,#38bdf8,#22d3ee)"></div>
           </div>
         </div>
       </div>
 
-      <div class="w-px h-6 bg-slate-800/60 flex-shrink-0"></div>
+      <div class="w-px self-stretch" style="background:rgba(255,255,255,0.06)"></div>
 
-      <!-- Sleep -->
-      <div class="flex-1 flex items-center gap-2">
-        <svg class="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <!-- Sleep — ambient purple glow when active -->
+      <div class="flex-1 flex items-center gap-2.5 px-2 rounded-lg transition-all duration-700" id="sleepTileHome">
+        <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(167,139,250,0.7)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[10px] font-bold text-neutral-500 font-mono">Sleep</span>
-            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeSleepVal">--</span> <span id="homeSleepUnit">hrs</span></span>
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[9px] font-bold tracking-[0.1em] uppercase" style="color:rgba(255,255,255,0.35)">Sleep</span>
+            <span class="text-[10px] font-semibold font-mono tabular-nums" style="color:rgba(255,255,255,0.7)"><span id="homeSleepVal">--</span><span style="color:rgba(255,255,255,0.25)">hrs</span></span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden flex-1">
-              <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" id="homeSleepFill" style="width:0%"></div>
+            <div class="h-1 bg-white/[0.06] rounded-full overflow-hidden flex-1">
+              <div class="h-full rounded-full transition-all duration-500" id="homeSleepFill" style="width:0%;background:#a78bfa"></div>
             </div>
-            <button class="sleep-btn" id="sleepCheckBtn" style="padding:2px 8px;font-size:9px;min-height:0;border-radius:6px">In</button>
+            <button class="sleep-btn" id="sleepCheckBtn" style="padding:2px 8px;font-size:9px;min-height:0;border-radius:6px;line-height:1.4">In</button>
           </div>
-          <div class="text-[8px] text-indigo-400/70 font-mono mt-0.5 leading-none" id="homeSleepLabel"></div>
+          <div class="text-[7px] font-mono mt-0.5 leading-none" id="homeSleepLabel" style="color:rgba(167,139,250,0.5)"></div>
         </div>
       </div>
 
-      <div class="w-px h-6 bg-slate-800/60 flex-shrink-0"></div>
+      <div class="w-px self-stretch" style="background:rgba(255,255,255,0.06)"></div>
 
-      <!-- Cash -->
-      <div class="flex-1 flex items-center gap-2 cursor-pointer" id="cashFlowTile">
-        <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <!-- Cash — razor-thin gradient bar -->
+      <div class="flex-1 flex items-center gap-2.5 px-2 cursor-pointer" id="cashFlowTile">
+        <svg class="w-4 h-4 flex-shrink-0" style="color:rgba(251,191,36,0.7)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[10px] font-bold text-neutral-500 font-mono">Cash</span>
-            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeCashSpent">$0</span></span>
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[9px] font-bold tracking-[0.1em] uppercase" style="color:rgba(255,255,255,0.35)">Cash</span>
+            <span class="text-[10px] font-semibold font-mono tabular-nums" style="color:rgba(255,255,255,0.7)"><span id="homeCashSpent">$0</span></span>
           </div>
-          <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-500 rounded-full transition-all duration-500" id="homeCashFill" style="width:0%"></div>
+          <div class="cash-bar-razor w-full" id="homeCashBarTrack" style="background:rgba(255,255,255,0.06)">
+            <div class="cash-bar-razor h-full transition-all duration-500" id="homeCashFill" style="width:0%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
           </div>
-          <div class="text-[9px] text-neutral-600 font-mono mt-0.5">Mo: <span id="homeCashMonthly">$0</span></div>
+          <div class="text-[7px] font-mono mt-0.5" style="color:rgba(255,255,255,0.2)">Mo: <span id="homeCashMonthly">$0</span></div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ Voice Engine Anchor ═══ -->
+    <!-- ═══ Voice Engine Anchor (large FAB) ═══ -->
     <div class="flex justify-center mb-5">
       <div class="relative">
-        <div class="absolute inset-0 rounded-full bg-aura-water/20 animate-ping opacity-0" id="micPulseRing" style="animation-duration:2s"></div>
-        <button class="relative w-16 h-16 rounded-full bg-gradient-to-br from-aura-water/20 to-aura-water/5 border border-aura-water/30 flex items-center justify-center text-aura-water hover:from-aura-water/30 hover:to-aura-water/10 transition-all active:scale-95 shadow-lg shadow-aura-water/10" id="aura-mic-btn">
-          <svg class="w-7 h-7 fill-none stroke-current stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <div class="absolute -inset-3 rounded-full opacity-0" id="micPulseRing" style="background:rgba(56,189,248,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
+        <button class="relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-all duration-300 active:scale-90" id="aura-mic-btn" style="background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(14,165,233,0.05));border:1.5px solid rgba(56,189,248,0.25);box-shadow:0 0 20px rgba(14,165,233,0.15),0 4px 24px rgba(0,0,0,0.3)">
+          <svg class="w-8 h-8 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(56,189,248,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
         </button>
       </div>
     </div>
@@ -1000,10 +1061,10 @@ body{
               <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
             </div>
           </div>
-          <div class="gm-streak" id="gmStreak">
-            <span class="gm-streak-bolt">⚡</span>
-            <span class="mono" id="gmStreakNum">0</span>
-            <span class="gm-streak-label">workout streak</span>
+          <div class="streak-pill" id="gmStreak">
+            <span class="streak-pill-icon">🔥</span>
+            <span class="streak-pill-num" id="gmStreakNum">0</span>
+            <span class="streak-pill-label">streak</span>
           </div>
         </div>
         <div class="gm-bar" id="gmBar"></div>
@@ -1039,11 +1100,11 @@ body{
 
   <!-- ═══════ AI ASSISTANT TAB ═══════ -->
   <div class="tab-page" id="tab-ai">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-4" style="flex-shrink:0">
       <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-b from-white to-neutral-400 bg-clip-text text-transparent">AI Assistant</h1>
       <button class="chat-reset-btn" id="chatResetBtn">Reset</button>
     </div>
-    <div class="card chat-card" style="height: calc(100vh - 200px); display:flex; flex-direction:column;">
+    <div class="card chat-card" style="flex:1; display:flex; flex-direction:column; min-height:0;">
       <div class="chat-log flex-1" id="chatLog" style="max-height:none; flex:1; overflow-y:auto;">
         <div class="chat-msg aura"><div class="chat-bubble">Hey! I'm Aura, your personal coach. How can I help you today?</div></div>
       </div>
@@ -1130,9 +1191,13 @@ body{
   <div class="tab-page" id="tab-workouts">
     <h1 class="dash-title">Workouts</h1>
 
-    <!-- Streak Badge -->
+    <!-- Streak Badge (gradient border pill) -->
     <div class="text-center mb-6">
-      <span class="text-amber-500 font-semibold text-lg" id="streakBadge">🔥 0-Day Workout Streak</span>
+      <span class="streak-pill" id="streakBadge" style="font-size:15px">
+        <span class="streak-pill-icon">🔥</span>
+        <span class="streak-pill-num" id="streakBadgeNum">0</span>
+        <span class="streak-pill-label">day streak</span>
+      </span>
     </div>
 
     <!-- Quick-Start Routine Selector -->
@@ -1177,7 +1242,7 @@ body{
   </div>
 
   <!-- Timer Modal Overlay -->
-  <div id="timerModal" class="fixed inset-0 z-50 flex-col justify-center items-center hidden" style="background:rgba(15,23,42,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+  <div id="timerModal" class="fixed inset-0 z-50 flex-col justify-center items-center hidden" style="background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
     <div class="timer-modal-label" id="modalRoutineLabel">WORKOUT</div>
     <div class="text-5xl font-mono font-bold tracking-wider mb-8" style="color:#f1f5f9" id="modalTimerDisplay">00:00</div>
     <button class="timer-finish-btn" id="modalFinishBtn">⏹️ Finish & Log</button>
@@ -1305,15 +1370,9 @@ body{
   </div>
 
 </div>
-
-<!-- Deep Work countdown overlay -->
-<div class="dw-overlay" id="dwOverlay">
-  <div class="dw-overlay-timer" id="dwOverlayTimer">00:00</div>
-  <div class="dw-overlay-intention" id="dwOverlayIntention"></div>
-  <button class="dw-cancel-btn" id="dwCancelBtn">Cancel Session</button>
 </div>
 
-<!-- Floating tab bar -->
+<!-- Floating tab bar (locked bottom, flex-shrink:0) -->
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="tab-home">
     <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.5z"/><path d="M9 21V13h6v8"/></svg></span>
@@ -1339,6 +1398,13 @@ body{
     <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
     <span>Focus</span>
   </button>
+</div>
+
+<!-- Deep Work countdown overlay -->
+<div class="dw-overlay" id="dwOverlay">
+  <div class="dw-overlay-timer" id="dwOverlayTimer">00:00</div>
+  <div class="dw-overlay-intention" id="dwOverlayIntention"></div>
+  <button class="dw-cancel-btn" id="dwCancelBtn">Cancel Session</button>
 </div>
 
 <script>
@@ -1580,13 +1646,12 @@ function stopSpeechInput(){
 function startMicPulse(){
   if(micPulseRing)micPulseRing.style.opacity='1';
   if(auraMicBtn){
-    auraMicBtn.style.background='linear-gradient(135deg, rgba(255,107,107,0.25), rgba(255,107,107,0.08))';
-    auraMicBtn.style.borderColor='rgba(255,107,107,0.5)';
-    auraMicBtn.style.color='#FF6B6B';
-    auraMicBtn.style.boxShadow='0 4px 20px rgba(255,107,107,0.2)';
+    auraMicBtn.style.background='linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.1))';
+    auraMicBtn.style.borderColor='rgba(56,189,248,0.6)';
+    auraMicBtn.style.boxShadow='0 0 25px rgba(14,165,233,0.4), 0 0 50px rgba(14,165,233,0.15)';
   }
   document.querySelectorAll('.chat-mic-btn').forEach(function(b){
-    b.style.color='#FF6B6B';
+    b.style.color='#38bdf8';
   });
 }
 function stopMicPulse(){
@@ -1594,7 +1659,6 @@ function stopMicPulse(){
   if(auraMicBtn){
     auraMicBtn.style.background='';
     auraMicBtn.style.borderColor='';
-    auraMicBtn.style.color='';
     auraMicBtn.style.boxShadow='';
   }
   document.querySelectorAll('.chat-mic-btn').forEach(function(b){
@@ -1683,7 +1747,6 @@ function renderWater(){
 
   // Home water tile
   var homeCount=document.getElementById('homeWaterCount');
-  var homeDots=document.getElementById('homeWaterDots');
   var homeBtn=document.getElementById('homeWaterAddBtn');
   if(homeCount){
     homeCount.textContent=w.glasses;
@@ -1691,21 +1754,29 @@ function renderWater(){
     if(homeFill){
       var fillPct=Math.min(pct*100,100);
       homeFill.style.width=fillPct+'%';
-      homeFill.style.background=pct>=1?'#6BE3A4':'var(--water)';
+      homeFill.style.background=pct>=1?'#34d399':'linear-gradient(90deg,#38bdf8,#22d3ee)';
     }
     if(homeBtn){
       homeBtn.textContent=pct>=1?'Goal reached!':'+'+Math.round(8)+'oz';
       homeBtn.style.opacity=pct>=1?'0.5':'1';
     }
   }
-  if(homeDots){
-    homeDots.innerHTML='';
-    for(var i=0;i<WATER_GOAL;i++){
-      var dot=document.createElement('div');
-      dot.style.cssText='flex:1;height:4px;border-radius:2px;transition:background 0.3s;background:'+(i<w.glasses?'#5BA4E3':'rgba(255,255,255,0.06)');
-      homeDots.appendChild(dot);
-    }
+
+  // Tile bottle SVG
+  var tileFluid=document.getElementById('tileWaterFluid');
+  var tileWave=document.getElementById('tileWaterWave');
+  if(tileFluid){
+    var maxTileH=28, tileBottomY=32;
+    var tileH=Math.round(pct*maxTileH);
+    var tileY=tileBottomY-tileH;
+    tileFluid.setAttribute('height',tileH);
+    tileFluid.setAttribute('y',tileY);
+    if(pct>=1){tileFluid.setAttribute('fill','#34d399');tileFluid.setAttribute('fill-opacity','0.6')}
+    else{tileFluid.setAttribute('fill','#38bdf8');tileFluid.setAttribute('fill-opacity','0.6')}
   }
+  if(tileWave&&tileH>2){
+    tileWave.setAttribute('d','M6,'+tileY+' Q13,'+(tileY-3)+' 22,'+tileY+'');
+  }else if(tileWave){tileWave.setAttribute('d','')}
 }
 
 // Bottle tap to add water
@@ -2037,10 +2108,11 @@ function renderTodayLog(){
   });
 }
 
-// Init workouts
+  // Init workouts
 renderWeeklyChart();
 renderTodayLog();
 renderWorkoutStats();
+renderStreak();
 
 /* ════════════ FINANCE ════════════ */
 function getMonthlyIncome(){
@@ -2251,7 +2323,7 @@ function renderTodayHeader(){
   const bar=document.getElementById('gmBar');bar.innerHTML='';
   goals.forEach(function(g){const seg=document.createElement('div');seg.className='gm-bar-seg'+(g.done?' gm-bar-seg-done':'');bar.appendChild(seg)});
 }
-function renderStreak(){const s=computeWorkoutStreak();document.getElementById('gmStreakNum').textContent=s;const el=document.getElementById('gmStreak');if(s>0)el.classList.add('gm-streak-active');else el.classList.remove('gm-streak-active')}
+function renderStreak(){const s=computeWorkoutStreak();const num=document.getElementById('gmStreakNum');const pill=document.getElementById('gmStreak');if(num)num.textContent=s;if(pill){if(s>0){pill.style.borderColor='transparent'}else{pill.style.borderColor='rgba(255,255,255,0.06)'}}}
 
 function buildGoalRow(g,idx,key,listEl,emptyEl,readOnly,loadFn){
   const li=document.createElement('li');li.className='goal-item'+(g.done?' gm-done':'')+(g.queued?' gm-queued':'');li.draggable=true;li.dataset.idx=idx;
@@ -2338,8 +2410,16 @@ function renderExpenseHome(){
   // Home cash flow tile
   var homeSpent=document.getElementById('homeCashSpent');
   var homeMonthly=document.getElementById('homeCashMonthly');
+  var homeCashFill=document.getElementById('homeCashFill');
   if(homeSpent)homeSpent.textContent=fmtMoney(total);
   if(homeMonthly)homeMonthly.textContent=monthly?fmtMoney(monthly):'$0';
+  if(homeCashFill&&monthly>0){
+    var cashPct=Math.min(total/monthly,1);
+    homeCashFill.style.width=(cashPct*100)+'%';
+    if(cashPct<0.5)homeCashFill.style.background='linear-gradient(90deg,#f59e0b,#d97706)';
+    else if(cashPct<0.8)homeCashFill.style.background='linear-gradient(90deg,#f59e0b,#ea580c)';
+    else homeCashFill.style.background='linear-gradient(90deg,#ea580c,#ef4444)';
+  }
 }
 
 // Cash flow tile click → navigate to Finance tab
@@ -2539,6 +2619,7 @@ function renderSleep(){
   // Home sleep tile elements
   const homeVal=document.getElementById('homeSleepVal');
   const homeLabel=document.getElementById('homeSleepLabel');
+  const sleepTile=document.getElementById('sleepTileHome');
 
   if(!btnEl)return;
 
@@ -2552,9 +2633,10 @@ function renderSleep(){
     btnEl.className='sleep-btn check-out';
     if(hoursEl)hoursEl.textContent='--';
     if(detailEl)detailEl.textContent='Awake since '+formatTime12(s.checkIn);
-    // Home tile
+    // Home tile — add purple glow
     if(homeVal)homeVal.textContent=elapsed;
     if(homeLabel)homeLabel.textContent='🌙 Tracking Sleep';
+    if(sleepTile){sleepTile.classList.add('sleep-tile-active');sleepTile.style.background='rgba(147,51,234,0.08)'}
   }else if(s.checkIn&&s.checkOut){
     // Slept
     const hrs=calcSleepHoursFromTs(s.checkIn,s.checkOut);
@@ -2569,6 +2651,7 @@ function renderSleep(){
     // Home tile
     if(homeVal)homeVal.textContent=hrs;
     if(homeLabel)homeLabel.textContent=hrs+'h slept';
+    if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
   }else{
     // Not checked in
     if(iconEl)iconEl.textContent='🌙';
@@ -2582,6 +2665,7 @@ function renderSleep(){
     // Home tile
     if(homeVal)homeVal.textContent='--';
     if(homeLabel)homeLabel.textContent='';
+    if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
   }
 }
 
@@ -2619,8 +2703,8 @@ function renderWorkoutStats(){
   var streak=computeWorkoutStreak();
 
   // Update streak badge
-  var badge=document.getElementById('streakBadge');
-  if(badge)badge.textContent='\ud83d\udd25 '+streak+'-Day Workout Streak';
+  var badgeNum=document.getElementById('streakBadgeNum');
+  if(badgeNum)badgeNum.textContent=streak;
 
   // Legacy stat elements (for Aura context)
   var el;
