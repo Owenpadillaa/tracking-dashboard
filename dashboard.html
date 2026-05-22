@@ -764,8 +764,8 @@ body{
 .cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity 0.2s}
 .cal-cap-dot.show{opacity:1}
 .cal-event-list{display:flex;flex-direction:column;gap:0}
-.cal-empty{text-align:center;padding:28px 0;color:var(--text-tertiary);font-size:14px;font-weight:500}
-.cal-event{display:flex;gap:14px;padding:12px 0;border-bottom:0.5px solid rgba(255,255,255,0.04)}
+.cal-empty{text-align:center;padding:20px 0;color:var(--text-tertiary);font-size:13px;font-weight:500}
+.cal-event{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,0.04)}
 .cal-event:last-child{border-bottom:none}
 .cal-event-time{min-width:48px;text-align:right;font-size:11px;font-weight:600;color:var(--text-tertiary);font-family:"SF Mono",ui-monospace;padding-top:2px}
 .cal-event-bar{width:2px;border-radius:1px;background:var(--accent);flex-shrink:0}
@@ -776,14 +776,14 @@ body{
 /* ── Multi-View Calendar ── */
 .calendar-view-btn{color:var(--text-tertiary)}
 .calendar-view-btn.active{background:rgba(30,41,59,1);color:#22d3ee;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
-.monthly-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-size:12px;font-weight:500;color:var(--text-secondary);position:relative}
+.monthly-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-size:11px;font-weight:500;color:var(--text-secondary);position:relative}
 .monthly-cell:hover{background:rgba(255,255,255,0.05)}
 .monthly-cell.today{border:1px solid rgba(14,165,233,0.3)}
 .monthly-cell.active{background:rgba(14,165,233,0.12);color:#22d3ee}
 .monthly-cell.other-month{opacity:0.25}
 .monthly-cell .monthly-dot{width:4px;height:4px;border-radius:50%;background:#22d3ee;position:absolute;bottom:5px;left:50%;margin-left:-2px}
-.monthly-header-cell{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:6px}
-.yearly-month-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:8px;cursor:pointer;transition:all 0.2s}
+.monthly-header-cell{font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:4px}
+.yearly-month-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:6px;cursor:pointer;transition:all 0.2s}
 .yearly-month-block:hover{border-color:rgba(14,165,233,0.3);background:rgba(14,165,233,0.04)}
 .yearly-month-label{font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;text-align:center}
 .yearly-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
@@ -1105,10 +1105,10 @@ body{
     </div>
 
     <!-- ═══ Calendar: Multi-View Hybrid ═══ -->
-    <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-5 mt-4">
+    <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-4 mt-4">
 
       <!-- View Switcher -->
-      <div class="flex bg-slate-950/60 p-1 rounded-xl mb-4 max-w-xs mx-auto">
+      <div class="flex bg-slate-950/60 p-0.5 rounded-lg mb-3 max-w-[280px] mx-auto">
         <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn active" data-view="weekly" onclick="switchCalendarView('weekly')">Weekly</button>
         <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="monthly" onclick="switchCalendarView('monthly')">Monthly</button>
         <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="yearly" onclick="switchCalendarView('yearly')">Yearly</button>
@@ -1116,10 +1116,10 @@ body{
 
       <!-- ═══ WEEKLY VIEW (ribbon + agenda) ═══ -->
       <div id="calendar-view-weekly">
-        <div class="flex items-center gap-2 mb-3">
+        <div class="flex items-center gap-2 mb-2">
           <span class="text-sm font-semibold text-slate-300" id="calMonthLabel">May 2026</span>
         </div>
-        <div class="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x" id="calendar-date-ribbon">
+        <div class="flex gap-2 overflow-x-auto pb-2 pt-0.5 scrollbar-none snap-x" id="calendar-date-ribbon">
         </div>
         <div class="cal-event-list mt-1" id="calDateEventList">
           <div class="cal-empty" id="calDateEmpty">Select a date above</div>
@@ -1133,7 +1133,7 @@ body{
 
       <!-- ═══ YEARLY VIEW (3x4 micro-matrix) ═══ -->
       <div id="calendar-view-yearly" class="hidden">
-        <div class="grid grid-cols-3 gap-2" id="yearlyGrid"></div>
+        <div class="grid grid-cols-3 gap-1.5" id="yearlyGrid"></div>
       </div>
 
     </div>
@@ -2966,14 +2966,14 @@ function renderDateChips(){
   var start=new Date();
   if(!activeCalDate)activeCalDate=todayStr;
   ribbon.innerHTML='';
-  for(var i=0;i<14;i++){
+  for(var i=0;i<7;i++){
     var d=new Date(start);
     d.setDate(start.getDate()+i);
     var ds=dateStrLocal(d);
     var isToday=ds===todayStr;
     var isActive=ds===activeCalDate;
     var chip=document.createElement('div');
-    chip.className='snap-center flex-shrink-0 w-14 min-h-[72px] bg-slate-900/60 border rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
+    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] bg-slate-900/60 border rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
     chip.dataset.date=ds;
     chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
       +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>';
