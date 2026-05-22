@@ -603,6 +603,28 @@ function getMonthlyAmount(inc) {
   return inc.amount;
 }
 
+/* ════════════ DEEP WORK API ════════════ */
+
+app.post('/api/v1/deepwork', (req, res) => {
+  const { date, duration, intention } = req.body;
+  if (!duration) return res.status(400).json({ error: 'Missing duration' });
+  const sessions = loadDataFile('deepwork');
+  const arr = Array.isArray(sessions) ? sessions : [];
+  arr.push({
+    date: date || new Date().toISOString().slice(0, 10),
+    duration: parseInt(duration, 10),
+    intention: intention || '',
+    completedAt: Date.now()
+  });
+  saveDataFile('deepwork', arr);
+  res.json({ ok: true });
+});
+
+app.get('/api/v1/deepwork', (req, res) => {
+  const sessions = loadDataFile('deepwork');
+  res.json(Array.isArray(sessions) ? sessions : []);
+});
+
 /* ════════════ GOAL POLISH (Anthropic proxy) ════════════ */
 
 app.post('/api/polish', async (req, res) => {

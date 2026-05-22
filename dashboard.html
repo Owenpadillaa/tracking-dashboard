@@ -841,6 +841,30 @@ body::after{
   .card{padding:12px 14px}
 }
 
+/* ── Deep Work ── */
+.dw-intention{width:100%;background:rgba(15,23,42,0.3);border:1px solid rgba(255,255,255,0.08);color:var(--text-secondary);text-align:center;padding:12px 16px;border-radius:16px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s}
+.dw-intention:focus{border-color:rgba(91,164,227,0.4)}
+.dw-intention::placeholder{color:var(--text-tertiary)}
+.dw-timer-display{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:56px;font-weight:800;color:#f1f5f9;letter-spacing:-0.02em;line-height:1;margin-bottom:16px;text-align:center;cursor:text;user-select:none}
+.dw-timer-display:focus{outline:none}
+.dw-pills{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
+.dw-pill{padding:8px 20px;border-radius:99px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-secondary);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em}
+.dw-pill:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.dw-pill.active{background:rgba(91,164,227,0.15);color:#60a5fa;border-color:rgba(91,164,227,0.3)}
+.dw-start-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.02em}
+.dw-start-btn:hover{opacity:0.9}
+.dw-start-btn:disabled{opacity:0.4;cursor:default}
+.dw-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.dw-metric{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;text-align:center}
+.dw-metric-val{font-size:22px;font-weight:800;color:#f1f5f9;line-height:1;margin-bottom:4px}
+.dw-metric-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary)}
+.dw-overlay{position:fixed;inset:0;background:rgba(2,6,23,0.96);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease}
+.dw-overlay.active{opacity:1;pointer-events:auto}
+.dw-overlay-timer{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:72px;font-weight:800;color:#f1f5f9;letter-spacing:-0.02em;line-height:1;margin-bottom:12px}
+.dw-overlay-intention{color:var(--text-tertiary);font-size:14px;margin-bottom:32px;max-width:80vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dw-cancel-btn{color:var(--text-tertiary);font-size:13px;cursor:pointer;transition:color 0.2s;background:none;border:none;font-family:inherit;margin-top:24px}
+.dw-cancel-btn:hover{color:var(--text-secondary)}
+
 /* ── Toast ── */
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120%);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:13px;z-index:9999;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:transform .3s ease;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #toast.show{transform:translateX(-50%) translateY(0)}
@@ -1258,6 +1282,38 @@ body::after{
     </div>
   </div>
 
+  <!-- ═══════ DEEP WORK TAB ═══════ -->
+  <div class="tab-page" id="tab-deepwork">
+    <h1 class="dash-title">Deep Work</h1>
+    <div class="section" style="text-align:center">
+      <input type="text" class="dw-intention" id="dwIntention" placeholder="+ What is your single focus outcome for this block?">
+      <div class="dw-timer-display" id="dwTimerDisplay" contenteditable="true" spellcheck="false">25:00</div>
+      <div class="dw-pills">
+        <button class="dw-pill active" data-min="25" data-label="Sprint">25m · Sprint</button>
+        <button class="dw-pill" data-min="50" data-label="Deep Block">50m · Deep Block</button>
+        <button class="dw-pill" data-min="90" data-label="Lock-In">90m · Lock-In</button>
+      </div>
+      <button class="dw-start-btn" id="dwStartBtn">Start Deep Work</button>
+    </div>
+    <div class="dw-metrics">
+      <div class="dw-metric">
+        <div class="dw-metric-val" id="dwWeeklyTotal">0.0h</div>
+        <div class="dw-metric-label">Weekly Total</div>
+      </div>
+      <div class="dw-metric">
+        <div class="dw-metric-val" id="dwStreak">0 days</div>
+        <div class="dw-metric-label">Focus Streak</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Deep Work countdown overlay -->
+<div class="dw-overlay" id="dwOverlay">
+  <div class="dw-overlay-timer" id="dwOverlayTimer">00:00</div>
+  <div class="dw-overlay-intention" id="dwOverlayIntention"></div>
+  <button class="dw-cancel-btn" id="dwCancelBtn">Cancel Session</button>
 </div>
 
 <!-- Floating tab bar -->
@@ -1281,6 +1337,10 @@ body::after{
   <button class="tab-btn" data-tab="tab-finance">
     <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 8.5c0-2.76-2.24-4.5-5-4.5S7 5.74 7 8.5c0 4 10 4.5 10 8.5 0 2.76-2.24 4.5-5 4.5s-5-1.74-5-4.5"/></svg></span>
     <span>Finance</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-deepwork">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+    <span>Focus</span>
   </button>
 </div>
 
@@ -2288,6 +2348,156 @@ if(cashFlowTile){
     document.getElementById('tab-finance').classList.add('active');
   });
 }
+
+/* ════════════ DEEP WORK ════════════ */
+(function(){
+  var pills=document.querySelectorAll('.dw-pill');
+  var timerDisplay=document.getElementById('dwTimerDisplay');
+  var startBtn=document.getElementById('dwStartBtn');
+  var intention=document.getElementById('dwIntention');
+  var overlay=document.getElementById('dwOverlay');
+  var overlayTimer=document.getElementById('dwOverlayTimer');
+  var overlayIntention=document.getElementById('dwOverlayIntention');
+  var cancelBtn=document.getElementById('dwCancelBtn');
+  var selectedMin=25;
+  var countdownInterval=null;
+  var remainingSec=25*60;
+
+  function fmtTimer(s){
+    var m=Math.floor(s/60);
+    var sec=s%60;
+    return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+  }
+
+  function updateDisplay(){timerDisplay.textContent=fmtTimer(remainingSec)}
+
+  // Preset pills
+  pills.forEach(function(p){
+    p.addEventListener('click',function(){
+      pills.forEach(function(b){b.classList.remove('active')});
+      p.classList.add('active');
+      selectedMin=parseInt(p.dataset.min);
+      remainingSec=selectedMin*60;
+      updateDisplay();
+    });
+  });
+
+  // Allow editing the timer directly
+  timerDisplay.addEventListener('blur',function(){
+    var raw=timerDisplay.textContent.trim();
+    var parts=raw.split(':');
+    var mins;
+    if(parts.length===2){mins=parseInt(parts[0])+(parseInt(parts[1])/60)}
+    else{mins=parseInt(raw)}
+    if(!mins||mins<1)mins=25;
+    selectedMin=Math.round(mins);
+    remainingSec=selectedMin*60;
+    pills.forEach(function(b){b.classList.remove('active')});
+    updateDisplay();
+  });
+  timerDisplay.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();timerDisplay.blur()}
+  });
+
+  // Start deep work
+  startBtn.addEventListener('click',function(){
+    remainingSec=selectedMin*60;
+    overlayIntention.textContent=intention.value.trim()||'Deep focus session';
+    overlay.classList.add('active');
+    overlayTimer.textContent=fmtTimer(remainingSec);
+
+    countdownInterval=setInterval(function(){
+      remainingSec--;
+      overlayTimer.textContent=fmtTimer(remainingSec);
+      if(remainingSec<=0){
+        clearInterval(countdownInterval);
+        countdownInterval=null;
+        finishSession();
+      }
+    },1000);
+  });
+
+  // Cancel
+  cancelBtn.addEventListener('click',function(){
+    if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null}
+    overlay.classList.remove('active');
+    remainingSec=selectedMin*60;
+    updateDisplay();
+  });
+
+  function finishSession(){
+    // Bell chime
+    try{
+      var ctx=new (window.AudioContext||window.webkitAudioContext)();
+      var osc=ctx.createOscillator();var gain=ctx.createGain();
+      osc.type='sine';osc.frequency.value=528;
+      gain.gain.setValueAtTime(0.3,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start();osc.stop(ctx.currentTime+1.5);
+    }catch(e){}
+
+    var now=new Date();
+    var dateStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+
+    // Save to localStorage
+    var sessions=storeGet('deepwork:sessions')||[];
+    sessions.push({date:dateStr,duration:selectedMin,intention:intention.value.trim(),completedAt:Date.now()});
+    storeSet('deepwork:sessions',sessions);
+
+    // Server sync
+    fetch('/api/v1/deepwork',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({date:dateStr,duration:selectedMin,intention:intention.value.trim()})
+    }).catch(function(){});
+
+    overlay.classList.remove('active');
+    remainingSec=selectedMin*60;
+    updateDisplay();
+    renderDWMetrics();
+    showToast('Focus session complete — '+selectedMin+'m logged');
+  }
+
+  // Metrics
+  function renderDWMetrics(){
+    var sessions=storeGet('deepwork:sessions')||[];
+    var now=new Date();
+    var dayMs=86400000;
+    var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+
+    // Weekly total (last 7 days)
+    var weekStart=today.getTime()-6*dayMs;
+    var weeklyMins=0;
+    sessions.forEach(function(s){
+      var d=new Date(s.date+'T00:00:00');
+      if(d.getTime()>=weekStart){weeklyMins+=(s.duration||0)}
+    });
+    document.getElementById('dwWeeklyTotal').textContent=(weeklyMins/60).toFixed(1)+'h';
+
+    // Streak (consecutive days with at least one session)
+    var streak=0;
+    var check=new Date(today);
+    while(true){
+      var ds=check.getFullYear()+'-'+String(check.getMonth()+1).padStart(2,'0')+'-'+String(check.getDate()).padStart(2,'0');
+      var has=sessions.some(function(s){return s.date===ds});
+      if(!has)break;
+      streak++;
+      check=new Date(check.getTime()-dayMs);
+    }
+    document.getElementById('dwStreak').textContent=streak+' day'+(streak!==1?'s':'');
+  }
+
+  // Fetch from server on load
+  fetch('/api/v1/deepwork').then(function(r){return r.json()}).then(function(data){
+    if(Array.isArray(data)&&data.length){
+      var local=storeGet('deepwork:sessions')||[];
+      // Merge: server data wins if it has more entries
+      if(data.length>local.length){storeSet('deepwork:sessions',data)}
+    }
+    renderDWMetrics();
+  }).catch(function(){renderDWMetrics()});
+})();
 
 /* ════════════ SLEEP CHECK-IN ════════════ */
 function getSleepKey(){return 'sleep:'+getActiveDateString()}
