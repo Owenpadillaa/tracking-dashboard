@@ -1055,14 +1055,14 @@ function saveHealthData(data) {
 // GET /api/v1/health/supplements — returns today's checked supplement state from server
 app.get('/api/v1/health/supplements', (req, res) => {
   const health = loadHealthData();
-  res.json({ checked_supplements: health.checked_supplements || [] });
+  res.json({ checked_supplements: health.checked_supplements || {} });
 });
 
 // POST /api/v1/health/supplements — updates checked supplements on server
 app.post('/api/v1/health/supplements', express.json(), (req, res) => {
   const { checked_supplements } = req.body;
-  if (!Array.isArray(checked_supplements)) {
-    return res.status(400).json({ error: 'checked_supplements must be an array' });
+  if (!checked_supplements || typeof checked_supplements !== 'object') {
+    return res.status(400).json({ error: 'checked_supplements must be an object' });
   }
   const health = loadHealthData();
   health.checked_supplements = checked_supplements;

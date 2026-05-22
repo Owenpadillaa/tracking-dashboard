@@ -333,75 +333,54 @@ body::after{
 .goal-item.drag-over{border-top:2px solid rgba(255,255,255,0.3)}
 
 /* ── Health: Water ── */
-.water-ring-container{position:relative;width:168px;height:168px;margin:0 auto 14px}
-.water-ring-svg{width:100%;height:100%}
-.water-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.water-ring-num{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-0.04em;line-height:1}
-.water-ring-unit{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
-.water-ring-sub{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--text-tertiary);text-align:center;margin-bottom:16px}
-.water-add-btn{
-  display:block;margin:0 auto 14px;
-  padding:12px 28px;border-radius:12px;border:none;cursor:pointer;
-  font-weight:700;font-size:15px;font-family:inherit;
-  background:linear-gradient(180deg,#5BA4E3 0%,#4090D0 100%);color:#FFFFFF;
-  box-shadow:0 2px 10px rgba(91,164,227,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
-  transition:all 0.2s;white-space:nowrap;
-}
-.water-add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(91,164,227,0.45),inset 0 1px 0 rgba(255,255,255,0.3)}
-.water-add-btn:active{transform:scale(0.97)}
-.water-add-btn.water-complete{background:linear-gradient(180deg,#6BE3A4 0%,#50C88A 100%);box-shadow:0 2px 10px rgba(107,227,164,0.35),inset 0 1px 0 rgba(255,255,255,0.25)}
-.water-bar-chart{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.water-bar-row{display:flex;align-items:center;gap:8px}
-.water-bar-num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);width:12px;text-align:right}
-.water-bar-fill{flex:1;height:14px;border-radius:7px;background:rgba(255,255,255,0.06);overflow:hidden}
-.water-bar-inner{height:100%;border-radius:7px;background:var(--water);box-shadow:0 0 8px var(--water-glow);width:0%;transition:width 0.5s cubic-bezier(0.22,1,0.36,1)}
-.water-bar-inner.full{background:var(--success);box-shadow:0 0 8px rgba(107,227,164,0.4)}
-.water-bar-time{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:55px}
+.water-bottle-wrap{position:relative;width:140px;margin:0 auto 16px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.water-bottle-wrap:active{transform:scale(0.97)}
+.water-bottle-svg{width:100%;height:auto;filter:drop-shadow(0 4px 20px rgba(34,211,238,0.12))}
+.water-bottle-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;gap:2px}
+.water-bottle-num{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-0.04em;line-height:1;color:#fff;text-shadow:0 2px 12px rgba(34,211,238,0.4)}
+.water-bottle-unit{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);align-self:flex-end;margin-bottom:6px}
+.water-bottle-sub{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:4px}
 .water-log{margin-top:10px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);letter-spacing:0.04em;max-height:60px;overflow-y:auto}
 .water-log span{display:block;padding:1px 0}
 
-/* ── Health: Supplements ── */
-.suppl-category{margin-bottom:12px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden}
-.suppl-cat-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;cursor:pointer;
-  background:rgba(255,255,255,0.03);transition:background 0.2s;
-  user-select:none;
+/* ── Health: Supplement Grid Tiles ── */
+.suppl-grid-tile{
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);border-radius:16px;padding:16px;cursor:pointer;
+  transition:all 0.3s ease;position:relative;user-select:none;-webkit-tap-highlight-color:transparent;
 }
-.suppl-cat-header:hover{background:rgba(255,255,255,0.06)}
-.suppl-cat-name{font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary)}
-.suppl-cat-count{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary)}
-.suppl-cat-arrow{font-size:12px;color:var(--text-tertiary);transition:transform 0.2s}
-.suppl-category.collapsed .suppl-cat-arrow{transform:rotate(-90deg)}
-.suppl-category.collapsed .suppl-cat-body{display:none}
-.suppl-cat-body{padding:4px 8px 8px}
-.suppl-list{list-style:none}
-.suppl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);transition:all 0.2s ease}
-.suppl-item:hover{background:rgba(255,255,255,0.06)}
-.suppl-item:hover .suppl-delete{opacity:1}
-.suppl-item.suppl-taken{opacity:0.55;background:rgba(107,227,164,0.04)}
-.suppl-checkbox{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.18);background:rgba(0,0,0,0.3);cursor:pointer;flex-shrink:0;position:relative;transition:all 0.2s ease;appearance:none;-webkit-appearance:none}
-.suppl-checkbox:checked{background:#6BE3A4;border-color:#6BE3A4;box-shadow:0 0 10px rgba(107,227,164,0.35)}
-.suppl-checkbox:checked::after{content:'';position:absolute;top:2px;left:5px;width:5px;height:8px;border:solid #050506;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);animation:check-pop 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards}
-.suppl-name{flex:1;font-size:13px}
-.suppl-time{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:60px;text-align:right}
-.suppl-delete{font-size:15px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:all 0.2s;padding:2px 4px}
-.suppl-delete:hover{color:var(--danger);opacity:1}
-.suppl-cat-empty{font-size:11px;color:var(--text-tertiary);font-style:italic;padding:8px 0;text-align:center}
-.suppl-summary{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:12px}
-.suppl-add-row{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:12px;flex-wrap:wrap}
-.suppl-select{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;cursor:pointer;min-width:140px}
-.suppl-select option{background:#1a1a1e;color:var(--text-primary)}
-.suppl-select:focus{border-color:rgba(255,255,255,0.25)}
-.suppl-time-btns{display:flex;gap:4px}
-.suppl-time-btn{
-  padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.04);color:var(--text-tertiary);
-  font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
-  letter-spacing:0.04em;text-transform:uppercase;transition:all 0.2s;
+.suppl-grid-tile:active{transform:scale(0.96)}
+.suppl-grid-tile.taken{
+  background:rgba(6,78,59,0.3);border-color:rgba(16,185,129,0.5);color:#34d399;
 }
-.suppl-time-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
-.suppl-time-btn.active{background:rgba(91,164,227,0.15);color:var(--water);border-color:rgba(91,164,227,0.3)}
+.suppl-grid-tile .suppl-tile-name{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text-primary)}
+.suppl-grid-tile.taken .suppl-tile-name{color:#34d399}
+.suppl-grid-tile .suppl-tile-check{
+  width:22px;height:22px;border-radius:7px;border:2px solid rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+  transition:all 0.3s ease;font-size:12px;color:transparent;
+}
+.suppl-grid-tile.taken .suppl-tile-check{
+  background:#10b981;border-color:#10b981;color:#050506;
+  box-shadow:0 0 12px rgba(16,185,129,0.4);
+}
+.suppl-grid-tile .suppl-tile-streak{
+  position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:8px;background:rgba(255,255,255,0.05);
+  color:var(--text-tertiary);border:1px solid rgba(255,255,255,0.06);
+}
+.suppl-grid-tile .suppl-tile-streak.active-streak{
+  background:rgba(242,192,99,0.10);color:#F2C063;border-color:rgba(242,192,99,0.3);
+}
+.suppl-grid-tile .suppl-tile-delete{
+  position:absolute;bottom:10px;right:10px;font-size:14px;background:none;border:none;
+  cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px;
+}
+.suppl-grid-tile:hover .suppl-tile-delete{opacity:1}
+.suppl-grid-tile .suppl-tile-delete:hover{color:var(--danger)}
+.suppl-summary{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:8px}
+.suppl-add-row{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.suppl-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px;font-style:italic}
 
 /* ── Workouts (timer) ── */
 .wtype-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
@@ -721,18 +700,6 @@ body::after{
 .chat-mic-btn{width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;background:rgba(255,255,255,0.06);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
 .chat-mic-btn:hover{background:rgba(255,255,255,0.1);color:var(--text-primary)}
 
-/* ── Compact water donut (health) ── */
-.water-donut-wrap{position:relative;width:120px;height:120px;margin:0 auto 14px}
-.water-donut-svg{width:100%;height:100%}
-.water-donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.water-donut-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-weight:700;font-size:13px;font-family:inherit;background:rgba(255,255,255,0.06);color:var(--text-primary);transition:all 0.2s;display:flex;align-items:center;justify-content:center}
-.water-donut-btn:hover{background:rgba(255,255,255,0.1);transform:scale(1.05)}
-.water-donut-btn:active{transform:scale(0.95)}
-.water-donut-btn.done{background:rgba(107,227,164,0.15);color:var(--success)}
-.water-donut-info{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-bottom:4px}
-.water-donut-num{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
-.water-donut-goal{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--text-tertiary)}
-
 /* ── Workout stats ── */
 .wstats-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .wstat-item{flex:1;min-width:80px;padding:12px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
@@ -741,7 +708,7 @@ body::after{
 
 /* ── Mobile-first input sizing (prevents iOS zoom) ── */
 .chat-input,.gm-input,.cal-url-input,.income-input,.suppl-select,.income-freq-select{font-size:16px}
-.water-donut-btn,.gm-add-btn,.gm-polish-btn,.gm-push-btn{min-height:48px}
+.gm-add-btn,.gm-polish-btn,.gm-push-btn{min-height:48px}
 
 /* Responsive */
 @media(max-width:480px){
@@ -794,15 +761,11 @@ body::after{
   .gm-bar{height:6px;margin-top:10px}
 
   /* Water */
-  .water-ring-container{width:130px;height:130px;margin:0 auto}
-  .water-donut-btn{width:56px;height:56px;font-size:13px}
-  .water-ring-sub{font-size:12px}
+  .water-bottle-wrap{width:120px}
+  .water-bottle-num{font-size:30px}
 
   /* Supplements */
-  .suppl-time-btns{flex-wrap:wrap;gap:4px;justify-content:center}
-  .suppl-time-btn{padding:7px 12px;font-size:11px}
-  .suppl-select{padding:10px 12px;font-size:16px;width:100%}
-  .suppl-cat-name{font-size:12px;font-weight:700}
+  .suppl-grid-tile{padding:12px}
 
   /* Workouts */
   .timer-display{font-size:38px;text-align:center}
@@ -1062,26 +1025,45 @@ body::after{
   <div class="tab-page" id="tab-health">
     <h1 class="dash-title">Health</h1>
 
-    <!-- Water -->
+    <!-- Water Bottle -->
     <div class="section">
       <div class="section-title">Water Intake</div>
       <div class="card" style="text-align:center">
-        <div class="water-donut-wrap">
-          <svg class="water-donut-svg" viewBox="0 0 120 120">
+        <div class="water-bottle-wrap" id="waterBottleWrap">
+          <svg class="water-bottle-svg" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="waterGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <clipPath id="bottleClip">
+                <path d="M44,48 L44,38 Q44,32 48,30 L48,18 Q48,14 52,14 L68,14 Q72,14 72,18 L72,30 Q76,32 76,38 L76,48 Q96,52 96,68 L96,172 Q96,186 82,188 L38,188 Q24,186 24,172 L24,68 Q24,52 44,48 Z"/>
+              </clipPath>
+              <linearGradient id="fluidGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#0891b2" stop-opacity="0.9"/>
+              </linearGradient>
+              <filter id="bottleGlow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             </defs>
-            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
-            <circle id="waterRingFill" cx="60" cy="60" r="52" fill="none" stroke="#5BA4E3" stroke-width="12"
-              stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"
-              transform="rotate(-90 60 60)" filter="url(#waterGlow)"
-              style="transition:stroke-dashoffset 0.5s cubic-bezier(0.22,1,0.36,1),stroke 0.5s ease"/>
+            <!-- Bottle outline -->
+            <path d="M44,48 L44,38 Q44,32 48,30 L48,18 Q48,14 52,14 L68,14 Q72,14 72,18 L72,30 Q76,32 76,38 L76,48 Q96,52 96,68 L96,172 Q96,186 82,188 L38,188 Q24,186 24,172 L24,68 Q24,52 44,48 Z"
+              fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+            <!-- Cap -->
+            <rect x="49" y="8" width="22" height="8" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <!-- Fluid (clipped to bottle shape, height controlled by JS) -->
+            <g clip-path="url(#bottleClip)">
+              <rect id="waterFluid" x="20" y="190" width="80" height="0" fill="url(#fluidGrad)" filter="url(#bottleGlow)"
+                style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1), height 0.6s cubic-bezier(0.22,1,0.36,1)"/>
+              <!-- Wave ripple on fluid surface -->
+              <path id="waterWave" d="" fill="#22d3ee" fill-opacity="0.3" style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1)"/>
+            </g>
+            <!-- Level markers -->
+            <line x1="96" y1="140" x2="102" y2="140" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="96" y1="110" x2="102" y2="110" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="96" y1="80" x2="102" y2="80" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
           </svg>
-          <div class="water-donut-center">
-            <button class="water-donut-btn" id="waterAddBtn">+1</button>
+          <div class="water-bottle-label">
+            <span class="water-bottle-num" id="waterNum">0</span>
+            <span class="water-bottle-unit">oz</span>
           </div>
+          <div class="water-bottle-sub" id="waterSub">/ 64 oz · tap to drink</div>
         </div>
-        <div class="water-donut-info"><span class="water-donut-num" id="waterNum">0</span><span class="water-donut-goal" id="waterSub">/ 8</span></div>
         <div class="water-log" id="waterLog"></div>
       </div>
     </div>
@@ -1096,41 +1078,14 @@ body::after{
       </div>
     </div>
 
-    <!-- Supplements -->
+    <!-- Supplement Matrix -->
     <div class="section">
       <div class="section-title">Supplements</div>
-      <div class="card">
-        <div class="suppl-summary" id="supplSummary">0/0 taken today</div>
-        <div id="supplCategories"></div>
-        <div class="suppl-add-row">
-          <select class="suppl-select" id="supplSelect">
-            <option value="">— Quick add —</option>
-            <option value="Vitamin D">Vitamin D</option>
-            <option value="Multivitamin">Multivitamin</option>
-            <option value="Fish Oil">Fish Oil</option>
-            <option value="Omega-3">Omega-3</option>
-            <option value="Magnesium">Magnesium</option>
-            <option value="Creatine">Creatine</option>
-            <option value="Zinc">Zinc</option>
-            <option value="B-Complex">B-Complex</option>
-            <option value="Vitamin C">Vitamin C</option>
-            <option value="Iron">Iron</option>
-            <option value="Probiotics">Probiotics</option>
-            <option value="Ashwagandha">Ashwagandha</option>
-            <option value="Collagen">Collagen</option>
-            <option value="Protein">Protein</option>
-            <option value="Caffeine">Caffeine</option>
-            <option value="Melatonin">Melatonin</option>
-          </select>
-          <input type="text" class="gm-input" id="supplInput" placeholder="Or type supplement…" maxlength="100" style="flex:1;min-width:100px">
-          <div class="suppl-time-btns">
-            <button class="suppl-time-btn" data-time="morning">AM</button>
-            <button class="suppl-time-btn" data-time="afternoon">PM</button>
-            <button class="suppl-time-btn" data-time="evening">EVE</button>
-            <button class="suppl-time-btn active" data-time="anytime">ANY</button>
-          </div>
-          <button class="gm-add-btn" id="supplAddBtn">+ Add</button>
-        </div>
+      <div class="suppl-summary" id="supplSummary">0/0 taken today</div>
+      <div class="grid grid-cols-2 gap-4 my-4" id="supplGrid"></div>
+      <div class="suppl-add-row">
+        <input type="text" class="gm-input" id="supplInput" placeholder="+ Add supplement…" maxlength="100" style="flex:1;min-width:100px">
+        <button class="gm-add-btn" id="supplAddBtn">+ Add</button>
       </div>
     </div>
   </div>
@@ -1608,14 +1563,44 @@ function addGlass(){
 
 function renderWater(){
   const w=getWater(),pct=Math.min(w.glasses/WATER_GOAL,1);
-  // Health donut
-  const fill=document.getElementById('waterRingFill'),num=document.getElementById('waterNum'),sub=document.getElementById('waterSub'),btn=document.getElementById('waterAddBtn'),log=document.getElementById('waterLog');
-  if(fill){
-    fill.style.strokeDashoffset=WATER_CIRC*(1-pct);
-    if(pct>=1){fill.style.stroke='#6BE3A4';btn.className='water-donut-btn done';btn.textContent='✓'}
-    else{fill.style.stroke='#5BA4E3';btn.className='water-donut-btn';btn.textContent='+1'}
-    num.textContent=w.glasses;
-    sub.textContent='/ '+WATER_GOAL+' ('+(w.glasses*250)+'ml)';
+  const oz=w.glasses*8;
+
+  // Bottle fluid SVG
+  const fluid=document.getElementById('waterFluid');
+  const wave=document.getElementById('waterWave');
+  const num=document.getElementById('waterNum');
+  const sub=document.getElementById('waterSub');
+  const log=document.getElementById('waterLog');
+
+  if(fluid){
+    // Bottle fillable area: y=50 to y=188 (138 units height)
+    const maxH=138, bottomY=188;
+    const h=Math.round(pct*maxH);
+    const y=bottomY-h;
+    fluid.setAttribute('height',h);
+    fluid.setAttribute('y',y);
+
+    // Color shift: cyan → green when goal reached
+    if(pct>=1){
+      fluid.setAttribute('fill','#10b981');
+      fluid.setAttribute('fill-opacity','0.85');
+    } else {
+      fluid.setAttribute('fill','url(#fluidGrad)');
+      fluid.setAttribute('fill-opacity','1');
+    }
+
+    // Wave ripple
+    if(wave&&h>2){
+      var waveY=y-2;
+      wave.setAttribute('d','M24,'+waveY+' Q40,'+(waveY-4)+' 60,'+waveY+' Q80,'+(waveY+4)+' 96,'+waveY+' L96,'+(waveY+6)+' L24,'+(waveY+6)+' Z');
+      wave.style.y='0';
+    } else if(wave){
+      wave.setAttribute('d','');
+    }
+  }
+  if(num) num.textContent=oz;
+  if(sub) sub.textContent=pct>=1?'Goal reached!':'/ 64 oz \u00b7 tap to drink';
+  if(log){
     log.innerHTML='';
     w.log.slice(-6).forEach(function(ts){const s=document.createElement('span');s.textContent=formatTime12(ts);log.appendChild(s)});
   }
@@ -1647,17 +1632,15 @@ function renderWater(){
   }
 }
 
-document.getElementById('waterAddBtn').addEventListener('click',addGlass);
+// Bottle tap to add water
+var waterBottleWrap=document.getElementById('waterBottleWrap');
+if(waterBottleWrap)waterBottleWrap.addEventListener('click',addGlass);
 var homeWaterBtn=document.getElementById('homeWaterAddBtn');
 var homeWaterTile=document.getElementById('waterTileHome');
 if(homeWaterBtn)homeWaterBtn.addEventListener('click',addGlass);
 if(homeWaterTile)homeWaterTile.addEventListener('click',function(e){if(homeWaterBtn&&(e.target===homeWaterBtn||homeWaterBtn.contains(e.target)))return;addGlass()});
 
 /* ════════════ SUPPLEMENTS ════════════ */
-const SUPPL_CATEGORIES=['morning','afternoon','evening','anytime'];
-const SUPPL_CAT_LABELS={morning:'Morning',afternoon:'Afternoon',evening:'Evening',anytime:'Anytime'};
-let selectedTime='anytime';
-
 function getSupplMaster(){return storeGet('supplements:master')||[]}
 function setSupplMaster(arr){storeSet('supplements:master',arr)}
 function getSupplDayKey(){return 'supplements:'+getActiveDateString()}
@@ -1689,89 +1672,86 @@ function loadSupplFromServer(){
     }).catch(function(){});
 }
 
-// Time buttons
-document.querySelectorAll('.suppl-time-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.suppl-time-btn').forEach(function(b){b.classList.remove('active')});
-    btn.classList.add('active');selectedTime=btn.dataset.time;
-  });
-});
-
-// Dropdown auto-fill
-document.getElementById('supplSelect').addEventListener('change',function(){
-  const val=this.value;
-  if(val){document.getElementById('supplInput').value=val;this.value=''}
-});
+// Supplement streak: count consecutive days with supplement taken
+function getSupplStreak(name){
+  var streak=0;
+  for(var i=0;i<365;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var key='supplements:'+dateStrLocal(d);
+    var day=storeGet(key)||{};
+    if(day[name]&&day[name].taken){streak++}else{break}
+  }
+  return streak;
+}
 
 function renderSuppl(){
   const master=getSupplMaster(),day=getSupplDay();
-  const container=document.getElementById('supplCategories');
+  const grid=document.getElementById('supplGrid');
   const summary=document.getElementById('supplSummary');
-  container.innerHTML='';
+  if(!grid)return;
+  grid.innerHTML='';
 
-  let totalTaken=0,totalCount=0;
+  let totalTaken=0,totalCount=master.length;
 
-  SUPPL_CATEGORIES.forEach(function(cat){
-    const items=master.filter(function(m){return(m.time||'anytime')===cat});
-    if(!items.length)return;
+  if(!master.length){
+    grid.innerHTML='<div class="suppl-empty col-span-2">No supplements yet. Add one below.</div>';
+    summary.textContent='0/0 taken today';
+    return;
+  }
 
-    const taken=items.filter(function(m){const s=day[m.name]||{};return s.taken}).length;
-    totalTaken+=taken;totalCount+=items.length;
+  master.forEach(function(m){
+    const state=day[m.name]||{taken:false};
+    const isTaken=!!state.taken;
+    if(isTaken)totalTaken++;
 
-    const catDiv=document.createElement('div');
-    catDiv.className='suppl-category';
+    const streak=getSupplStreak(m.name);
 
-    const header=document.createElement('div');
-    header.className='suppl-cat-header';
-    header.innerHTML='<span class="suppl-cat-name">'+SUPPL_CAT_LABELS[cat]+'</span><span class="suppl-cat-count">'+taken+'/'+items.length+'</span><span class="suppl-cat-arrow">▾</span>';
+    const tile=document.createElement('div');
+    tile.className='suppl-grid-tile'+(isTaken?' taken':'');
 
-    const body=document.createElement('div');
-    body.className='suppl-cat-body';
-    const list=document.createElement('ul');
-    list.className='suppl-list';
+    // Check circle
+    const checkEl=document.createElement('div');
+    checkEl.className='suppl-tile-check';
+    checkEl.textContent=isTaken?'✓':'';
 
-    items.forEach(function(m){
-      const state=day[m.name]||{taken:false};
-      const li=document.createElement('li');
-      li.className='suppl-item'+(state.taken?' suppl-taken':'');
+    // Name
+    const nameEl=document.createElement('div');
+    nameEl.className='suppl-tile-name';
+    nameEl.textContent=m.name;
 
-      const cb=document.createElement('input');
-      cb.type='checkbox';cb.className='suppl-checkbox';cb.checked=!!state.taken;
+    // Streak badge
+    if(streak>0){
+      const streakEl=document.createElement('div');
+      streakEl.className='suppl-tile-streak'+(streak>=3?' active-streak':'');
+      streakEl.textContent='🔥 '+streak+'d';
+      tile.appendChild(streakEl);
+    }
 
-      const nameEl=document.createElement('span');
-      nameEl.className='suppl-name';nameEl.textContent=m.name;
+    // Delete button
+    const delBtn=document.createElement('button');
+    delBtn.className='suppl-tile-delete';
+    delBtn.textContent='×';
+    delBtn.title='Remove';
 
-      const timeEl=document.createElement('span');
-      timeEl.className='suppl-time';
-      timeEl.textContent=state.taken&&state.takenAt?formatTime12(state.takenAt):'';
-
-      const delBtn=document.createElement('button');
-      delBtn.className='suppl-delete';delBtn.textContent='×';delBtn.title='Remove';
-
-      cb.addEventListener('change',function(){
-        const d=getSupplDay();
-        d[m.name]=cb.checked?{taken:true,takenAt:Date.now()}:{taken:false};
-        setSupplDay(d);syncSupplToServer();renderSuppl();
-      });
-
-      delBtn.addEventListener('click',function(){
-        const arr=getSupplMaster();
-        const idx=arr.findIndex(function(x){return x.name===m.name});
-        if(idx>-1)arr.splice(idx,1);setSupplMaster(arr);
-        const d=getSupplDay();delete d[m.name];setSupplDay(d);syncSupplToServer();renderSuppl();
-      });
-
-      li.append(cb,nameEl,timeEl,delBtn);
-      list.appendChild(li);
+    // Toggle on tile click
+    tile.addEventListener('click',function(e){
+      if(e.target===delBtn||delBtn.contains(e.target))return;
+      const d=getSupplDay();
+      d[m.name]=!isTaken?{taken:true,takenAt:Date.now()}:{taken:false};
+      setSupplDay(d);syncSupplToServer();renderSuppl();
     });
 
-    body.appendChild(list);
-    catDiv.append(header,body);
+    // Delete
+    delBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      const arr=getSupplMaster();
+      const idx=arr.findIndex(function(x){return x.name===m.name});
+      if(idx>-1)arr.splice(idx,1);setSupplMaster(arr);
+      const d=getSupplDay();delete d[m.name];setSupplDay(d);syncSupplToServer();renderSuppl();
+    });
 
-    // Toggle collapse
-    header.addEventListener('click',function(){catDiv.classList.toggle('collapsed')});
-
-    container.appendChild(catDiv);
+    tile.append(checkEl,nameEl,delBtn);
+    grid.appendChild(tile);
   });
 
   summary.textContent=totalTaken+'/'+totalCount+' taken today';
@@ -1783,7 +1763,7 @@ document.getElementById('supplAddBtn').addEventListener('click',function(){
   if(!name)return;
   const m=getSupplMaster();
   if(m.some(function(x){return x.name.toLowerCase()===name.toLowerCase()})){input.value='';return}
-  m.push({name:name,time:selectedTime});
+  m.push({name:name,time:'anytime'});
   setSupplMaster(m);
   const d=getSupplDay();d[name]={taken:false};setSupplDay(d);syncSupplToServer();
   input.value='';renderSuppl();
