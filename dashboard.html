@@ -748,38 +748,28 @@ body{
 .notif-bar-btn-secondary{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
 .notif-bar-btn-secondary:hover{background:rgba(255,255,255,0.1)}
 
-/* ── Calendar strip + agenda ── */
-.cal-strip{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
-.cal-strip::-webkit-scrollbar{display:none}
-.cal-day{flex:1;min-width:46px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:16px;background:rgba(255,255,255,0.03);cursor:pointer;transition:all .2s cubic-bezier(.23,1,.32,1);user-select:none}
-.cal-day:hover{background:rgba(255,255,255,0.06)}
-.cal-day.active{background:rgba(255,255,255,0.1)}
-.cal-day.today{background:var(--accent-glow)}
-.cal-day.today .cal-day-dow{color:var(--accent)}
-.cal-day.today .cal-day-num{color:var(--accent)}
-.cal-day-dow{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary)}
-.cal-day-num{font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums}
-.cal-day.has-events::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:2px}
-.cal-card{padding:16px 18px}
-.cal-agenda{display:flex;flex-direction:column;gap:0}
+/* ── Calendar: Horizontal Rolling Date Ribbon ── */
+.cal-section{margin-bottom:16px}
+.cal-ribbon{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cal-ribbon::-webkit-scrollbar{display:none}
+.cal-cap{scroll-snap-align:center;flex-shrink:0;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);user-select:none;position:relative}
+.cal-cap:hover{background:rgba(255,255,255,0.07)}
+.cal-cap.active{border-color:rgba(14,165,233,0.6);background:rgba(14,165,233,0.08)}
+.cal-cap.today{border-color:rgba(14,165,233,0.3)}
+.cal-cap.today.active{border-color:rgba(14,165,233,0.8);background:rgba(14,165,233,0.12)}
+.cal-cap-dow{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary)}
+.cal-cap-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
+.cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity 0.2s}
+.cal-cap-dot.show{opacity:1}
+.cal-event-list{display:flex;flex-direction:column;gap:0}
 .cal-empty{text-align:center;padding:28px 0;color:var(--text-tertiary);font-size:14px;font-weight:500}
 .cal-event{display:flex;gap:14px;padding:12px 0;border-bottom:0.5px solid rgba(255,255,255,0.04)}
 .cal-event:last-child{border-bottom:none}
-.cal-event-time{min-width:60px;text-align:right;font-size:12px;font-weight:500;color:var(--text-tertiary);font-family:"SF Mono",ui-monospace;padding-top:2px}
+.cal-event-time{min-width:48px;text-align:right;font-size:11px;font-weight:600;color:var(--text-tertiary);font-family:"SF Mono",ui-monospace;padding-top:2px}
 .cal-event-bar{width:2px;border-radius:1px;background:var(--accent);flex-shrink:0}
 .cal-event-body{flex:1;min-width:0}
-.cal-event-title{font-size:14px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cal-event-range{font-size:12px;color:var(--text-tertiary);margin-top:2px}
-.cal-event.all-day .cal-event-time{color:var(--accent)}
-.cal-url-wrap{display:flex;gap:10px;margin-bottom:14px}
-.cal-toggle-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;opacity:0.4;transition:opacity .2s;vertical-align:middle}
-.cal-toggle-btn:hover{opacity:0.8}
-.cal-url-input{flex:1;padding:12px 16px;border-radius:14px;border:0.5px solid rgba(255,255,255,0.08);background:var(--input-bg);color:var(--text-primary);font-size:16px;font-family:"SF Mono",ui-monospace;outline:none}
-.cal-url-input:focus{border-color:var(--accent)}
-.cal-url-input::placeholder{color:var(--text-tertiary);font-weight:400}
-.cal-url-btn{padding:12px 16px;border-radius:14px;border:none;cursor:pointer;font-weight:600;font-size:14px;font-family:inherit;background:var(--accent);color:#fff;transition:all .2s;white-space:nowrap}
-.cal-url-btn:hover{opacity:0.85}
-.cal-url-btn:active{transform:scale(0.97)}
+.cal-event-title{font-size:14px;font-weight:500;color:var(--text-primary)}
+.cal-event-title small{font-size:11px;color:var(--text-tertiary);font-weight:400}
 
 /* ── Chat widget ── */
 .chat-card{padding:0;overflow:hidden}
@@ -818,7 +808,7 @@ body{
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* ── Mobile-first input sizing (prevents iOS zoom) ── */
-.chat-input,.gm-input,.cal-url-input,.income-input,.suppl-select,.income-freq-select{font-size:16px}
+.chat-input,.gm-input,.income-input,.suppl-select,.income-freq-select{font-size:16px}
 .gm-add-btn,.gm-polish-btn,.gm-push-btn{min-height:48px}
 
 /* Responsive */
@@ -975,12 +965,13 @@ body{
       </div>
     </div>
 
-    <!-- ═══ Events for the Day ═══ -->
-    <div class="mb-5">
-      <div class="section-title">Events for the Day</div>
-      <div class="card" style="padding:14px 18px">
-        <div class="cal-agenda" id="homeEvents">
-          <div class="cal-empty">No events today</div>
+    <!-- ═══ Today's Schedule (local calendar) ═══ -->
+    <div class="cal-section">
+      <div class="section-title">Today's Schedule</div>
+      <div class="cal-ribbon" id="calRibbon"></div>
+      <div class="card" style="padding:16px 18px">
+        <div class="cal-event-list" id="calEventList">
+          <div class="cal-empty" id="calEmpty">Loading events…</div>
         </div>
       </div>
     </div>
@@ -1093,20 +1084,13 @@ body{
       </div>
     </div>
 
-    <!-- Calendar (compact) -->
-    <div class="section" id="calendarSection">
-      <div class="section-title">Calendar
-        <button class="cal-toggle-btn" id="calToggleBtn" title="Calendar settings">⚙</button>
-      </div>
-      <div class="cal-url-wrap" id="calUrlWrap" style="display:none">
-        <input type="url" class="cal-url-input" id="calUrlInput" placeholder="Paste Google Calendar ICS URL…" autocomplete="off">
-        <button class="cal-url-btn" id="calUrlBtn">Save</button>
-        <button class="cal-url-btn" id="calReloadBtn" title="Reload calendar">↻</button>
-      </div>
-      <div class="cal-strip" id="calStrip"></div>
-      <div class="card cal-card">
-        <div class="cal-agenda" id="calAgenda">
-          <div class="cal-empty">No calendar connected</div>
+    <!-- Calendar (local, duplicate placeholder for scroll) -->
+    <div class="section">
+      <div class="section-title">Upcoming</div>
+      <div class="cal-ribbon" id="calRibbon2"></div>
+      <div class="card" style="padding:16px 18px">
+        <div class="cal-event-list" id="calEventList2">
+          <div class="cal-empty">Select a date above</div>
         </div>
       </div>
     </div>
@@ -2838,159 +2822,88 @@ function renderWorkoutStats(){
   el=document.getElementById('wstatStreak');if(el)el.textContent=streak;
 }
 
-/* ════════════ CALENDAR ════════════ */
-const CAL_URL_KEY='calendar_ics_url';
-const CAL_CACHE_KEY='calendar_cache_v1';
+/* ════════════ LOCAL CALENDAR (horizontal rolling ribbon) ════════════ */
+var calendarEvents=[];
+var activeCalDate=null;
 
 function loadCalendar(){
-  const url=storeGet(CAL_URL_KEY);
-  if(url)document.getElementById('calUrlInput').value=url;
-  const cached=storeGet(CAL_CACHE_KEY);
-  if(cached&&cached.events){
-    renderCalendarStrip(cached.events);
-    selectCalendarDay(0,cached.events);
-    renderHomeEvents();
-  }
-  if(url)fetchCalendar(url);
-}
-
-function fetchCalendar(url){
-  fetch('/api/calendar?url='+encodeURIComponent(url)+'&days=7')
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(function(data){
-      storeSet(CAL_CACHE_KEY,data);
-      renderCalendarStrip(data.events);
-      renderHomeEvents();
-      var activeDay=document.querySelector('.cal-day.active');
-      var idx=activeDay?parseInt(activeDay.dataset.index,10):0;
-      selectCalendarDay(idx,data.events);
-    })
-    .catch(function(err){
-      console.warn('Calendar fetch failed:',err);
-      var cached=storeGet(CAL_CACHE_KEY);
-      if(!cached||!cached.events){
-        document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Calendar unavailable</div>';
-      }
-    });
-}
-
-function getWeekMonday(){
-  var now=new Date();
-  var dow=now.getDay(); // 0=Sun
-  var mon=new Date(now);
-  mon.setDate(now.getDate()-((dow+6)%7));
-  mon.setHours(0,0,0,0);
-  return mon;
-}
-
-function renderCalendarStrip(events){
-  var strip=document.getElementById('calStrip');
-  strip.innerHTML='';
-  var dowNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  var monday=getWeekMonday();
-  var todayStr=dateStrLocal(new Date());
-  for(var i=0;i<7;i++){
-    var d=new Date(monday);
-    d.setDate(monday.getDate()+i);
-    var dateStr=dateStrLocal(d);
-    var isToday=dateStr===todayStr;
-    var hasEvents=events.some(function(e){return dateStrLocal(new Date(e.start))===dateStr});
-    var el=document.createElement('div');
-    el.className='cal-day'+(isToday?' today':'')+(hasEvents?' has-events':'');
-    if(isToday)el.classList.add('active');
-    el.dataset.index=i;
-    el.dataset.date=dateStr;
-    el.innerHTML='<span class="cal-day-dow">'+dowNames[d.getDay()===0?6:d.getDay()-1]+'</span><span class="cal-day-num">'+d.getDate()+'</span>';
-    el.addEventListener('click',function(){
-      selectCalendarDay(parseInt(this.dataset.index,10),events);
-    });
-    strip.appendChild(el);
-  }
-}
-
-function selectCalendarDay(index,events){
-  document.querySelectorAll('.cal-day').forEach(function(el){
-    el.classList.toggle('active',parseInt(el.dataset.index,10)===index);
+  fetch('/api/v1/calendar').then(function(r){return r.json()}).then(function(data){
+    calendarEvents=data.events||[];
+    renderDateRibbon();
+    if(!activeCalDate)activeCalDate=dateStrLocal(new Date());
+    selectCalDate(activeCalDate);
+  }).catch(function(){
+    var empty=document.getElementById('calEmpty');
+    if(empty)empty.textContent='Could not load events';
   });
-  var monday=getWeekMonday();
-  var d=new Date(monday);
-  d.setDate(monday.getDate()+index);
-  var dateStr=dateStrLocal(d);
-  var dayEvents=events.filter(function(e){return dateStrLocal(new Date(e.start))===dateStr})
-    .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
-  renderAgenda(dayEvents);
 }
 
-function renderAgenda(events){
-  var agenda=document.getElementById('calAgenda');
-  if(!events.length){
-    agenda.innerHTML='<div class="cal-empty">No events</div>';
-    return;
-  }
-  agenda.innerHTML=events.map(function(e){
-    var allDay=e.allDay;
-    var timeStr=allDay?'All day':formatTime12(e.start);
-    var rangeStr=allDay?'':formatTime12(e.start)+' \u2013 '+formatTime12(e.end);
-    return '<div class="cal-event'+(allDay?' all-day':'')+'">'+
-      '<div class="cal-event-time">'+escHtml(timeStr)+'</div>'+
-      '<div class="cal-event-bar"></div>'+
-      '<div class="cal-event-body">'+
-        '<div class="cal-event-title">'+escHtml(e.title)+'</div>'+
-        (rangeStr?'<div class="cal-event-range">'+escHtml(rangeStr)+'</div>':'')+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-function renderHomeEvents(){
-  var el=document.getElementById('homeEvents');
-  if(!el)return;
-  var cached=storeGet(CAL_CACHE_KEY);
-  if(!cached||!cached.events){el.innerHTML='<div class="cal-empty">No events</div>';return}
+function renderDateRibbon(){
+  var ribbons=[document.getElementById('calRibbon'),document.getElementById('calRibbon2')];
   var todayStr=dateStrLocal(new Date());
-  var dayEvents=cached.events.filter(function(e){return dateStrLocal(new Date(e.start))===todayStr})
-    .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
-  if(!dayEvents.length){el.innerHTML='<div class="cal-empty">No events today</div>';return}
-  el.innerHTML=dayEvents.map(function(e){
-    var allDay=e.allDay;
-    var timeStr=allDay?'All day':formatTime12(e.start);
-    var rangeStr=allDay?'':formatTime12(e.start)+' \u2013 '+formatTime12(e.end);
-    return '<div class="cal-event'+(allDay?' all-day':'')+'">'+
-      '<div class="cal-event-time">'+escHtml(timeStr)+'</div>'+
-      '<div class="cal-event-bar"></div>'+
-      '<div class="cal-event-body">'+
-        '<div class="cal-event-title">'+escHtml(e.title)+'</div>'+
-        (rangeStr?'<div class="cal-event-range">'+escHtml(rangeStr)+'</div>':'')+
-      '</div>'+
-    '</div>';
-  }).join('');
+  var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  // Render 60 days starting from today
+  var start=new Date();
+  for(var r=0;r<ribbons.length;r++){
+    if(!ribbons[r])continue;
+    ribbons[r].innerHTML='';
+    for(var i=0;i<60;i++){
+      var d=new Date(start);
+      d.setDate(start.getDate()+i);
+      var ds=dateStrLocal(d);
+      var isToday=ds===todayStr;
+      var hasEvents=calendarEvents.some(function(e){return e.date===ds});
+      var cap=document.createElement('div');
+      cap.className='cal-cap'+(isToday?' today':'')+(ds===activeCalDate?' active':'');
+      cap.dataset.date=ds;
+      cap.innerHTML='<span class="cal-cap-dow">'+dayNames[d.getDay()]+'</span>'
+        +'<span class="cal-cap-num">'+d.getDate()+'</span>'
+        +(hasEvents?'<span class="cal-cap-dot show"></span>':'<span class="cal-cap-dot"></span>');
+      cap.addEventListener('click',function(){selectCalDate(this.dataset.date)});
+      ribbons[r].appendChild(cap);
+    }
+    // Scroll to today
+    if(ribbons[r].querySelector('.today')){
+      ribbons[r].querySelector('.today').scrollIntoView({inline:'center',behavior:'instant'});
+    }
+  }
+  // Update home events header
+  updateHomeEvents();
 }
 
-document.getElementById('calUrlBtn').addEventListener('click',function(){
-  var url=document.getElementById('calUrlInput').value.trim();
-  if(!url)return;
-  storeSet(CAL_URL_KEY,url);
-  document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Loading…</div>';
-  fetchCalendar(url);
-});
+function selectCalDate(dateStr){
+  activeCalDate=dateStr;
+  document.querySelectorAll('.cal-cap').forEach(function(el){
+    el.classList.toggle('active',el.dataset.date===dateStr);
+  });
+  var dayEvents=calendarEvents.filter(function(e){return e.date===dateStr})
+    .sort(function(a,b){return (a.time||'')>(b.time||'')?1:-1});
+  var lists=[document.getElementById('calEventList'),document.getElementById('calEventList2')];
+  for(var i=0;i<lists.length;i++){
+    if(!lists[i])continue;
+    if(!dayEvents.length){
+      lists[i].innerHTML='<div class="cal-empty">No events for this day</div>';
+    }else{
+      lists[i].innerHTML=dayEvents.map(function(e){
+        var timeStr=e.time?'<span class="cal-event-time">'+escHtml(e.time)+'</span>':'';
+        return '<div class="cal-event">'
+          +timeStr
+          +'<div class="cal-event-bar"></div>'
+          +'<div class="cal-event-body">'
+            +'<div class="cal-event-title">'+escHtml(e.title)+'</div>'
+          +'</div>'
+        +'</div>';
+      }).join('');
+    }
+  }
+}
 
-document.getElementById('calReloadBtn').addEventListener('click',function(){
-  var url=storeGet(CAL_URL_KEY);
-  if(!url)return;
-  document.getElementById('calAgenda').innerHTML='<div class="cal-empty">Reloading…</div>';
-  fetchCalendar(url);
-});
-
-document.getElementById('calUrlInput').addEventListener('keydown',function(e){
-  if(e.key==='Enter')document.getElementById('calUrlBtn').click();
-});
-
-document.getElementById('calToggleBtn').addEventListener('click',function(){
-  var wrap=document.getElementById('calUrlWrap');
-  var open=wrap.style.display!=='none';
-  wrap.style.display=open?'none':'flex';
-  this.style.opacity=open?'0.4':'1';
-});
+function updateHomeEvents(){
+  var todayStr=dateStrLocal(new Date());
+  var todayEvents=calendarEvents.filter(function(e){return e.date===todayStr})
+    .sort(function(a,b){return (a.time||'')>(b.time||'')?1:-1});
+  // Update home page events section header directly via selectCalDate
+}
 
 /* ════════════ CHAT (Aura) ════════════ */
 var chatMessages=[]; // role/content pairs sent to server
@@ -3026,31 +2939,32 @@ function gatherContext(){
   var suppMaster=getSupplMaster();
   var suppTaken=Object.values(suppDay).filter(Boolean).length;
 
-  // Calendar — 7-day window, formatted as grouped string block
-  var calData=storeGet('calendar_cache_v1');
+  // Calendar — local events, 7-day window
   var calendarSummary='';
-  if(calData&&calData.events&&calData.events.length){
-    var now=new Date();var rangeEnd=new Date();rangeEnd.setDate(rangeEnd.getDate()+7);rangeEnd.setHours(23,59,59,999);
-    var upcoming=calData.events.filter(function(e){var s=new Date(e.start);return s>=now&&s<=rangeEnd})
-      .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
+  if(calendarEvents&&calendarEvents.length){
+    var nowMs=Date.now();var rangeEndMs=nowMs+7*86400000;
+    var upcoming=calendarEvents.filter(function(e){
+      var d=new Date(e.date+'T12:00:00').getTime();
+      return d>=nowMs-86400000&&d<=rangeEndMs;
+    }).sort(function(a,b){return a.date>b.date?1:-1});
     if(upcoming.length){
-      var grouped={};
-      upcoming.forEach(function(e){var d=dateStrLocal(new Date(e.start));if(!grouped[d])grouped[d]=[];grouped[d].push(e)});
       var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
       var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var grouped={};
+      upcoming.forEach(function(e){if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e)});
       var parts=[];
       Object.keys(grouped).sort().forEach(function(dateKey){
         var dt=new Date(dateKey+'T12:00:00');
         var label=dayNames[dt.getDay()]+', '+monthNames[dt.getMonth()]+' '+dt.getDate();
-        var items=grouped[dateKey].map(function(e){return(e.allDay?'All day':formatTime12(e.start))+': '+e.title});
+        var items=grouped[dateKey].map(function(e){return(e.time||'All day')+': '+e.title});
         parts.push('- '+label+': '+items.join(', '));
       });
       calendarSummary='CALENDAR EVENTS FOUND:\n'+parts.join('\n');
     }else{
-      calendarSummary='System Status: The calendar data sync is active, but there are 0 events scheduled on the user\'s calendar for the next 7 days.';
+      calendarSummary='System Status: No upcoming events in the next 7 days.';
     }
   }else{
-    calendarSummary='System Status: No calendar connected. User has not set up an ICS URL yet.';
+    calendarSummary='System Status: No calendar events saved.';
   }
 
   // Current date string

@@ -1,7 +1,7 @@
 require('dotenv').config();
 process.env.TZ = 'America/New_York';
 const express = require('express');
-const ical = require('node-ical');
+
 const path = require('path');
 const fs = require('fs');
 const webpush = require('web-push');
@@ -118,10 +118,6 @@ function computeServerStreak(wkData) {
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
-
-// In-memory cache keyed by ICS URL
-const cache = new Map();
 
 // Block access to sensitive files
 const BLOCKED = new Set(['/.env', '/server.js', '/package.json', '/package-lock.json', '/.gitignore']);
@@ -134,93 +130,6 @@ app.use(express.json({ limit: '1mb' }));
 
 // Redirect root to dashboard
 app.get('/', (req, res) => res.redirect('/dashboard.html'));
-
-app.get('/api/calendar', async (req, res) => {
-  const icsUrl = req.query.url;
-  if (!icsUrl) {
-    return res.status(400).json({ error: 'Missing ?url= parameter (Google Calendar ICS URL)' });
-  }
-
-  // Check cache
-  const cached = cache.get(icsUrl);
-  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) {
-    return res.json({ events: cached.events, cachedAt: cached.fetchedAt });
-  }
-
-  try {
-    const data = await new Promise((resolve, reject) => {
-      ical.fromURL(icsUrl, {}, (err, data) => {
-        if (err) return reject(err);
-        resolve(data);
-      });
-    });
-
-    // Window: this Monday through next Sunday (14 days)
-    const now = new Date();
-    const windowStart = new Date(now);
-    const dow = windowStart.getDay(); // 0=Sun
-    windowStart.setDate(windowStart.getDate() - ((dow + 6) % 7)); // Monday
-    windowStart.setHours(0, 0, 0, 0);
-    const windowEnd = new Date(windowStart);
-    windowEnd.setDate(windowEnd.getDate() + 27); // 4 weeks
-    windowEnd.setHours(23, 59, 59, 999);
-
-    const events = [];
-
-    for (const key in data) {
-      const event = data[key];
-      if (event.type !== 'VEVENT') continue;
-
-      const title = event.summary || '(No title)';
-
-      if (event.rrule) {
-        const startDate = new Date(event.start);
-        const endDate = new Date(event.end);
-        const duration = endDate - startDate;
-
-        const occurrences = event.rrule.between(windowStart, windowEnd, true);
-        for (const occ of occurrences) {
-          const occStart = new Date(occ);
-          const occEnd = new Date(occStart.getTime() + duration);
-          events.push({
-            id: (event.uid || key) + '-' + occStart.toISOString(),
-            title,
-            start: occStart.toISOString(),
-            end: occEnd.toISOString(),
-            allDay: event.datetype === 'date',
-          });
-        }
-      } else {
-        const start = new Date(event.start);
-        const end = new Date(event.end);
-        if (end >= windowStart && start <= windowEnd) {
-          events.push({
-            id: event.uid || key,
-            title,
-            start: start.toISOString(),
-            end: end.toISOString(),
-            allDay: event.datetype === 'date',
-          });
-        }
-      }
-    }
-
-    // Sort by start time (numeric timestamp for timezone-safe ordering)
-    events.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-
-    // Update cache
-    cache.set(icsUrl, { events, fetchedAt: Date.now() });
-
-    res.json({ events, cachedAt: Date.now() });
-  } catch (err) {
-    console.error('Calendar fetch error:', err.message);
-    // Return cached data if available, even if stale
-    if (cached) {
-      return res.json({ events: cached.events, cachedAt: cached.fetchedAt, stale: true });
-    }
-    res.status(502).json({ error: 'Failed to fetch calendar: ' + err.message });
-  }
-});
 
 /* ════════════ CHAT (Groq streaming) ════════════ */
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -946,11 +855,31 @@ app.post('/api/v1/quick-log', (req, res) => {
   }
 });
 
-/* ════════════ USER CALENDAR EVENTS ════════════ */
+/* ════════════ LOCAL CALENDAR ════════════ */
 
-app.get('/api/v1/calendar-events', (req, res) => {
+// GET /api/v1/calendar — fetch all events
+app.get('/api/v1/calendar', (req, res) => {
   const events = loadDataFile('calendar_events');
   res.json({ events: events });
+});
+
+// POST /api/v1/calendar/add — append a new event
+app.post('/api/v1/calendar/add', (req, res) => {
+  const { title, date, time } = req.body;
+  if (!title || !date) {
+    return res.status(400).json({ error: 'title and date are required' });
+  }
+  const events = loadDataFile('calendar_events');
+  const ev = {
+    id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    title: String(title).trim(),
+    date: date,
+    time: time || null,
+    createdAt: Date.now(),
+  };
+  events.push(ev);
+  saveDataFile('calendar_events', events);
+  res.json({ ok: true, event: ev });
 });
 
 /* ════════════ INSIGHTS ENGINE ════════════ */
