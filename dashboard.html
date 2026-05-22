@@ -382,60 +382,34 @@ body::after{
 .suppl-add-row{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
 .suppl-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px;font-style:italic}
 
-/* ── Workouts (timer) ── */
-.wtype-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.wtype-btn{
-  padding:10px 18px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.03);color:var(--text-secondary);
-  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
-  transition:all 0.2s;letter-spacing:0.02em;
+/* ── Workouts: Routine Cards ── */
+.routine-card{
+  background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);border-radius:16px;padding:24px 16px;
+  cursor:pointer;text-align:center;transition:all 0.3s ease;user-select:none;
+  -webkit-tap-highlight-color:transparent;
 }
-.wtype-btn:hover{background:rgba(255,255,255,0.07);color:var(--text-primary)}
-.wtype-btn.active{background:rgba(91,164,227,0.12);color:var(--water);border-color:rgba(91,164,227,0.35)}
-.timer-section{text-align:center;margin:24px 0}
-.timer-display{
-  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:56px;font-weight:700;letter-spacing:-0.03em;
-  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:8px;
-  color:var(--text-primary);
+.routine-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-2px)}
+.routine-card:active{transform:scale(0.96)}
+.routine-icon{font-size:32px;margin-bottom:8px}
+.routine-name{font-size:13px;font-weight:700;color:var(--text-primary);letter-spacing:0.02em}
+
+/* Timer Modal */
+.timer-modal-label{
+  font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:32px;
 }
-.timer-display.running{color:var(--success)}
-.timer-type-label{
-  font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--text-tertiary);margin-bottom:20px;
-}
-.timer-controls{display:flex;gap:10px;justify-content:center}
-.timer-start-btn{
-  padding:14px 36px;border-radius:14px;border:none;cursor:pointer;
+.timer-finish-btn{
+  padding:16px 48px;border-radius:16px;border:none;cursor:pointer;
   font-weight:700;font-size:16px;font-family:inherit;
   background:linear-gradient(180deg,#6BE3A4 0%,#50C88A 100%);color:#050506;
-  box-shadow:0 4px 16px rgba(107,227,164,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow:0 4px 20px rgba(107,227,164,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
   transition:all 0.2s;
 }
-.timer-start-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(107,227,164,0.4),inset 0 1px 0 rgba(255,255,255,0.35)}
-.timer-stop-btn{
-  padding:14px 36px;border-radius:14px;border:none;cursor:pointer;
-  font-weight:700;font-size:16px;font-family:inherit;
-  background:linear-gradient(180deg,#FF6B6B 0%,#E05555 100%);color:#FFFFFF;
-  box-shadow:0 4px 16px rgba(255,107,107,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
-  transition:all 0.2s;
-}
-.timer-stop-btn:hover{transform:translateY(-1px)}
-.timer-reset-btn{
-  padding:14px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
-  background:none;color:var(--text-tertiary);cursor:pointer;
-  font-weight:700;font-size:14px;font-family:inherit;transition:all 0.2s;
-}
-.timer-reset-btn:hover{color:var(--text-primary);border-color:rgba(255,255,255,0.2)}
+.timer-finish-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(107,227,164,0.4)}
+.timer-finish-btn:active{transform:scale(0.97)}
 
 /* Weekly chart */
-.weekly-chart{margin-top:8px}
-.weekly-chart-title{
-  font-size:10.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--text-tertiary);margin-bottom:14px;
-  display:flex;align-items:center;gap:10px;
-}
-.weekly-chart-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
 .weekly-bars{display:flex;gap:6px;align-items:flex-end;height:140px;padding:0 4px}
 .weekly-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
 .weekly-bar{
@@ -461,13 +435,6 @@ body::after{
 }
 
 /* Today's log */
-.today-log{margin-top:20px}
-.today-log-title{
-  font-size:10.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--text-tertiary);margin-bottom:10px;
-  display:flex;align-items:center;gap:10px;
-}
-.today-log-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
 .today-log-list{list-style:none}
 .today-log-item{
   display:flex;align-items:center;gap:10px;
@@ -768,11 +735,9 @@ body::after{
   .suppl-grid-tile{padding:12px}
 
   /* Workouts */
-  .timer-display{font-size:38px;text-align:center}
-  .wtype-grid{gap:6px}
-  .wtype-btn{padding:10px 12px;font-size:12px;min-height:44px}
-  .wstats-row{flex-direction:column;gap:6px}
-  .today-log-item{padding:8px 0;font-size:13px}
+  .routine-card{padding:18px 12px}
+  .routine-icon{font-size:26px}
+  .routine-name{font-size:12px}
 
   /* Finance */
   .expense-layout{flex-direction:column;align-items:stretch}
@@ -1093,42 +1058,59 @@ body::after{
   <!-- ═══════ WORKOUTS TAB ═══════ -->
   <div class="tab-page" id="tab-workouts">
     <h1 class="dash-title">Workouts</h1>
-    <div class="wstats-row">
-      <div class="wstat-item"><div class="wstat-num" id="wstatToday">0</div><div class="wstat-label">Today</div></div>
-      <div class="wstat-item"><div class="wstat-num" id="wstatWeek">0</div><div class="wstat-label">This Week</div></div>
-      <div class="wstat-item"><div class="wstat-num" id="wstatStreak">0</div><div class="wstat-label">Day Streak</div></div>
+
+    <!-- Streak Badge -->
+    <div class="text-center mb-6">
+      <span class="text-amber-500 font-semibold text-lg" id="streakBadge">🔥 0-Day Workout Streak</span>
     </div>
+
+    <!-- Quick-Start Routine Selector -->
     <div class="section">
-      <div class="section-title">Start a Workout</div>
-      <div class="card">
-        <div class="wtype-grid" id="wtypeGrid">
-          <button class="wtype-btn active" data-type="Weight">Weight</button>
-          <button class="wtype-btn" data-type="Kettlebell">Kettlebell</button>
-          <button class="wtype-btn" data-type="Cardio">Cardio</button>
-          <button class="wtype-btn" data-type="HIIT">HIIT</button>
-          <button class="wtype-btn" data-type="Yoga">Yoga</button>
-          <button class="wtype-btn" data-type="Stretch">Stretch</button>
-          <button class="wtype-btn" data-type="Swimming">Swimming</button>
-          <button class="wtype-btn" data-type="Cycling">Cycling</button>
+      <div class="section-title">Start a Session</div>
+      <div class="grid grid-cols-2 gap-4 mb-6" id="routineGrid">
+        <div class="routine-card" data-routine="Pool Swim">
+          <div class="routine-icon">🏊</div>
+          <div class="routine-name">Pool Swim</div>
         </div>
-        <div class="timer-section">
-          <div class="timer-type-label" id="timerTypeLabel">WEIGHT</div>
-          <div class="timer-display" id="timerDisplay">00:00</div>
-          <div class="timer-controls">
-            <button class="timer-start-btn" id="timerStartBtn">▶ Start</button>
-          </div>
+        <div class="routine-card" data-routine="Cardio Run">
+          <div class="routine-icon">🏃</div>
+          <div class="routine-name">Cardio Run</div>
         </div>
-        <div class="weekly-chart">
-          <div class="weekly-chart-title">This Week</div>
-          <div class="weekly-bars" id="weeklyBars"></div>
-          <div class="weekly-total" id="weeklyTotal">0 min total this week</div>
+        <div class="routine-card" data-routine="Weight Lifting">
+          <div class="routine-icon">🏋️</div>
+          <div class="routine-name">Weight Lifting</div>
         </div>
-        <div class="today-log" id="todayLogSection" style="display:none">
-          <div class="today-log-title">Today's Sessions</div>
-          <ul class="today-log-list" id="todayLogList"></ul>
+        <div class="routine-card" data-routine="Active Recovery">
+          <div class="routine-icon">🧘</div>
+          <div class="routine-name">Active Recovery</div>
         </div>
       </div>
     </div>
+
+    <!-- Weekly Performance Chart -->
+    <div class="section">
+      <div class="section-title">This Week</div>
+      <div class="card">
+        <div class="weekly-bars" id="weeklyBars"></div>
+        <div class="weekly-total" id="weeklyTotal">0 min total this week</div>
+      </div>
+    </div>
+
+    <!-- Today's Sessions Log -->
+    <div class="section" id="todayLogSection" style="display:none">
+      <div class="section-title">Today's Sessions</div>
+      <div class="card" style="padding:0">
+        <ul class="today-log-list" id="todayLogList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timer Modal Overlay -->
+  <div id="timerModal" class="fixed inset-0 z-50 flex-col justify-center items-center hidden" style="background:rgba(15,23,42,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+    <div class="timer-modal-label" id="modalRoutineLabel">WORKOUT</div>
+    <div class="text-5xl font-mono font-bold tracking-wider mb-8" style="color:#f1f5f9" id="modalTimerDisplay">00:00</div>
+    <button class="timer-finish-btn" id="modalFinishBtn">⏹️ Finish & Log</button>
+    <a href="javascript:void(0)" class="text-slate-500 hover:text-slate-400 text-sm mt-4 cursor-pointer" id="modalCancelBtn">Cancel Session</a>
   </div>
 
   <!-- ═══════ FINANCE TAB ═══════ -->
@@ -1795,65 +1777,74 @@ function formatDurationHuman(secs){
   return m+'min '+s+'s';
 }
 
-// Type selector
-document.querySelectorAll('.wtype-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    if(timerState==='running')return;
-    document.querySelectorAll('.wtype-btn').forEach(function(b){b.classList.remove('active')});
-    btn.classList.add('active');
-    selectedWtype=btn.dataset.type;
-    document.getElementById('timerTypeLabel').textContent=selectedWtype.toUpperCase();
-  });
+// Routine selector → opens modal timer
+document.getElementById('routineGrid').addEventListener('click',function(e){
+  var card=e.target.closest('.routine-card');
+  if(!card||timerState==='running')return;
+  selectedWtype=card.dataset.routine;
+  openTimerModal();
 });
 
-// Timer controls
-function updateTimerDisplay(){
-  const secs=timerElapsed+((timerState==='running')?Math.floor((Date.now()-timerStart)/1000):0);
-  document.getElementById('timerDisplay').textContent=formatDuration(secs);
-}
+// Modal controls
+var timerModal=document.getElementById('timerModal');
+var modalTimerDisplay=document.getElementById('modalTimerDisplay');
+var modalRoutineLabel=document.getElementById('modalRoutineLabel');
 
-function renderTimerControls(){
-  const controls=document.getElementById('timerControls')||document.querySelector('.timer-controls');
-  const disp=document.getElementById('timerDisplay');
-  controls.innerHTML='';
-
-  if(timerState==='idle'){
-    disp.classList.remove('running');
-    const startBtn=document.createElement('button');
-    startBtn.className='timer-start-btn';startBtn.textContent='▶ Start';
-    startBtn.addEventListener('click',startTimer);
-    controls.appendChild(startBtn);
-  }else if(timerState==='running'){
-    disp.classList.add('running');
-    const stopBtn=document.createElement('button');
-    stopBtn.className='timer-stop-btn';stopBtn.textContent='■ Stop';
-    stopBtn.addEventListener('click',stopTimer);
-    controls.appendChild(stopBtn);
-  }
-}
-
-function startTimer(){
+function openTimerModal(){
   timerState='running';timerStart=Date.now();
+  timerElapsed=0;
+  modalRoutineLabel.textContent=selectedWtype.toUpperCase();
+  modalTimerDisplay.textContent='00:00';
+  timerModal.classList.remove('hidden');
+  timerModal.classList.add('flex');
   if(timerInterval)clearInterval(timerInterval);
-  timerInterval=setInterval(updateTimerDisplay,1000);
-  updateTimerDisplay();renderTimerControls();
+  timerInterval=setInterval(updateModalTimer,1000);
+  updateModalTimer();
 }
 
-function stopTimer(){
+function updateModalTimer(){
+  var secs=timerElapsed+((timerState==='running')?Math.floor((Date.now()-timerStart)/1000):0);
+  modalTimerDisplay.textContent=formatDuration(secs);
+}
+
+function closeTimerModal(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null}
+  timerState='idle';timerElapsed=0;
+  timerModal.classList.add('hidden');
+  timerModal.classList.remove('flex');
+}
+
+// Finish & Log
+document.getElementById('modalFinishBtn').addEventListener('click',function(){
   timerElapsed+=Math.floor((Date.now()-timerStart)/1000);
   if(timerInterval){clearInterval(timerInterval);timerInterval=null}
   timerState='idle';
 
-  // Save workout
   if(timerElapsed>0){
-    const w=getWorkouts();
+    // Save to localStorage
+    var w=getWorkouts();
     w.push({type:selectedWtype,duration:timerElapsed,time:Date.now()});
     setWorkouts(w);
+
+    // POST to server
+    var mins=Math.round(timerElapsed/60)||1;
+    fetch('/api/v1/workouts',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:selectedWtype,duration_minutes:mins})
+    }).catch(function(){});
   }
 
   timerElapsed=0;
-  updateTimerDisplay();renderTimerControls();renderWeeklyChart();renderTodayLog();renderWorkoutStats();
-}
+  timerModal.classList.add('hidden');
+  timerModal.classList.remove('flex');
+  renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+});
+
+// Cancel Session (safety valve — no save)
+document.getElementById('modalCancelBtn').addEventListener('click',function(){
+  closeTimerModal();
+});
 
 // Weekly chart
 function getWeekDates(){
@@ -1945,7 +1936,6 @@ function renderTodayLog(){
 }
 
 // Init workouts
-renderTimerControls();
 renderWeeklyChart();
 renderTodayLog();
 renderWorkoutStats();
@@ -2382,9 +2372,17 @@ function renderWorkoutStats(){
   });
   weekMins=Math.round(weekMins/60);
 
-  document.getElementById('wstatToday').textContent=todayMins+'m';
-  document.getElementById('wstatWeek').textContent=weekMins+'m';
-  document.getElementById('wstatStreak').textContent=computeWorkoutStreak();
+  var streak=computeWorkoutStreak();
+
+  // Update streak badge
+  var badge=document.getElementById('streakBadge');
+  if(badge)badge.textContent='\ud83d\udd25 '+streak+'-Day Workout Streak';
+
+  // Legacy stat elements (for Aura context)
+  var el;
+  el=document.getElementById('wstatToday');if(el)el.textContent=todayMins+'m';
+  el=document.getElementById('wstatWeek');if(el)el.textContent=weekMins+'m';
+  el=document.getElementById('wstatStreak');if(el)el.textContent=streak;
 }
 
 /* ════════════ CALENDAR ════════════ */

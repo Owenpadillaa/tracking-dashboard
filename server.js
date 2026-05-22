@@ -1022,6 +1022,21 @@ app.get('/api/v1/workouts', (req, res) => {
   res.json(wkData);
 });
 
+// POST /api/v1/workouts — log a workout session to server
+app.post('/api/v1/workouts', express.json(), (req, res) => {
+  const { type, duration_minutes } = req.body;
+  if (!type || typeof type !== 'string') {
+    return res.status(400).json({ error: 'type is required' });
+  }
+  const secs = Math.max(60, (duration_minutes || 1) * 60);
+  const wkData = loadWorkoutData();
+  const now = Date.now();
+  wkData.today_workouts.push({ type, duration: secs, time: now });
+  wkData.streak_count = computeServerStreak(wkData);
+  saveWorkoutData(wkData);
+  res.json({ ok: true, streak: wkData.streak_count });
+});
+
 // Midnight rollover: archive today's workouts to history, recompute streak
 cron.schedule('55 23 * * *', function() {
   try {
