@@ -752,6 +752,8 @@ body{
 .cal-section{margin-bottom:16px}
 .cal-ribbon{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .cal-ribbon::-webkit-scrollbar{display:none}
+.scrollbar-none{scrollbar-width:none;-ms-overflow-style:none}
+.scrollbar-none::-webkit-scrollbar{display:none}
 .cal-cap{scroll-snap-align:center;flex-shrink:0;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);user-select:none;position:relative}
 .cal-cap:hover{background:rgba(255,255,255,0.07)}
 .cal-cap.active{border-color:rgba(14,165,233,0.6);background:rgba(14,165,233,0.08)}
@@ -1089,7 +1091,7 @@ body{
       <div class="flex items-center gap-2 mb-3">
         <span class="text-sm font-semibold text-slate-300" id="calMonthLabel">May 2026</span>
       </div>
-      <div class="flex gap-3 overflow-x-auto pb-3 pt-1 snap-x" id="calDateRibbon" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
+      <div class="flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x" id="calendar-date-ribbon">
       </div>
       <div class="cal-event-list mt-1" id="calDateEventList">
         <div class="cal-empty" id="calDateEmpty">Select a date above</div>
@@ -2909,13 +2911,14 @@ function updateHomeEvents(){
 
 /* ════════════ CALENDAR DATE CHIPS (bottom ribbon) ════════════ */
 function renderDateChips(){
-  var ribbon=document.getElementById('calDateRibbon');
+  var ribbon=document.getElementById('calendar-date-ribbon');
   var monthLabel=document.getElementById('calMonthLabel');
   if(!ribbon)return;
   var todayStr=dateStrLocal(new Date());
   var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var start=new Date();
+  if(!activeCalDate)activeCalDate=todayStr;
   ribbon.innerHTML='';
   for(var i=0;i<14;i++){
     var d=new Date(start);
@@ -2924,13 +2927,12 @@ function renderDateChips(){
     var isToday=ds===todayStr;
     var isActive=ds===activeCalDate;
     var chip=document.createElement('div');
-    chip.className='snap-center flex-shrink-0 w-14 h-18 bg-slate-900/60 border rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
+    chip.className='snap-center flex-shrink-0 w-14 min-h-[72px] bg-slate-900/60 border rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
     chip.dataset.date=ds;
-    chip.innerHTML='<span class="text-[10px] font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
-      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-white')+'">'+d.getDate()+'</span>';
+    chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
+      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>';
     chip.addEventListener('click',function(){
       selectCalDate(this.dataset.date);
-      renderDateChips();
     });
     ribbon.appendChild(chip);
   }
@@ -2939,7 +2941,7 @@ function renderDateChips(){
     monthLabel.textContent=monthNames[now.getMonth()]+' '+now.getFullYear();
   }
   // Scroll active chip into view
-  var target=activeCalDate?activeCalDate:todayStr;
+  var target=activeCalDate||todayStr;
   var activeChip=ribbon.querySelector('[data-date="'+target+'"]');
   if(activeChip)activeChip.scrollIntoView({inline:'center',behavior:'instant'});
 }
