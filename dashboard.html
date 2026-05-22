@@ -2456,6 +2456,7 @@ function renderExpenseHome(){
 /* ── Savings Goal ── */
 var savingsState={target:0,current:0,title:'Savings Goal'};
 function renderSavings(){
+  if(!savingsState)return;
   var titleEl=document.getElementById('savingsTitle');
   var currentEl=document.getElementById('savingsCurrent');
   var targetEl=document.getElementById('savingsTarget');
