@@ -948,6 +948,7 @@ body{
             </div>
             <button class="sleep-btn" id="sleepCheckBtn" style="padding:2px 8px;font-size:9px;min-height:0;border-radius:6px">In</button>
           </div>
+          <div class="text-[8px] text-indigo-400/70 font-mono mt-0.5 leading-none" id="homeSleepLabel"></div>
         </div>
       </div>
 
@@ -1893,6 +1894,12 @@ function openTimerModal(){
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateModalTimer,1000);
   updateModalTimer();
+  // Persist active workout session to server
+  fetch('/api/v1/active-sessions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type:'workout',session_start_time:timerStart,target_duration_minutes:null,meta:{routine:selectedWtype}})
+  }).catch(function(){});
 }
 
 function updateModalTimer(){
@@ -1905,6 +1912,8 @@ function closeTimerModal(){
   timerState='idle';timerElapsed=0;
   timerModal.classList.add('hidden');
   timerModal.classList.remove('flex');
+  // Clear active workout session on server
+  fetch('/api/v1/active-sessions/workout',{method:'DELETE'}).catch(function(){});
 }
 
 // Finish & Log
@@ -2359,11 +2368,12 @@ if(cashFlowTile){
   var countdownInterval=null;
   var remainingSec=25*60;
 
-  function fmtTimer(s){
+  window.fmtTimer=function(s){
     var m=Math.floor(s/60);
     var sec=s%60;
     return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
   }
+  function fmtTimer(s){return window.fmtTimer(s)}
 
   function updateDisplay(){timerDisplay.textContent=fmtTimer(remainingSec)}
 
@@ -2402,6 +2412,13 @@ if(cashFlowTile){
     overlay.classList.add('active');
     overlayTimer.textContent=fmtTimer(remainingSec);
 
+    // Persist active deep work session to server
+    fetch('/api/v1/active-sessions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'deepwork',session_start_time:Date.now(),target_duration_minutes:selectedMin,meta:{intention:intention.value.trim()}})
+    }).catch(function(){});
+
     countdownInterval=setInterval(function(){
       remainingSec--;
       overlayTimer.textContent=fmtTimer(remainingSec);
@@ -2419,6 +2436,9 @@ if(cashFlowTile){
     overlay.classList.remove('active');
     remainingSec=selectedMin*60;
     updateDisplay();
+    // Clear active deep work session on server
+    fetch('/api/v1/active-sessions/deepwork',{method:'DELETE'}).catch(function(){});
+    if(window._releaseTabs)window._releaseTabs();
   });
 
   function finishSession(){
@@ -2453,6 +2473,7 @@ if(cashFlowTile){
     updateDisplay();
     renderDWMetrics();
     showToast('Focus session complete — '+selectedMin+'m logged');
+    if(window._releaseTabs)window._releaseTabs();
   }
 
   // Metrics
@@ -2533,7 +2554,7 @@ function renderSleep(){
     if(detailEl)detailEl.textContent='Awake since '+formatTime12(s.checkIn);
     // Home tile
     if(homeVal)homeVal.textContent=elapsed;
-    if(homeLabel)homeLabel.textContent='☀️ Active — tap to check out';
+    if(homeLabel)homeLabel.textContent='🌙 Tracking Sleep';
   }else if(s.checkIn&&s.checkOut){
     // Slept
     const hrs=calcSleepHoursFromTs(s.checkIn,s.checkOut);
@@ -2547,7 +2568,7 @@ function renderSleep(){
     if(detailEl)detailEl.textContent=formatTime12(s.checkIn)+' → '+formatTime12(s.checkOut);
     // Home tile
     if(homeVal)homeVal.textContent=hrs;
-    if(homeLabel)homeLabel.textContent=formatTime12(s.checkIn)+' → '+formatTime12(s.checkOut);
+    if(homeLabel)homeLabel.textContent=hrs+'h slept';
   }else{
     // Not checked in
     if(iconEl)iconEl.textContent='🌙';
@@ -2560,7 +2581,7 @@ function renderSleep(){
     if(detailEl)detailEl.textContent='Check in when you wake up';
     // Home tile
     if(homeVal)homeVal.textContent='--';
-    if(homeLabel)homeLabel.textContent='Not tracked';
+    if(homeLabel)homeLabel.textContent='';
   }
 }
 
@@ -3080,7 +3101,89 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
   };
 })();
 
+/* ════════════ BOOTUP SESSION HIJACK ════════════ */
+// Checks server for active sessions on page load and shows appropriate modal
+function checkActiveSessionsAndHijack() {
+  fetch('/api/v1/active-sessions')
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+    .then(function(data){
+
+      // Deep work takes priority over workout
+      if(data.deepwork && data.deepwork.session_start_time){
+        var dw=data.deepwork;
+        var elapsedSec=Math.floor((Date.now()-dw.session_start_time)/1000);
+        var totalSec=dw.target_duration_minutes*60;
+        var remainingSec=totalSec-elapsedSec;
+
+        if(remainingSec>0){
+          _hijacked=true;
+          // Set up deep work overlay with remaining time
+          var dwTimer=document.getElementById('dwOverlayTimer');
+          var dwIntention=document.getElementById('dwOverlayIntention');
+          var dwOverlay=document.getElementById('dwOverlay');
+          dwIntention.textContent=(dw.meta&&dw.meta.intention)||'Deep focus session';
+
+          var hijackCountdown=setInterval(function(){
+            remainingSec--;
+            dwTimer.textContent=fmtTimer(Math.max(0,remainingSec));
+            if(remainingSec<=0){
+              clearInterval(hijackCountdown);
+              dwOverlay.classList.remove('active');
+              if(window._releaseTabs)window._releaseTabs();
+            }
+          },1000);
+
+          dwTimer.textContent=fmtTimer(remainingSec);
+          dwOverlay.classList.add('active');
+          // Disable tab navigation behind overlay
+          document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='none';b.style.opacity='0.3'});
+        }
+
+      }else if(data.workout && data.workout.session_start_time){
+        var w=data.workout;
+        var elapsedSec=Math.floor((Date.now()-w.session_start_time)/1000);
+
+        if(elapsedSec>0){
+          _hijacked=true;
+          // Re-initialize workout timer with elapsed time
+          timerState='running';
+          timerStart=Date.now();
+          timerElapsed=elapsedSec;
+          selectedWtype=(w.meta&&w.meta.routine)||'Weight';
+          modalRoutineLabel.textContent=selectedWtype.toUpperCase();
+          modalTimerDisplay.textContent=formatDuration(elapsedSec);
+          timerModal.classList.remove('hidden');
+          timerModal.classList.add('flex');
+
+          if(timerInterval)clearInterval(timerInterval);
+          timerInterval=setInterval(updateModalTimer,1000);
+          // Disable tab navigation behind overlay
+          document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='none';b.style.opacity='0.3'});
+        }
+      }
+    })
+    .catch(function(){});
+}
+
+// Re-enable tabs when timer modal closes (patch existing close handler)
+var _origCloseTimer=closeTimerModal;
+closeTimerModal=function(){
+  _origCloseTimer();
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='';b.style.opacity=''});
+  _hijacked=false;
+};
+// Helper to re-enable tabs (called from deep work cancel/finish inside its IIFE)
+window._releaseTabs=function(){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='';b.style.opacity=''});
+  _hijacked=false;
+};
+
+var _hijacked=false;
 /* ════════════ INIT ════════════ */
+
+// Bootup hijack check runs first, then normal init proceeds underneath
+checkActiveSessionsAndHijack();
+
 rollover();
 renderStreak();
 loadToday();

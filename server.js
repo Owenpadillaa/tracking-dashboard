@@ -617,6 +617,9 @@ app.post('/api/v1/deepwork', (req, res) => {
     completedAt: Date.now()
   });
   saveDataFile('deepwork', arr);
+  // Clear any active deepwork session
+  const activeSessions = loadActiveSessions();
+  if (activeSessions.deepwork) { activeSessions.deepwork = null; saveActiveSessions(activeSessions); }
   res.json({ ok: true });
 });
 
@@ -1189,7 +1192,7 @@ app.get('/api/v1/workouts', (req, res) => {
   res.json(wkData);
 });
 
-// POST /api/v1/workouts — log a workout session to server
+// POST /api/v1/workouts — log a workout session to server (also clears active session)
 app.post('/api/v1/workouts', express.json(), (req, res) => {
   const { type, duration_minutes } = req.body;
   if (!type || typeof type !== 'string') {
@@ -1201,6 +1204,9 @@ app.post('/api/v1/workouts', express.json(), (req, res) => {
   wkData.today_workouts.push({ type, duration: secs, time: now });
   wkData.streak_count = computeServerStreak(wkData);
   saveWorkoutData(wkData);
+  // Clear any active workout session
+  const sessions = loadActiveSessions();
+  if (sessions.workout) { sessions.workout = null; saveActiveSessions(sessions); }
   res.json({ ok: true, streak: wkData.streak_count });
 });
 
@@ -1366,6 +1372,53 @@ cron.schedule('0 7 * * *', () => sendBriefing('morning'), { timezone: 'America/N
 cron.schedule('0 12 * * *', () => sendBriefing('midday'), { timezone: 'America/New_York' });
 // Evening briefing at 9:00 PM
 cron.schedule('0 21 * * *', () => sendBriefing('evening'), { timezone: 'America/New_York' });
+
+/* ════════════ ACTIVE SESSION HELPERS ════════════ */
+
+function loadActiveSessions() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFilePath('active_sessions'), 'utf8'));
+  } catch {
+    return { workout: null, deepwork: null };
+  }
+}
+
+function saveActiveSessions(data) {
+  fs.writeFileSync(dataFilePath('active_sessions'), JSON.stringify(data, null, 2));
+}
+
+// GET /api/v1/active-sessions — check all running sessions
+app.get('/api/v1/active-sessions', (req, res) => {
+  res.json(loadActiveSessions());
+});
+
+// POST /api/v1/active-sessions — set an active session for a type
+app.post('/api/v1/active-sessions', (req, res) => {
+  const { type } = req.body;
+  if (!type || !['workout', 'deepwork'].includes(type)) {
+    return res.status(400).json({ error: 'type must be workout or deepwork' });
+  }
+  const sessions = loadActiveSessions();
+  sessions[type] = {
+    session_start_time: req.body.session_start_time || Date.now(),
+    target_duration_minutes: req.body.target_duration_minutes || null,
+    meta: req.body.meta || null,
+  };
+  saveActiveSessions(sessions);
+  res.json({ ok: true });
+});
+
+// DELETE /api/v1/active-sessions/:type — clear an active session
+app.delete('/api/v1/active-sessions/:type', (req, res) => {
+  const type = req.params.type;
+  if (!['workout', 'deepwork'].includes(type)) {
+    return res.status(400).json({ error: 'type must be workout or deepwork' });
+  }
+  const sessions = loadActiveSessions();
+  sessions[type] = null;
+  saveActiveSessions(sessions);
+  res.json({ ok: true });
+});
 
 /* ════════════ SERVER START ════════════ */
 app.listen(PORT, () => {
