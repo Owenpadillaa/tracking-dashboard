@@ -514,6 +514,34 @@ app.post('/api/v1/finance/income', (req, res) => {
   res.json({ ok: true });
 });
 
+// GET /api/v1/finance/savings — read savings goal
+app.get('/api/v1/finance/savings', (req, res) => {
+  const finance = loadFinanceData();
+  const savings = finance.savings || { target: 0, current: 0, title: 'Savings Goal' };
+  res.json(savings);
+});
+
+// POST /api/v1/finance/savings — update savings goal or contribute
+app.post('/api/v1/finance/savings', (req, res) => {
+  const { target, current, title, action } = req.body;
+  if (!target && !current && !title && !action) {
+    return res.status(400).json({ error: 'Provide target, current, title, or action' });
+  }
+  const finance = loadFinanceData();
+  if (!finance.savings) {
+    finance.savings = { target: 0, current: 0, title: 'Savings Goal' };
+  }
+  if (target !== undefined) finance.savings.target = parseFloat(target);
+  if (current !== undefined) finance.savings.current = parseFloat(current);
+  if (title !== undefined) finance.savings.title = String(title).trim();
+  if (action === 'contribute' && req.body.amount) {
+    finance.savings.current = (finance.savings.current || 0) + parseFloat(req.body.amount);
+  }
+  finance.savings.updatedAt = Date.now();
+  saveDataFile('finance', finance);
+  res.json({ ok: true, savings: finance.savings });
+});
+
 // POST /api/v1/finance/expense — persist single expense
 app.post('/api/v1/finance/expense', (req, res) => {
   const { amount, desc, cat, time } = req.body;

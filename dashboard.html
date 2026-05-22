@@ -67,7 +67,7 @@ body{
   overflow-y:auto;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
-  padding:max(env(safe-area-inset-top,16px),16px) 16px calc(24px + 60px + 16px + env(safe-area-inset-bottom,0px));
+  padding:max(env(safe-area-inset-top,16px),16px) 16px calc(24px + 50px + 16px + env(safe-area-inset-bottom,0px));
   animation:fadeUp .35s cubic-bezier(.23,1,.32,1) both;
 }
 .tab-page.active{display:block}
@@ -76,30 +76,30 @@ body{
 
 /* ── Floating glass capsule nav bar ── */
 .tab-bar{
-  position:fixed;bottom:24px;left:16px;right:16px;z-index:9999;
-  display:flex;gap:3px;
-  padding:6px 8px;
-  padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
-  background:rgba(22,22,23,0.45);
+  position:fixed;bottom:12px;left:16px;right:16px;z-index:9999;
+  display:flex;gap:2px;
+  padding:3px 5px;
+  padding-bottom:calc(3px + env(safe-area-inset-bottom,0px));
+  background:rgba(22,22,23,0.5);
   backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   border:1px solid rgba(255,255,255,0.08);
-  border-radius:24px;
-  box-shadow:0 4px 30px rgba(0,0,0,0.5);
+  border-radius:20px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.5);
 }
 .tab-btn{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  flex:1;padding:8px 4px;border:none;background:none;cursor:pointer;
-  border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  flex:1;padding:6px 4px;border:none;background:none;cursor:pointer;
+  border-radius:14px;
   color:var(--text-tertiary);
   transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
   position:relative;
 }
 .tab-btn:hover{color:var(--text-secondary)}
 .tab-btn.active{color:var(--accent);background:var(--accent-glow)}
-.tab-btn .tab-icon{width:20px;height:20px;line-height:1}
-.tab-btn .tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab-btn span:not(.tab-icon){font-size:9px;font-weight:600;letter-spacing:0.04em;margin-top:1px}
+.tab-btn .tab-icon{width:18px;height:18px;line-height:1}
+.tab-btn .tab-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn span:not(.tab-icon){font-size:8px;font-weight:600;letter-spacing:0.03em;margin-top:0}
 
 /* ── Card chassis ── */
 .card{
@@ -539,6 +539,40 @@ body{
   font-size:13px;color:var(--text-tertiary);margin-top:6px;font-weight:500;
 }
 
+/* ── Finance: Executive Visual Row (SVG ring + Savings) ── */
+.exec-row{display:flex;gap:14px;margin-bottom:24px}
+.exec-ring-card{flex:1;min-width:0;background:rgba(22,22,23,0.4);border-radius:20px;padding:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.06),0 4px 24px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;gap:8px}
+.exec-ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
+.exec-ring-svg{width:100%;height:100%;transform:rotate(-90deg)}
+.exec-ring-track{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:6}
+.exec-ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.6s cubic-bezier(0.22,1,0.36,1);filter:drop-shadow(0 0 8px var(--ring-glow-color,transparent))}
+.exec-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.exec-ring-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1}
+.exec-ring-label{font-family:"SF Mono",ui-monospace;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary);margin-top:3px}
+
+/* Savings glass card */
+.savings-card{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.savings-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.savings-title{font-size:13px;font-weight:600;letter-spacing:-0.01em;color:rgba(255,255,255,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.savings-pct-badge{font-family:"SF Mono",ui-monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(16,185,129,0.15);color:#34d399;white-space:nowrap;font-variant-numeric:tabular-nums}
+.savings-numbers{display:flex;align-items:baseline;gap:4px}
+.savings-current{font-size:28px;font-weight:700;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1}
+.savings-divider{font-size:14px;color:var(--text-tertiary);font-weight:400}
+.savings-target{font-family:"SF Mono",ui-monospace;font-size:14px;color:var(--text-tertiary);font-weight:500}
+.savings-bar-track{display:flex;gap:4px;height:4px}
+.savings-bar-seg{flex:1;border-radius:2px;background:rgba(255,255,255,0.06);transition:all 0.5s cubic-bezier(0.22,1,0.36,1)}
+.savings-bar-seg.filled{background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.3)}
+.savings-actions{display:flex;gap:8px;margin-top:2px}
+.savings-btn{padding:8px 14px;border-radius:12px;border:0.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-secondary);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);white-space:nowrap}
+.savings-btn:hover{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.savings-btn[data-action="contribute"]{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.2);color:#34d399}
+.savings-btn[data-action="contribute"]:hover{background:rgba(16,185,129,0.2)}
+.savings-input-row{display:none;align-items:center;gap:8px}
+.savings-input-row.open{display:flex}
+.savings-input{flex:1;padding:10px 14px;border-radius:12px;border:0.5px solid rgba(255,255,255,0.08);background:var(--input-bg);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;min-width:0}
+.savings-input:focus{border-color:rgba(16,185,129,0.4)}
+.savings-input::placeholder{color:var(--text-tertiary);font-weight:400}
+
 /* ── Finance: Inline Expense Ledger ── */
 .inline-expense-bar{
   display:flex;gap:10px;align-items:center;margin-bottom:14px;
@@ -623,6 +657,9 @@ body{
 .voice-btn:disabled{opacity:0.4;cursor:default}
 .voice-btn:active{transform:scale(0.97)}
 .voice-feedback{width:100%;font-size:12px;font-weight:500;color:var(--success);min-height:18px;padding:2px 0}
+.voice-mic-btn{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(56,189,248,0.25);background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(14,165,233,0.05));box-shadow:0 0 12px rgba(14,165,233,0.12),0 2px 12px rgba(0,0,0,0.2);cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);flex-shrink:0}
+.voice-mic-btn:hover{border-color:rgba(56,189,248,0.5);box-shadow:0 0 20px rgba(14,165,233,0.2)}
+.voice-mic-btn:active{transform:scale(0.92)}
 
 /* ── AI Insights card ── */
 .insights-card{
@@ -777,7 +814,7 @@ body{
 
 /* Responsive */
 @media(max-width:480px){
-  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 14px calc(16px + 56px + 16px + env(safe-area-inset-bottom,0px))}
+  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 14px calc(16px + 46px + 16px + env(safe-area-inset-bottom,0px))}
   .container{padding:0;max-width:100%}
   .dash-title{font-size:28px;margin-bottom:16px}
   .section{margin-bottom:20px}
@@ -785,11 +822,11 @@ body{
   .card{padding:16px 18px;border-radius:18px}
 
   /* Floating tab bar */
-  .tab-bar{bottom:16px;left:12px;right:12px;padding:5px 6px;padding-bottom:calc(5px + env(safe-area-inset-bottom,0px));border-radius:20px;gap:2px}
-  .tab-btn{padding:7px 3px;border-radius:14px}
-  .tab-btn .tab-icon{width:19px;height:19px}
-  .tab-btn .tab-icon svg{width:19px;height:19px;stroke-width:1.8}
-  .tab-btn span:not(.tab-icon){font-size:8px}
+  .tab-bar{bottom:8px;left:10px;right:10px;padding:2px 4px;padding-bottom:calc(2px + env(safe-area-inset-bottom,0px));border-radius:16px;gap:2px}
+  .tab-btn{padding:4px 2px;border-radius:10px;gap:1px}
+  .tab-btn .tab-icon{width:17px;height:17px}
+  .tab-btn .tab-icon svg{width:17px;height:17px;stroke-width:1.8}
+  .tab-btn span:not(.tab-icon){font-size:7px;letter-spacing:0.03em;margin-top:0}
 
   /* Goal ticker */
   .goal-ticker{padding:10px 14px;text-align:center}
@@ -834,6 +871,7 @@ body{
   .routine-name{font-size:13px}
 
   /* Finance */
+  .exec-row{flex-direction:column;gap:12px}
   .budget-grid{flex-direction:column;gap:10px}
   .income-row{flex-direction:column;gap:10px}
   .income-input{font-size:16px}
@@ -879,16 +917,17 @@ body{
   .insights-text{font-size:13px}
 }
 @media(max-width:360px){
-  .tab-page{padding:max(env(safe-area-inset-top,12px),12px) 12px calc(12px + 52px + 12px + env(safe-area-inset-bottom,0px))}
+  .tab-page{padding:max(env(safe-area-inset-top,12px),12px) 12px calc(12px + 42px + 12px + env(safe-area-inset-bottom,0px))}
   .tile-water-bottle{width:18px;height:26px}
   .rings-row{gap:6px}
   .ring-container{width:82px;height:82px}
   .ring-container-lg{width:110px;height:110px}
   .day-ring-pct{font-size:26px}
-  .tab-bar{bottom:12px;left:10px;right:10px;padding:4px 4px;border-radius:18px}
-  .tab-btn{padding:6px 2px;border-radius:12px}
-  .tab-btn .tab-icon{width:18px;height:18px}
-  .tab-btn .tab-icon svg{width:18px;height:18px}
+  .tab-bar{bottom:6px;left:8px;right:8px;padding:2px 3px;padding-bottom:calc(2px + env(safe-area-inset-bottom,0px));border-radius:14px}
+  .tab-btn{padding:4px 2px;border-radius:10px;gap:1px}
+  .tab-btn .tab-icon{width:16px;height:16px}
+  .tab-btn .tab-icon svg{width:16px;height:16px}
+  .tab-btn span:not(.tab-icon){font-size:6px;letter-spacing:0.02em;margin-top:0}
   .card{padding:14px 16px;border-radius:16px}
 }
 
@@ -1035,20 +1074,16 @@ body{
       </div>
     </div>
 
-    <!-- ═══ Voice Engine Anchor (large FAB) ═══ -->
-    <div class="flex justify-center mb-5">
-      <div class="relative">
-        <div class="absolute -inset-3 rounded-full opacity-0" id="micPulseRing" style="background:rgba(56,189,248,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
-        <button class="relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-all duration-300 active:scale-90" id="aura-mic-btn" style="background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(14,165,233,0.05));border:1.5px solid rgba(56,189,248,0.25);box-shadow:0 0 20px rgba(14,165,233,0.15),0 4px 24px rgba(0,0,0,0.3)">
-          <svg class="w-8 h-8 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(56,189,248,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Voice Log Input (text fallback) -->
+    <!-- Voice Log Input + Speak button -->
     <div class="voice-bar mb-5">
       <input type="text" class="voice-input" id="voiceInput" placeholder="Or type... e.g. drank water, ran 20 min" autocomplete="off">
       <button class="voice-btn" id="voiceLogBtn">Log</button>
+      <div class="relative">
+        <div class="absolute -inset-2 rounded-full opacity-0" id="micPulseRing" style="background:rgba(56,189,248,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
+        <button class="voice-mic-btn" id="aura-mic-btn">
+          <svg class="w-5 h-5 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(56,189,248,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
       <div class="voice-feedback" id="voiceFeedback"></div>
     </div>
 
@@ -1292,30 +1327,61 @@ body{
       </div>
     </div>
 
-    <!-- 2. Cash Flow Chart -->
-    <div class="section">
-      <div class="section-title">Cash Flow</div>
-      <div class="card">
-        <div class="cashflow-chart" id="cashflowChart">
-          <div class="cashflow-row">
-            <span class="cashflow-label">Inflow</span>
-            <div class="cashflow-track-wrap">
-              <div class="cashflow-track cashflow-inflow" id="cashflowInflow" style="width:0%">
-                <span class="cashflow-track-val" id="cashflowInflowVal">$0</span>
-              </div>
-            </div>
+    <!-- 2. Executive Visual Row: Cash Flow Ring + Savings Goal -->
+    <div class="exec-row">
+
+      <!-- Cash Flow SVG Ring -->
+      <div class="exec-ring-card">
+        <div class="exec-ring-wrap">
+          <svg class="exec-ring-svg" viewBox="0 0 100 100">
+            <circle class="exec-ring-track" cx="50" cy="50" r="42"/>
+            <circle class="exec-ring-fill" id="cfRingFill" cx="50" cy="50" r="42"
+              stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+          </svg>
+          <div class="exec-ring-center">
+            <span class="exec-ring-val" id="cfRingVal">$0</span>
+            <span class="exec-ring-label">Spent</span>
           </div>
-          <div class="cashflow-row">
-            <span class="cashflow-label">Outflow</span>
-            <div class="cashflow-track-wrap">
-              <div class="cashflow-track cashflow-outflow" id="cashflowOutflow" style="width:0%">
-                <span class="cashflow-track-val" id="cashflowOutflowVal">$0</span>
-              </div>
-            </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center">
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-family:'SF Mono',ui-monospace;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:rgba(48,209,88,0.7)" id="cfInflowVal">$0</span>
+            <span style="font-size:9px;color:var(--text-tertiary);font-weight:500">inflow</span>
           </div>
-          <div class="cashflow-balance" id="cashflowBalance">Available: $0</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-family:'SF Mono',ui-monospace;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:rgba(255,69,58,0.7)" id="cfOutflowVal">$0</span>
+            <span style="font-size:9px;color:var(--text-tertiary);font-weight:500">outflow</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-family:'SF Mono',ui-monospace;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:rgba(255,255,255,0.4)" id="cfBalanceVal">$0</span>
+            <span style="font-size:9px;color:var(--text-tertiary);font-weight:500">left</span>
+          </div>
         </div>
       </div>
+
+      <!-- Savings Goal Glass Card -->
+      <div class="exec-ring-card savings-card">
+        <div class="savings-header">
+          <span class="savings-title" id="savingsTitle">Savings Goal</span>
+          <span class="savings-pct-badge" id="savingsPctBadge">0%</span>
+        </div>
+        <div class="savings-numbers">
+          <span class="savings-current" id="savingsCurrent">$0</span>
+          <span class="savings-divider">/</span>
+          <span class="savings-target" id="savingsTarget">$0</span>
+        </div>
+        <div class="savings-bar-track" id="savingsBarTrack"></div>
+        <div class="savings-actions">
+          <button class="savings-btn" data-action="contribute" id="savingsContributeBtn">+ Add</button>
+          <button class="savings-btn" data-action="edit" id="savingsEditBtn">Edit</button>
+        </div>
+        <div class="savings-input-row" id="savingsInputRow">
+          <input type="number" class="savings-input" id="savingsInput" placeholder="Amount" min="0" step="0.01">
+          <button class="savings-btn" data-action="contribute" id="savingsSubmitBtn" style="padding:10px 16px">Save</button>
+          <button class="savings-btn" id="savingsCancelBtn" style="padding:10px 16px">Cancel</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- 3. Frictionless Inline Expense Ledger -->
@@ -2156,6 +2222,7 @@ function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d
       display.style.display='none';form.style.display='block';
     }
     renderCashflow();
+    renderSavings();
     renderExpenseHome();
   };
 
@@ -2178,30 +2245,35 @@ function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d
   });
 })();
 
-/* ── Cash Flow Chart ── */
+/* ── Cash Flow SVG Ring ── */
+var CF_CIRC=2*Math.PI*42;
 function renderCashflow(){
   var expenses=getExpenses();
   var totalOut=expenses.reduce(function(s,e){return s+e.amount},0);
   var monthly=getMonthlyIncome();
 
-  var maxVal=Math.max(monthly,totalOut,1);
-  var inflowPct=Math.min((monthly/maxVal)*100,100);
-  var outflowPct=Math.min((totalOut/maxVal)*100,100);
-
-  var inflowEl=document.getElementById('cashflowInflow');
-  var outflowEl=document.getElementById('cashflowOutflow');
-  var inflowVal=document.getElementById('cashflowInflowVal');
-  var outflowVal=document.getElementById('cashflowOutflowVal');
-  var balanceEl=document.getElementById('cashflowBalance');
-
-  inflowEl.style.width=inflowPct+'%';
-  outflowEl.style.width=outflowPct+'%';
-  inflowVal.textContent=monthly?fmtMoney(monthly):'$0';
-  outflowVal.textContent=fmtMoney(totalOut);
-
-  var remaining=monthly-totalOut;
-  balanceEl.textContent='Available: '+fmtMoney(remaining);
-  balanceEl.style.color=remaining>=0?'#6BE3A4':'#f43f5e';
+  // SVG ring
+  var ringFill=document.getElementById('cfRingFill');
+  var ringVal=document.getElementById('cfRingVal');
+  var inflowVal=document.getElementById('cfInflowVal');
+  var outflowVal=document.getElementById('cfOutflowVal');
+  var balanceVal=document.getElementById('cfBalanceVal');
+  if(ringFill){
+    var pct=monthly>0?Math.min(totalOut/monthly,1):0;
+    var offset=CF_CIRC*(1-pct);
+    ringFill.setAttribute('stroke-dashoffset',offset);
+    // Color thresholds
+    var color,glow;
+    if(pct<=0.7){color='#10b981';glow='rgba(16,185,129,0.3)'}
+    else if(pct<=0.9){color='#f59e0b';glow='rgba(245,158,11,0.3)'}
+    else{color='#ef4444';glow='rgba(239,68,68,0.3)'}
+    ringFill.style.stroke=color;
+    ringFill.style.setProperty('--ring-glow-color',glow);
+  }
+  if(ringVal)ringVal.textContent=fmtMoney(totalOut);
+  if(inflowVal)inflowVal.textContent=monthly?fmtMoney(monthly):'$0';
+  if(outflowVal)outflowVal.textContent=fmtMoney(totalOut);
+  if(balanceVal)balanceVal.textContent=fmtMoney(Math.max(0,monthly-totalOut));
 }
 
 /* ── Frictionless Inline Expense Ledger ── */
@@ -2214,7 +2286,7 @@ function renderExpenses(){
   var empty=document.getElementById('expenseEmpty');
   list.innerHTML='';
 
-  if(!expenses.length){empty.style.display='block';renderCashflow();return}
+  if(!expenses.length){empty.style.display='block';renderCashflow();renderSavings();return}
   empty.style.display='none';
 
   // Show recent expenses (most recent first)
@@ -2235,6 +2307,7 @@ function renderExpenses(){
   });
 
   renderCashflow();
+  renderSavings();
 }
 
 function addExpense(){
@@ -2425,6 +2498,87 @@ function renderExpenseHome(){
     else homeCashFill.style.background='linear-gradient(90deg,#ea580c,#ef4444)';
   }
 }
+
+/* ── Savings Goal ── */
+var savingsState={target:0,current:0,title:'Savings Goal'};
+function renderSavings(){
+  var titleEl=document.getElementById('savingsTitle');
+  var currentEl=document.getElementById('savingsCurrent');
+  var targetEl=document.getElementById('savingsTarget');
+  var pctEl=document.getElementById('savingsPctBadge');
+  var barTrack=document.getElementById('savingsBarTrack');
+  if(!barTrack)return;
+  var s=savingsState;
+  if(titleEl)titleEl.textContent=s.title||'Savings Goal';
+  if(currentEl)currentEl.textContent=fmtMoney(s.current);
+  if(targetEl)targetEl.textContent=fmtMoney(s.target);
+  var pct=s.target>0?Math.min(s.current/s.target,1):0;
+  if(pctEl)pctEl.textContent=Math.round(pct*100)+'%';
+  barTrack.innerHTML='';
+  var segCount=20;
+  var filledCount=Math.round(pct*segCount);
+  for(var i=0;i<segCount;i++){
+    var seg=document.createElement('div');
+    seg.className='savings-bar-seg'+(i<filledCount?' filled':'');
+    barTrack.appendChild(seg);
+  }
+}
+
+// Wire savings UI
+document.addEventListener('DOMContentLoaded',function(){
+  // Load savings from server
+  fetch('/api/v1/finance/savings').then(function(r){return r.json()}).then(function(data){
+    savingsState.target=parseFloat(data.target)||0;
+    savingsState.current=parseFloat(data.current)||0;
+    savingsState.title=data.title||'Savings Goal';
+    renderSavings();
+  }).catch(function(){
+    renderSavings();
+  });
+  // Contribute button
+  var contrBtn=document.getElementById('savingsContributeBtn');
+  var editBtn=document.getElementById('savingsEditBtn');
+  var inputRow=document.getElementById('savingsInputRow');
+  var input=document.getElementById('savingsInput');
+  var submitBtn=document.getElementById('savingsSubmitBtn');
+  var cancelBtn=document.getElementById('savingsCancelBtn');
+  var actionMode='contribute';
+  function showInput(mode){
+    actionMode=mode||'contribute';
+    inputRow.classList.add('open');
+    input.focus();
+    if(mode==='edit'){input.placeholder='Target amount';input.value=''}else{input.placeholder='Amount';input.value=''}
+  }
+  function hideInput(){inputRow.classList.remove('open');input.value=''}
+  if(contrBtn)contrBtn.addEventListener('click',function(){showInput('contribute')});
+  if(editBtn)editBtn.addEventListener('click',function(){showInput('edit')});
+  if(cancelBtn)cancelBtn.addEventListener('click',hideInput);
+  if(submitBtn)submitBtn.addEventListener('click',function(){
+    var val=parseFloat(input.value);
+    if(!val||val<=0)return;
+    var body;
+    if(actionMode==='contribute'){
+      body={action:'contribute',amount:val};
+    }else{
+      body={target:val};
+    }
+    fetch('/api/v1/finance/savings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json()}).then(function(data){
+      if(data.ok){
+        savingsState.target=parseFloat(data.savings.target)||0;
+        savingsState.current=parseFloat(data.savings.current)||0;
+        savingsState.title=data.savings.title||'Savings Goal';
+        renderSavings();
+      }
+      hideInput();
+    }).catch(function(){hideInput()});
+  });
+  // Keyboard submit
+  if(input)input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&submitBtn)submitBtn.click();
+    if(e.key==='Escape'&&cancelBtn)cancelBtn.click();
+  });
+});
 
 // Cash flow tile click → navigate to Finance tab
 var cashFlowTile=document.getElementById('cashFlowTile');
