@@ -954,6 +954,8 @@ function getHistoricalMatrix(daysBack) {
   var workouts = byDate(allWorkouts, 'time');
   var expenses = byDate(loadDataFile('expenses'), 'time');
   var goals = byDate(loadDataFile('goals'), 'time');
+  var calEvents = loadDataFile('calendar_events');
+  var healthData = loadHealthData();
 
   // Build structured summary
   var lines = [];
@@ -1033,31 +1035,67 @@ function getHistoricalMatrix(daysBack) {
     lines.push('[Goals — last ' + daysBack + ' days]');
     lines.push('  No data logged');
   }
+  lines.push('');
+
+  // Supplements
+  var checked = healthData.checked_supplements || {};
+  var totalSupps = 0, takenSupps = 0;
+  if (typeof checked === 'object' && !Array.isArray(checked)) {
+    totalSupps = Object.keys(checked).length;
+    takenSupps = Object.values(checked).filter(Boolean).length;
+  }
+  lines.push('[Supplements — today]');
+  if (totalSupps > 0) {
+    lines.push('  ' + takenSupps + '/' + totalSupps + ' taken');
+    Object.keys(checked).forEach(function(name) {
+      lines.push('  - ' + name + ': ' + (checked[name] ? 'taken' : 'not taken'));
+    });
+  } else {
+    lines.push('  No supplements configured');
+  }
+  lines.push('');
+
+  // Calendar Events
+  var upcoming = [];
+  var nowMs = Date.now();
+  var fourteenDays = 14 * 24 * 60 * 60 * 1000;
+  if (calEvents && calEvents.length) {
+    calEvents.forEach(function(ev) {
+      if (ev.date) {
+        var evTime = new Date(ev.date + 'T00:00:00').getTime();
+        if (evTime >= nowMs - 86400000 && evTime <= nowMs + fourteenDays) {
+          upcoming.push(ev);
+        }
+      }
+    });
+  }
+  lines.push('[Calendar Events — next 14 days]');
+  if (upcoming.length) {
+    upcoming.forEach(function(ev) {
+      lines.push('  ' + ev.date + ': ' + ev.title);
+    });
+  } else {
+    lines.push('  No upcoming events');
+  }
 
   return lines.join('\n');
 }
 
-const INSIGHTS_PROMPT = `You are Aura's analytical engine. You receive a 7-day cross-domain health, fitness, financial, and goal-tracking data matrix for a single user.
+const INSIGHTS_PROMPT = `You are Aura's daily brief engine. The user wants a QUICK snapshot — not a deep analysis.
 
-YOUR JOB: Find cross-domain correlations and produce a brief personalized insight.
-
-CROSS-DOMAIN PATTERNS TO LOOK FOR:
-- Hydration levels vs workout performance (did more water correlate with longer sessions?)
-- Financial spending patterns vs goal completion (high-spend days vs productivity)
-- Workout consistency vs goal completion rates
-- Days with multiple metrics logged vs days with gaps
-- Weekend vs weekday patterns across all domains
+FOCUS ON THESE 4 AREAS ONLY:
+1. Workouts — did they train? streak status?
+2. Supplements — how many taken vs total?
+3. Events/Appointments — anything coming up?
+4. Finance — spending trend this week?
 
 STYLE RULES:
-- Be supportive yet direct — no fluff, no filler
-- Highly personalized — reference the user's actual numbers
-- EXACTLY 3 sentences maximum
-- Sentence 1: State the strongest cross-domain pattern you found (or acknowledge if data is too sparse)
-- Sentence 2: Provide a specific, data-backed observation
-- Sentence 3: End with ONE clear, actionable goal for tomorrow
-- Do NOT use emojis
-- Do NOT greet the user — just deliver the insight
-- If data is empty or only one domain has entries, say so honestly and suggest logging more metrics`;
+- 2-3 short sentences MAX, under 50 words total
+- Bullet-point style if needed — no paragraphs
+- Just facts + one action item: "Log your workout" / "3 supplements left today" / "Dentist at 2pm tomorrow"
+- No fluff, no cross-domain analysis, no motivational speeches
+- If all data is empty, one line: "Nothing logged yet — tap quick-log to start."
+- Do NOT use emojis`;
 
 async function generateInsights() {
   var apiKey = process.env.GROQ_API_KEY;
@@ -1079,9 +1117,9 @@ async function generateInsights() {
         stream: false,
         messages: [
           { role: 'system', content: INSIGHTS_PROMPT },
-          { role: 'user', content: 'Here is my 7-day tracking data matrix:\n\n' + matrix + '\n\nGenerate my cross-domain insight.' }
+          { role: 'user', content: 'Here is my 7-day tracking data matrix:\n\n' + matrix + '\n\nGenerate my quick daily brief.' }
         ],
-        max_tokens: 300,
+        max_tokens: 150,
         temperature: 0.4,
       }),
     });
