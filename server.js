@@ -496,6 +496,113 @@ app.post('/api/context', (req, res) => {
   res.json({ ok: true });
 });
 
+/* ════════════ FINANCE API ════════════ */
+
+// loadDataFile returns [] for missing files, but finance.json is an object
+function loadFinanceData() {
+  var raw = loadDataFile('finance');
+  return (raw && !Array.isArray(raw)) ? raw : {};
+}
+
+// POST /api/v1/finance/income — persist income structure
+app.post('/api/v1/finance/income', (req, res) => {
+  const { amount, freq } = req.body;
+  if (!amount || !freq) return res.status(400).json({ error: 'Missing amount or freq' });
+  const finance = loadFinanceData();
+  finance.income = { amount: parseFloat(amount), freq, updatedAt: Date.now() };
+  saveDataFile('finance', finance);
+  res.json({ ok: true });
+});
+
+// POST /api/v1/finance/expense — persist single expense
+app.post('/api/v1/finance/expense', (req, res) => {
+  const { amount, desc, cat, time } = req.body;
+  if (!amount) return res.status(400).json({ error: 'Missing amount' });
+  const finance = loadFinanceData();
+  if (!Array.isArray(finance.expenses)) finance.expenses = [];
+  finance.expenses.push({
+    amount: parseFloat(amount),
+    desc: desc || '',
+    cat: cat || 'Other',
+    time: time || Date.now()
+  });
+  saveDataFile('finance', finance);
+  res.json({ ok: true });
+});
+
+// POST /api/v1/finance/advisory — AI spending optimization tips
+app.post('/api/v1/finance/advisory', async (req, res) => {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return res.status(400).json({ error: 'GROQ_API_KEY not configured' });
+
+  const { expenses, income } = req.body || {};
+  const monthlyIncome = income ? getMonthlyAmount(income) : 0;
+  const totalExpenses = (expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+
+  // Build expense summary by description
+  const expenseLines = (expenses || []).slice(-30).map(e =>
+    '- $' + (e.amount || 0).toFixed(2) + ' on ' + (e.desc || e.cat || 'unknown')
+  ).join('\n');
+
+  const prompt = `You are a concise personal finance advisor. Based on this user's financial data, provide exactly 3 high-impact, specific optimization tips. Each tip must be ONE sentence, actionable, and under 20 words.
+
+Monthly income: $${monthlyIncome.toFixed(2)}
+Total recent expenses: $${totalExpenses.toFixed(2)}
+Expenses:
+${expenseLines || 'No expenses logged yet.'}
+
+Rules:
+- Output ONLY a JSON array of 3 strings. No markdown, no explanation, no code fences.
+- Be specific to their actual spending patterns. Reference real categories they're spending on.
+- If expenses are empty, give 3 general budgeting starter tips.
+- Focus on: reducing waste, optimizing subscriptions, automating savings, or finding hidden costs.`;
+
+  try {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3,
+        max_tokens: 300
+      })
+    });
+
+    if (!resp.ok) {
+      console.error('Advisory Groq error:', resp.status);
+      return res.status(502).json({ error: 'AI request failed' });
+    }
+
+    const data = await resp.json();
+    var content = data.choices[0].message.content.trim();
+    // Strip markdown fences if AI wraps them
+    content = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+
+    var tips;
+    try { tips = JSON.parse(content); }
+    catch {
+      // Fallback: split by newlines
+      tips = content.split('\n').map(function(l) { return l.replace(/^[\d\.\-\*\)\s]+/, '').trim(); }).filter(Boolean).slice(0, 3);
+    }
+
+    res.json({ tips: tips.slice(0, 3) });
+  } catch (err) {
+    console.error('Advisory error:', err.message);
+    res.status(500).json({ error: 'Advisory failed' });
+  }
+});
+
+function getMonthlyAmount(inc) {
+  if (!inc || !inc.amount) return 0;
+  if (inc.freq === 'weekly') return inc.amount * 52 / 12;
+  if (inc.freq === 'biweekly') return inc.amount * 26 / 12;
+  return inc.amount;
+}
+
 /* ════════════ GOAL POLISH (Anthropic proxy) ════════════ */
 
 app.post('/api/polish', async (req, res) => {

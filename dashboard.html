@@ -465,30 +465,58 @@ body::after{
 .income-dollar{padding:0 0 0 12px;color:var(--text-tertiary);font-size:14px;font-weight:600}
 .income-input-wrap .income-input{border:none;background:none;padding-left:4px}
 .income-input-wrap .gm-input{border:none;padding-left:4px}
-.income-freq-select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
-.income-freq-select option{background:#1a1a1e;color:var(--text-primary)}
 
-/* ── Finance: Budget ── */
-.budget-grid{display:flex;gap:10px;flex-wrap:wrap}
-.budget-item{
-  flex:1;min-width:100px;padding:14px;border-radius:12px;text-align:center;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+/* ── Finance: Frequency Toggle ── */
+.freq-toggle-group{
+  display:flex;gap:0;border-radius:12px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);
 }
-.budget-pct{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
-.budget-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px}
-.budget-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;font-weight:600;color:var(--text-secondary)}
-.budget-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0}
+.freq-toggle-btn{
+  flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:600;font-family:inherit;
+  border:none;background:none;color:var(--text-tertiary);cursor:pointer;
+  transition:all 0.2s;white-space:nowrap;
+}
+.freq-toggle-btn:not(:last-child){border-right:1px solid rgba(255,255,255,0.06)}
+.freq-toggle-btn.active{
+  background:rgba(255,255,255,0.10);color:var(--text-primary);
+  box-shadow:inset 0 0 12px rgba(255,255,255,0.05);
+}
+.freq-toggle-btn:hover:not(.active){color:var(--text-secondary)}
 
-/* ── Finance: Expenses ── */
-.expense-layout{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-.expense-chart-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
-.expense-chart-wrap canvas{width:160px;height:160px}
-.expense-total{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+/* ── Finance: Cash Flow Chart ── */
+.cashflow-chart{display:flex;flex-direction:column;gap:14px}
+.cashflow-row{display:flex;align-items:center;gap:12px}
+.cashflow-label{
+  font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-tertiary);min-width:55px;text-align:right;
+}
+.cashflow-track-wrap{
+  flex:1;height:28px;border-radius:14px;background:rgba(255,255,255,0.04);
+  overflow:hidden;position:relative;
+}
+.cashflow-track{
+  height:100%;border-radius:14px;display:flex;align-items:center;
+  padding:0 12px;transition:width 0.6s cubic-bezier(0.22,1,0.36,1);
+  min-width:fit-content;
+}
+.cashflow-inflow{background:rgba(16,185,129,0.70)}
+.cashflow-outflow{background:rgba(244,63,94,0.70)}
+.cashflow-track-val{
   font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:16px;font-weight:700;color:var(--text-primary);pointer-events:none;
+  font-size:11px;font-weight:700;color:#fff;white-space:nowrap;
 }
-.expense-list-wrap{flex:1;min-width:200px}
+.cashflow-balance{
+  text-align:center;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:12px;color:var(--text-tertiary);margin-top:4px;
+}
+
+/* ── Finance: Inline Expense Ledger ── */
+.inline-expense-bar{
+  display:flex;gap:8px;align-items:center;margin-bottom:14px;
+}
+.inline-expense-amount{flex:0 0 110px}
+.inline-expense-desc{flex:1}
+.inline-expense-add{padding:11px 20px;min-height:44px}
 .expense-list{list-style:none}
 .expense-item{
   display:flex;align-items:center;gap:8px;
@@ -496,28 +524,48 @@ body::after{
   background:rgba(255,255,255,0.025);
 }
 .expense-item:hover .expense-delete{opacity:1}
-.expense-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .expense-cat-name{flex:1;font-size:13px}
 .expense-cat-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;font-weight:600}
 .expense-delete{font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px}
 .expense-delete:hover{color:var(--danger)}
 .expense-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0}
 
-/* ── Finance: Subscriptions ── */
-.sub-total{font-size:12px;color:var(--text-tertiary);text-align:center;margin-bottom:12px;font-variant-numeric:tabular-nums}
-.sub-list{list-style:none}
-.sub-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px;margin-bottom:4px;border-radius:10px;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);
-  transition:all 0.2s;
+/* ── Finance: AI Advisory ── */
+.ai-advisory-btn{
+  width:100%;padding:14px;border-radius:16px;
+  border:1px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.6);
+  color:var(--text-secondary);font-size:14px;font-weight:600;font-family:inherit;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all 0.3s ease;
 }
-.sub-item:hover .sub-delete{opacity:1}
-.sub-name{flex:1;font-size:13px;font-weight:600}
-.sub-amount{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--text-secondary)}
-.sub-cycle{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;color:var(--text-tertiary);min-width:35px}
-.sub-delete{font-size:15px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity 0.2s;padding:2px 4px}
-.sub-delete:hover{color:var(--danger)}
+.ai-advisory-btn:hover{
+  background:rgba(15,23,42,0.9);border-color:rgba(255,255,255,0.15);
+  color:var(--text-primary);transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.ai-advisory-btn:disabled{opacity:0.5;cursor:wait}
+.ai-advisory-btn .advisory-spin{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.2);border-top-color:var(--text-primary);
+  border-radius:50%;animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-advisory-card{
+  margin-top:12px;padding:18px;border-radius:16px;
+  background:rgba(255,255,255,0.04);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.ai-advisory-header{
+  font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:10px;
+}
+.ai-advisory-list{list-style:none;padding:0;margin:0}
+.ai-advisory-list li{
+  display:flex;gap:8px;padding:8px 0;font-size:13px;color:var(--text-secondary);
+  line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.ai-advisory-list li:last-child{border-bottom:none}
+.ai-advisory-bullet{color:#6BE3A4;font-size:8px;margin-top:6px;flex-shrink:0}
 
 /* ── Home top row (goals + water side by side) ── */
 .home-top-row{display:flex;gap:10px;margin-bottom:12px;align-items:stretch}
@@ -740,13 +788,15 @@ body::after{
   .routine-name{font-size:12px}
 
   /* Finance */
-  .expense-layout{flex-direction:column;align-items:stretch}
-  .expense-chart-wrap{margin:0 auto;width:200px;height:200px}
   .budget-grid{flex-direction:column;gap:10px}
   .income-row{flex-direction:column;gap:10px}
   .income-input{font-size:16px}
-  .income-freq-select{font-size:16px;width:100%}
   .income-display{padding:14px 16px}
+  .freq-toggle-group{width:100%}
+  .inline-expense-bar{flex-wrap:wrap}
+  .inline-expense-amount{flex:0 0 calc(100% - 80px)}
+  .inline-expense-desc{flex:0 0 100%}
+  .inline-expense-add{flex:0 0 100%}
   .income-num{font-size:24px}
 
   /* Calendar */
@@ -1117,7 +1167,7 @@ body::after{
   <div class="tab-page" id="tab-finance">
     <h1 class="dash-title">Finance</h1>
 
-    <!-- Income Setup -->
+    <!-- 1. Income Revenue Planner -->
     <div class="section">
       <div class="section-title">Income</div>
       <div class="card" id="incomeCard">
@@ -1140,11 +1190,11 @@ body::after{
             </div>
             <div class="income-field">
               <label class="income-label">Frequency</label>
-              <select class="gm-input income-freq-select" id="incomeFreq">
-                <option value="weekly">Weekly</option>
-                <option value="biweekly">Bi-weekly</option>
-                <option value="monthly" selected>Monthly</option>
-              </select>
+              <div class="freq-toggle-group" id="freqToggle">
+                <button class="freq-toggle-btn active" data-freq="weekly">Weekly</button>
+                <button class="freq-toggle-btn" data-freq="biweekly">Bi-Weekly</button>
+                <button class="freq-toggle-btn" data-freq="monthly">Monthly</button>
+              </div>
             </div>
           </div>
           <button class="gm-add-btn" id="incomeSaveBtn" style="margin-top:10px">Save Income</button>
@@ -1152,71 +1202,58 @@ body::after{
       </div>
     </div>
 
-    <!-- Budget Split -->
+    <!-- 2. Cash Flow Chart -->
     <div class="section">
-      <div class="section-title">Budget Split</div>
+      <div class="section-title">Cash Flow</div>
       <div class="card">
-        <div class="budget-advice" id="budgetAdvice">
-          <div class="budget-empty">Set your income above to see budget advice.</div>
+        <div class="cashflow-chart" id="cashflowChart">
+          <div class="cashflow-row">
+            <span class="cashflow-label">Inflow</span>
+            <div class="cashflow-track-wrap">
+              <div class="cashflow-track cashflow-inflow" id="cashflowInflow" style="width:0%">
+                <span class="cashflow-track-val" id="cashflowInflowVal">$0</span>
+              </div>
+            </div>
+          </div>
+          <div class="cashflow-row">
+            <span class="cashflow-label">Outflow</span>
+            <div class="cashflow-track-wrap">
+              <div class="cashflow-track cashflow-outflow" id="cashflowOutflow" style="width:0%">
+                <span class="cashflow-track-val" id="cashflowOutflowVal">$0</span>
+              </div>
+            </div>
+          </div>
+          <div class="cashflow-balance" id="cashflowBalance">Available: $0</div>
         </div>
       </div>
     </div>
 
-    <!-- Expenses -->
+    <!-- 3. Frictionless Inline Expense Ledger -->
     <div class="section">
       <div class="section-title">Expenses</div>
       <div class="card">
-        <div class="expense-layout">
-          <div class="expense-chart-wrap">
-            <canvas id="expenseChart" width="200" height="200"></canvas>
-            <div class="expense-total" id="expenseTotal">$0</div>
-          </div>
-          <div class="expense-list-wrap">
-            <ul class="expense-list" id="expenseList"></ul>
-            <div class="expense-empty" id="expenseEmpty">No expenses yet.</div>
-          </div>
-        </div>
-        <div class="suppl-add-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:14px">
-          <select class="suppl-select" id="expenseCatSelect">
-            <option value="Housing">Housing</option>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Health">Health</option>
-            <option value="Education">Education</option>
-            <option value="Other">Other</option>
-          </select>
-          <div class="income-input-wrap" style="flex:1;min-width:80px">
+        <div class="inline-expense-bar">
+          <div class="income-input-wrap inline-expense-amount">
             <span class="income-dollar">$</span>
-            <input type="number" class="gm-input income-input" id="expenseAmount" placeholder="0" min="0" step="0.01">
+            <input type="number" class="gm-input income-input" id="expenseAmount" placeholder="0.00" min="0" step="0.01">
           </div>
-          <button class="gm-add-btn" id="expenseAddBtn">+ Add</button>
+          <input type="text" class="gm-input inline-expense-desc" id="expenseDesc" placeholder="Description (e.g., Gas, Food)...">
+          <button class="gm-add-btn inline-expense-add" id="expenseAddBtn" title="Add expense">Add</button>
         </div>
+        <ul class="expense-list" id="expenseList"></ul>
+        <div class="expense-empty" id="expenseEmpty">No expenses yet.</div>
       </div>
     </div>
 
-    <!-- Subscriptions -->
+    <!-- 4. AI Advisory -->
     <div class="section">
-      <div class="section-title">Subscriptions</div>
-      <div class="card">
-        <div class="sub-total mono" id="subTotal">$0.00/mo total</div>
-        <ul class="sub-list" id="subList"></ul>
-        <div class="expense-empty" id="subEmpty">No subscriptions yet.</div>
-        <div class="suppl-add-row" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;margin-top:14px">
-          <input type="text" class="gm-input" id="subName" placeholder="Service name" style="flex:1;min-width:100px">
-          <div class="income-input-wrap" style="width:100px">
-            <span class="income-dollar">$</span>
-            <input type="number" class="gm-input income-input" id="subAmount" placeholder="0" min="0" step="0.01">
-          </div>
-          <select class="suppl-select" id="subCycle" style="width:90px;min-width:80px">
-            <option value="monthly">/ mo</option>
-            <option value="yearly">/ yr</option>
-            <option value="weekly">/ wk</option>
-          </select>
-          <button class="gm-add-btn" id="subAddBtn">+ Add</button>
-        </div>
+      <button class="ai-advisory-btn" id="aiAdvisoryBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Generate AI Advisory Report
+      </button>
+      <div class="ai-advisory-card" id="aiAdvisoryCard" style="display:none">
+        <div class="ai-advisory-header">Capital Advisory</div>
+        <ul class="ai-advisory-list" id="aiAdvisoryList"></ul>
       </div>
     </div>
   </div>
@@ -1941,11 +1978,6 @@ renderTodayLog();
 renderWorkoutStats();
 
 /* ════════════ FINANCE ════════════ */
-const EXPENSE_COLORS={
-  Housing:'#5BA4E3',Food:'#6BE3A4',Transport:'#F2C063',Utilities:'#E25D7A',
-  Entertainment:'#B07AE8',Shopping:'#FF9F6B',Health:'#5BE3D4',Education:'#8BA8C7',Other:'#76746E'
-};
-
 function getMonthlyIncome(){
   const inc=storeGet('finance:income');
   if(!inc||!inc.amount)return 0;
@@ -1956,203 +1988,188 @@ function getMonthlyIncome(){
 
 function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 
-// Income
-function renderIncome(){
-  const inc=storeGet('finance:income');
-  const display=document.getElementById('incomeDisplay');
-  const form=document.getElementById('incomeForm');
-  if(inc&&inc.amount){
-    display.style.display='block';form.style.display='none';
-    document.getElementById('incomeNum').textContent=fmtMoney(inc.amount);
-    const freqLabels={weekly:'/ week',biweekly:'/ 2 weeks',monthly:'/ month'};
-    document.getElementById('incomeFreqLabel').textContent=freqLabels[inc.freq]||'/ month';
-    const monthly=getMonthlyIncome();
-    document.getElementById('incomeMonthlyLabel').textContent='';
-  }else{
-    display.style.display='none';form.style.display='block';
-  }
-  renderBudget();
-  renderExpenseHome();
+/* ── Income Revenue Planner ── */
+(function(){
+  var selectedFreq='weekly';
+  var toggleGroup=document.getElementById('freqToggle');
+
+  toggleGroup.addEventListener('click',function(e){
+    var btn=e.target.closest('.freq-toggle-btn');
+    if(!btn)return;
+    selectedFreq=btn.dataset.freq;
+    toggleGroup.querySelectorAll('.freq-toggle-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+  });
+
+  window.renderIncome=function(){
+    var inc=storeGet('finance:income');
+    var display=document.getElementById('incomeDisplay');
+    var form=document.getElementById('incomeForm');
+    if(inc&&inc.amount){
+      display.style.display='block';form.style.display='none';
+      document.getElementById('incomeNum').textContent=fmtMoney(inc.amount);
+      var freqLabels={weekly:'/ week',biweekly:'/ 2 weeks',monthly:'/ month'};
+      document.getElementById('incomeFreqLabel').textContent=freqLabels[inc.freq]||'/ month';
+      document.getElementById('incomeMonthlyLabel').textContent='';
+    }else{
+      display.style.display='none';form.style.display='block';
+    }
+    renderCashflow();
+    renderExpenseHome();
+  };
+
+  document.getElementById('incomeSaveBtn').addEventListener('click',function(){
+    var amount=parseFloat(document.getElementById('incomeAmount').value)||0;
+    if(!amount)return;
+    storeSet('finance:income',{amount:amount,freq:selectedFreq});
+    // Sync to server
+    fetch('/api/v1/finance/income',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amount,freq:selectedFreq})}).catch(function(){});
+    renderIncome();
+  });
+
+  document.getElementById('incomeEditBtn').addEventListener('click',function(){
+    var inc=storeGet('finance:income')||{};
+    document.getElementById('incomeAmount').value=inc.amount||'';
+    selectedFreq=inc.freq||'weekly';
+    toggleGroup.querySelectorAll('.freq-toggle-btn').forEach(function(b){b.classList.toggle('active',b.dataset.freq===selectedFreq)});
+    document.getElementById('incomeDisplay').style.display='none';
+    document.getElementById('incomeForm').style.display='block';
+  });
+})();
+
+/* ── Cash Flow Chart ── */
+function renderCashflow(){
+  var expenses=getExpenses();
+  var totalOut=expenses.reduce(function(s,e){return s+e.amount},0);
+  var monthly=getMonthlyIncome();
+
+  var maxVal=Math.max(monthly,totalOut,1);
+  var inflowPct=Math.min((monthly/maxVal)*100,100);
+  var outflowPct=Math.min((totalOut/maxVal)*100,100);
+
+  var inflowEl=document.getElementById('cashflowInflow');
+  var outflowEl=document.getElementById('cashflowOutflow');
+  var inflowVal=document.getElementById('cashflowInflowVal');
+  var outflowVal=document.getElementById('cashflowOutflowVal');
+  var balanceEl=document.getElementById('cashflowBalance');
+
+  inflowEl.style.width=inflowPct+'%';
+  outflowEl.style.width=outflowPct+'%';
+  inflowVal.textContent=monthly?fmtMoney(monthly):'$0';
+  outflowVal.textContent=fmtMoney(totalOut);
+
+  var remaining=monthly-totalOut;
+  balanceEl.textContent='Available: '+fmtMoney(remaining);
+  balanceEl.style.color=remaining>=0?'#6BE3A4':'#f43f5e';
 }
 
-document.getElementById('incomeSaveBtn').addEventListener('click',function(){
-  const amount=parseFloat(document.getElementById('incomeAmount').value)||0;
-  const freq=document.getElementById('incomeFreq').value;
-  if(!amount)return;
-  storeSet('finance:income',{amount:amount,freq:freq});
-  renderIncome();
-});
-document.getElementById('incomeEditBtn').addEventListener('click',function(){
-  const inc=storeGet('finance:income')||{};
-  document.getElementById('incomeAmount').value=inc.amount||'';
-  document.getElementById('incomeFreq').value=inc.freq||'monthly';
-  document.getElementById('incomeDisplay').style.display='none';
-  document.getElementById('incomeForm').style.display='block';
-});
-
-// Budget
-function renderBudget(){
-  const monthly=getMonthlyIncome();
-  const adviceEl=document.getElementById('budgetAdvice');
-  if(!monthly){adviceEl.innerHTML='<div class="budget-empty">Set your income above to see budget advice.</div>';return}
-
-  const needs=monthly*0.50,wants=monthly*0.30,savings=monthly*0.20;
-  adviceEl.innerHTML='<div class="budget-grid">'
-    +'<div class="budget-item"><div class="budget-pct" style="color:#6BE3A4">50%</div><div class="budget-label">Needs</div><div class="budget-amount">'+fmtMoney(needs)+'</div></div>'
-    +'<div class="budget-item"><div class="budget-pct" style="color:#F2C063">30%</div><div class="budget-label">Wants</div><div class="budget-amount">'+fmtMoney(wants)+'</div></div>'
-    +'<div class="budget-item"><div class="budget-pct" style="color:#5BA4E3">20%</div><div class="budget-label">Savings</div><div class="budget-amount">'+fmtMoney(savings)+'</div></div>'
-    +'</div>';
-}
-
-// Expenses
+/* ── Frictionless Inline Expense Ledger ── */
 function getExpenses(){return storeGet('finance:expenses')||[]}
 function setExpenses(e){storeSet('finance:expenses',e)}
 
 function renderExpenses(){
-  const expenses=getExpenses();
-  const list=document.getElementById('expenseList');
-  const empty=document.getElementById('expenseEmpty');
-  const totalEl=document.getElementById('expenseTotal');
+  var expenses=getExpenses();
+  var list=document.getElementById('expenseList');
+  var empty=document.getElementById('expenseEmpty');
   list.innerHTML='';
 
-  const total=expenses.reduce(function(s,e){return s+e.amount},0);
-  totalEl.textContent=fmtMoney(total);
-
-  if(!expenses.length){empty.style.display='block';drawPie([]);return}
+  if(!expenses.length){empty.style.display='block';renderCashflow();return}
   empty.style.display='none';
 
-  // Aggregate by category
-  const cats={};
-  expenses.forEach(function(e){cats[e.cat]=(cats[e.cat]||0)+e.amount});
-  const catEntries=Object.entries(cats).sort(function(a,b){return b[1]-a[1]});
-
-  catEntries.forEach(function(pair){
-    const li=document.createElement('li');
+  // Show recent expenses (most recent first)
+  var shown=expenses.slice(-20).reverse();
+  shown.forEach(function(e){
+    var li=document.createElement('li');
     li.className='expense-item';
-    const color=EXPENSE_COLORS[pair[0]]||EXPENSE_COLORS.Other;
-    li.innerHTML='<span class="expense-cat-dot" style="background:'+color+'"></span>'
-      +'<span class="expense-cat-name">'+escHtml(pair[0])+'</span>'
-      +'<span class="expense-cat-amount">'+fmtMoney(pair[1])+'</span>';
-    list.appendChild(li);
-  });
-
-  // Add delete buttons for individual expenses
-  expenses.forEach(function(e,idx){
-    const li=document.createElement('li');
-    li.className='expense-item';
-    li.style.opacity='0.6';li.style.fontSize='11px';
-    const color=EXPENSE_COLORS[e.cat]||EXPENSE_COLORS.Other;
-    li.innerHTML='<span class="expense-cat-dot" style="background:'+color+'"></span>'
-      +'<span class="expense-cat-name" style="font-size:11px">'+escHtml(e.cat)+'</span>'
-      +'<span class="expense-cat-amount" style="font-size:11px">'+fmtMoney(e.amount)+'</span>'
+    var ts=e.time?new Date(e.time).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    li.innerHTML='<span class="expense-cat-name">'+escHtml(e.desc||e.cat||'Expense')+(ts?' <span style="color:var(--text-tertiary);font-size:11px">'+ts+'</span>':'')+'</span>'
+      +'<span class="expense-cat-amount">'+fmtMoney(e.amount)+'</span>'
       +'<button class="expense-delete" title="Delete">×</button>';
     li.querySelector('.expense-delete').addEventListener('click',function(){
-      const arr=getExpenses();arr.splice(idx,1);setExpenses(arr);renderExpenses();
+      var arr=getExpenses();
+      var idx=arr.indexOf(e);
+      if(idx>-1){arr.splice(idx,1);setExpenses(arr);renderExpenses()}
     });
     list.appendChild(li);
   });
 
-  drawPie(catEntries);
-  renderExpenseHome();
+  renderCashflow();
 }
 
-function drawPie(entries){
-  const canvas=document.getElementById('expenseChart');
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width,h=canvas.height;
-  const cx=w/2,cy=h/2,r=80;
-
-  ctx.clearRect(0,0,w,h);
-
-  if(!entries.length){
-    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=20;ctx.stroke();
-    return;
-  }
-
-  const total=entries.reduce(function(s,e){return s+e[1]},0);
-  let angle=-Math.PI/2;
-
-  entries.forEach(function(pair){
-    const slice=(pair[1]/total)*Math.PI*2;
-    const color=EXPENSE_COLORS[pair[0]]||EXPENSE_COLORS.Other;
-    ctx.beginPath();ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,angle,angle+slice);
-    ctx.closePath();ctx.fillStyle=color;ctx.fill();
-    angle+=slice;
-  });
-
-  // Inner circle for donut
-  ctx.beginPath();ctx.arc(cx,cy,r-16,0,Math.PI*2);
-  ctx.fillStyle='#050506';ctx.fill();
-}
-
-document.getElementById('expenseAddBtn').addEventListener('click',function(){
-  const cat=document.getElementById('expenseCatSelect').value;
-  const amount=parseFloat(document.getElementById('expenseAmount').value)||0;
+function addExpense(){
+  var amountInput=document.getElementById('expenseAmount');
+  var descInput=document.getElementById('expenseDesc');
+  var amount=parseFloat(amountInput.value)||0;
+  var desc=descInput.value.trim();
   if(!amount)return;
-  const expenses=getExpenses();
-  expenses.push({cat:cat,amount:amount,time:Date.now()});
+
+  var entry={amount:amount,desc:desc,cat:desc||'Other',time:Date.now()};
+  var expenses=getExpenses();
+  expenses.push(entry);
   setExpenses(expenses);
-  document.getElementById('expenseAmount').value='';
+
+  // Clear inputs immediately
+  amountInput.value='';
+  descInput.value='';
   renderExpenses();
-});
 
-// Subscriptions
-function getSubs(){return storeGet('finance:subs')||[]}
-function setSubs(s){storeSet('finance:subs',s)}
-
-function subMonthlyCost(sub){
-  if(sub.cycle==='yearly')return sub.amount/12;
-  if(sub.cycle==='weekly')return sub.amount*52/12;
-  return sub.amount;
+  // Background server sync
+  fetch('/api/v1/finance/expense',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)}).catch(function(){});
 }
 
-function renderSubs(){
-  const subs=getSubs();
-  const list=document.getElementById('subList');
-  const empty=document.getElementById('subEmpty');
-  const totalEl=document.getElementById('subTotal');
-  list.innerHTML='';
+document.getElementById('expenseAddBtn').addEventListener('click',addExpense);
+document.getElementById('expenseAmount').addEventListener('keydown',function(e){if(e.key==='Enter')addExpense()});
+document.getElementById('expenseDesc').addEventListener('keydown',function(e){if(e.key==='Enter')addExpense()});
 
-  const totalMonthly=subs.reduce(function(s,sub){return s+subMonthlyCost(sub)},0);
-  totalEl.textContent=fmtMoney(totalMonthly)+'/mo total';
+/* ── AI Capital Advisory ── */
+(function(){
+  var btn=document.getElementById('aiAdvisoryBtn');
+  var card=document.getElementById('aiAdvisoryCard');
+  var list=document.getElementById('aiAdvisoryList');
+  var loading=false;
 
-  if(!subs.length){empty.style.display='block';return}
-  empty.style.display='none';
+  btn.addEventListener('click',function(){
+    if(loading)return;
+    loading=true;
+    btn.disabled=true;
+    var origHTML=btn.innerHTML;
+    btn.innerHTML='<span class="advisory-spin"></span> Analyzing...';
 
-  subs.forEach(function(sub,idx){
-    const li=document.createElement('li');
-    li.className='sub-item';
-    const cycleLabels={monthly:'/mo',yearly:'/yr',weekly:'/wk'};
-    li.innerHTML='<span class="sub-name">'+escHtml(sub.name)+'</span>'
-      +'<span class="sub-amount">'+fmtMoney(sub.amount)+'</span>'
-      +'<span class="sub-cycle">'+(cycleLabels[sub.cycle]||'/mo')+'</span>'
-      +'<button class="sub-delete" title="Delete">×</button>';
-    li.querySelector('.sub-delete').addEventListener('click',function(){
-      const arr=getSubs();arr.splice(idx,1);setSubs(arr);renderSubs();
+    var expenses=getExpenses();
+    var income=storeGet('finance:income');
+
+    fetch('/api/v1/finance/advisory',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({expenses:expenses,income:income})
+    })
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.error)throw new Error(data.error);
+      list.innerHTML='';
+      var tips=data.tips||[];
+      tips.forEach(function(tip){
+        var li=document.createElement('li');
+        li.innerHTML='<span class="ai-advisory-bullet">&#9679;</span><span>'+escHtml(tip)+'</span>';
+        list.appendChild(li);
+      });
+      card.style.display='block';
+    })
+    .catch(function(){
+      list.innerHTML='<li><span class="ai-advisory-bullet" style="color:#f43f5e">&#9679;</span><span>Unable to generate advisory. Check your connection and try again.</span></li>';
+      card.style.display='block';
+    })
+    .finally(function(){
+      btn.innerHTML=origHTML;
+      btn.disabled=false;
+      loading=false;
     });
-    list.appendChild(li);
   });
-}
+})();
 
-document.getElementById('subAddBtn').addEventListener('click',function(){
-  const name=document.getElementById('subName').value.trim();
-  const amount=parseFloat(document.getElementById('subAmount').value)||0;
-  const cycle=document.getElementById('subCycle').value;
-  if(!name||!amount)return;
-  const subs=getSubs();
-  subs.push({name:name,amount:amount,cycle:cycle});
-  setSubs(subs);
-  document.getElementById('subName').value='';
-  document.getElementById('subAmount').value='';
-  renderSubs();
-});
-
-// Init finance
+/* ── Init Finance ── */
 renderIncome();
 renderExpenses();
-renderSubs();
 renderExpenseHome();
 
 /* ════════════ GOAL LIST (To Do) ════════════ */
