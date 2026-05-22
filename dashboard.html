@@ -291,6 +291,13 @@ body{
 .gm-bar-seg{flex:1;border-radius:3px;background:rgba(255,255,255,0.08);transition:all .3s cubic-bezier(.23,1,.32,1)}
 .gm-bar-seg.gm-bar-seg-done{background:var(--success);box-shadow:0 0 6px rgba(48,209,88,0.3)}
 
+/* ── Workout Streak Banner (home page) ── */
+.streak-banner{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:14px;background:rgba(22,22,23,0.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.06)}
+.streak-banner-icon{font-size:18px;line-height:1}
+.streak-banner-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary)}
+.streak-banner-num{font-family:"SF Mono",ui-monospace;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto;color:#fbbf24;line-height:1}
+.streak-banner-unit{font-size:11px;font-weight:500;color:var(--text-tertiary)}
+
 /* Goal list */
 .gm-list{list-style:none;margin-bottom:12px}
 .goal-item{
@@ -723,6 +730,9 @@ body{
 .insights-skeleton-bar:nth-child(3){width:60%}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+.insights-refresh-btn{margin-left:auto;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:8px;transition:all 0.2s;line-height:1}
+.insights-refresh-btn:hover{color:var(--accent);background:rgba(56,189,248,0.1)}
+.insights-refresh-btn:active{transform:rotate(180deg)}
 .insights-fallback{
   font-size:14px;line-height:1.6;color:var(--text-tertiary);font-weight:500;
 }
@@ -871,50 +881,16 @@ body{
   .routine-name{font-size:13px}
 
   /* Finance */
-  .exec-row{flex-direction:column;gap:12px}
+  .exec-row{flex-direction:column;gap:10px}
+  .exec-ring-card{padding:12px;border-radius:14px}
+  .exec-ring-wrap{width:80px;height:80px}
+  .exec-ring-val{font-size:13px}
+  .savings-current{font-size:20px}
+  .exec-ring-card .savings-title{font-size:10px}
   .budget-grid{flex-direction:column;gap:10px}
   .income-row{flex-direction:column;gap:10px}
-  .income-input{font-size:16px}
-  .income-display{padding:16px 18px}
-  .freq-toggle-group{width:100%}
-  .inline-expense-bar{flex-wrap:wrap}
-  .inline-expense-amount{flex:0 0 calc(100% - 80px)}
-  .inline-expense-desc{flex:0 0 100%}
-  .inline-expense-add{flex:0 0 100%}
-  .income-num{font-size:24px}
-
-  /* Calendar */
-  .cal-strip{gap:2px;justify-content:center}
-  .cal-day{min-width:38px;padding:8px 3px}
-  .cal-day-num{font-size:14px}
-  .cal-day-label{font-size:9px}
-  .cal-url-wrap{flex-direction:column;gap:6px}
-  .cal-url-input{padding:12px 14px;font-size:16px;width:100%}
-  .cal-url-btn{padding:12px 16px;font-size:13px;font-weight:700}
-  .cal-event-time{font-size:10px;min-width:48px}
-  .cal-event-item{padding:8px 0}
-
-  /* Chat */
-  .chat-log{max-height:220px}
-  .chat-input-row{padding:8px 10px;gap:8px}
-  .chat-input{padding:12px 14px;font-size:16px}
-  .chat-send-btn{padding:12px 16px;font-size:14px;font-weight:700}
-  .bubble{font-size:13px;padding:8px 12px}
-
-  /* Home top */
-  .home-top-row{flex-direction:column;gap:12px;align-items:stretch}
-  .home-top-row .water-bar-home{flex:auto}
-
-  /* Telemetry strip */
-  .tile-water-bottle{width:22px;height:30px}
-
-  /* Notif bar */
-  .notif-bar{padding:8px 12px;font-size:10px}
-  .notif-bar-btn{padding:5px 12px;font-size:10px}
-
-  /* Insights card */
-  .insights-card{padding:14px 16px 12px;border-radius:14px}
-  .insights-text{font-size:13px}
+  .insights-card{padding:16px;border-radius:18px}
+  .insights-text{font-size:14px}
 }
 @media(max-width:360px){
   .tab-page{padding:max(env(safe-area-inset-top,12px),12px) 12px calc(12px + 42px + 12px + env(safe-area-inset-bottom,0px))}
@@ -985,6 +961,7 @@ body{
           <svg class="w-4 h-4 stroke-sky-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </div>
         <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-sky-400/90">Aura Insights</span>
+        <button class="insights-refresh-btn" id="insightsRefreshBtn" title="Refresh">↻</button>
       </div>
       <div id="insightsBody">
         <div class="insights-skeleton" id="insightsSkeleton">
@@ -1087,23 +1064,24 @@ body{
       <div class="voice-feedback" id="voiceFeedback"></div>
     </div>
 
+    <!-- Workout Streak Banner -->
+    <div class="streak-banner mb-4" id="streakBanner">
+      <span class="streak-banner-icon">🔥</span>
+      <span class="streak-banner-label">Workout Streak</span>
+      <span class="streak-banner-num" id="homeStreakNum">0</span>
+      <span class="streak-banner-unit">days</span>
+    </div>
+
     <!-- ═══ Daily Intentions ═══ -->
     <div class="mb-4">
       <div class="section-title">Daily Intentions</div>
       <div class="card gm-card" id="gmCardToday">
         <div class="gm-header">
-          <div>
-            <div class="gm-eyebrow" id="todayLabel"></div>
-            <div class="gm-progress-row">
-              <span class="gm-progress-num" id="gmProgressNum">0</span>
-              <span class="gm-progress-total mono" id="gmProgressTotal">/ 0</span>
-              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
-            </div>
-          </div>
-          <div class="streak-pill" id="gmStreak">
-            <span class="streak-pill-icon">🔥</span>
-            <span class="streak-pill-num" id="gmStreakNum">0</span>
-            <span class="streak-pill-label">streak</span>
+          <div class="gm-eyebrow" id="todayLabel"></div>
+          <div class="gm-progress-row">
+            <span class="gm-progress-num" id="gmProgressNum">0</span>
+            <span class="gm-progress-total mono" id="gmProgressTotal">/ 0</span>
+            <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
           </div>
         </div>
         <div class="gm-bar" id="gmBar"></div>
@@ -1112,9 +1090,7 @@ body{
         <div class="gm-input-wrap">
           <input type="text" class="gm-input" id="goalInput" placeholder="+ Add a daily goal…" maxlength="200">
           <button class="gm-add-btn" id="goalAddBtn">+ Add</button>
-          <button class="gm-polish-btn" id="goalPolishBtn">Polish</button>
         </div>
-        <div class="gm-status" id="polishStatus"></div>
       </div>
     </div>
 
@@ -2400,7 +2376,7 @@ function renderTodayHeader(){
   const bar=document.getElementById('gmBar');bar.innerHTML='';
   goals.forEach(function(g){const seg=document.createElement('div');seg.className='gm-bar-seg'+(g.done?' gm-bar-seg-done':'');bar.appendChild(seg)});
 }
-function renderStreak(){const s=computeWorkoutStreak();const num=document.getElementById('gmStreakNum');const pill=document.getElementById('gmStreak');if(num)num.textContent=s;if(pill){if(s>0){pill.style.borderColor='transparent'}else{pill.style.borderColor='rgba(255,255,255,0.06)'}}}
+function renderStreak(){const s=computeWorkoutStreak();const homeNum=document.getElementById('homeStreakNum');if(homeNum)homeNum.textContent=s}
 
 function buildGoalRow(g,idx,key,listEl,emptyEl,readOnly,loadFn){
   const li=document.createElement('li');li.className='goal-item'+(g.done?' gm-done':'')+(g.queued?' gm-queued':'');li.draggable=true;li.dataset.idx=idx;
@@ -2443,17 +2419,9 @@ function renderListInto(goals,listEl,emptyEl,key,readOnly,loadFn){
 }
 function loadToday(){const key='goals:'+getActiveDateString();renderListInto(storeGet(key)||[],document.getElementById('goalList'),document.getElementById('emptyState'),key,false,loadToday);renderTodayHeader();window.dispatchEvent(new CustomEvent('goals-changed'))}
 
-function makeAddHandlers(input,addBtn,polishBtn,key,statusEl,reloadFn){
+function makeAddHandlers(input,addBtn,key,reloadFn){
   function addGoal(text){const t=text.trim();if(!t)return;const goals=storeGet(key)||[];goals.push({text:t,done:false});storeSet(key,goals);input.value='';reloadFn();window.dispatchEvent(new CustomEvent('goals-changed'))}
   addBtn.addEventListener('click',function(){addGoal(input.value)});input.addEventListener('keydown',function(e){if(e.key==='Enter')addGoal(input.value)});
-  polishBtn.addEventListener('click',async function(){
-    const text=input.value.trim();if(!text)return;
-    try{statusEl.textContent='Polishing…';statusEl.className='gm-status';
-    const resp=await fetch('/api/polish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})});
-    const data=await resp.json();if(data.error){addGoal(text);statusEl.textContent=data.error;statusEl.className='gm-status gm-status-error'}
-    else{const parsed=JSON.parse(data.content);if(Array.isArray(parsed)&&parsed.length){addGoal(parsed[0]);statusEl.textContent='Polished!';statusEl.className='gm-status'}else{addGoal(text)}}}catch(e){addGoal(text);statusEl.textContent='Polish failed — added as-typed.';statusEl.className='gm-status gm-status-error'}
-    setTimeout(()=>{statusEl.textContent=''},3500);
-  });
 }
 
 
@@ -3433,7 +3401,7 @@ updateDayBar();
 renderCalendarAnalytics();
 setInterval(function(){updateDayBar();renderSleep()},60000);
 
-makeAddHandlers(document.getElementById('goalInput'),document.getElementById('goalAddBtn'),document.getElementById('goalPolishBtn'),'goals:'+getActiveDateString(),document.getElementById('polishStatus'),loadToday);
+makeAddHandlers(document.getElementById('goalInput'),document.getElementById('goalAddBtn'),'goals:'+getActiveDateString(),loadToday);
 
 renderWater();
 loadSupplFromServer().then(renderSuppl);
@@ -3687,6 +3655,7 @@ loadCalendar();
   var skeleton=document.getElementById('insightsSkeleton');
   var footer=document.getElementById('insightsFooter');
   var tsEl=document.getElementById('insightsTimestamp');
+  var refreshBtn=document.getElementById('insightsRefreshBtn');
   var loaded=false;
 
   function timeAgo(isoStr){
@@ -3740,6 +3709,22 @@ loadCalendar();
   fetchLatestAiInsights();
   // Safety: if nothing loaded in 10s, show fallback
   setTimeout(function(){if(!loaded)showFallback()},10000);
+
+  // Manual refresh
+  if(refreshBtn)refreshBtn.addEventListener('click',function(){
+    loaded=false;
+    body.innerHTML='';
+    body.appendChild(skeleton);
+    if(skeleton)skeleton.style.display='';
+    if(footer)footer.style.display='none';
+    fetch('/api/v1/insights/refresh',{method:'POST'})
+      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+      .then(function(data){
+        if(data&&data.text)showText(data.text);
+        else showFallback();
+      })
+      .catch(function(){showFallback()});
+  });
 })();
 
 /* ════════════ CONTEXT SYNC TO SERVER ════════════ */
