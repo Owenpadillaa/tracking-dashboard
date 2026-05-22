@@ -907,55 +907,67 @@ body::after{
       </div>
     </div>
 
-    <!-- ═══ Logging Matrix: 2×2 Grid ═══ -->
-    <div class="grid grid-cols-2 gap-3 mb-5">
-
-      <!-- Water Intake Tile -->
-      <div class="rounded-2xl bg-white/[0.04] backdrop-blur-xl p-4 border border-white/[0.06] cursor-pointer transition-all active:scale-[0.98]" id="waterTileHome" title="Tap to add 8oz">
-        <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-500 mb-2">Water</div>
-        <div class="flex items-baseline gap-1 mb-2">
-          <span class="text-3xl font-bold tracking-tight font-mono tabular-nums" id="homeWaterCount">0</span>
-          <span class="text-xs text-neutral-500 font-mono">/ 8</span>
+    <!-- ═══ Events for the Day ═══ -->
+    <div class="mb-5">
+      <div class="section-title">Events for the Day</div>
+      <div class="card" style="padding:14px 18px">
+        <div class="cal-agenda" id="homeEvents">
+          <div class="cal-empty">No events today</div>
         </div>
-        <div class="flex gap-1 mb-2" id="homeWaterDots"></div>
-        <button class="w-full py-2 rounded-xl text-xs font-bold bg-aura-water/15 text-aura-water hover:bg-aura-water/25 transition-colors min-h-[44px]" id="homeWaterAddBtn">+ 8oz</button>
       </div>
+    </div>
 
-      <!-- Cash Flow Tile -->
-      <div class="rounded-2xl bg-white/[0.04] backdrop-blur-xl p-4 border border-white/[0.06]" id="cashFlowTile">
-        <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-500 mb-2">Cash Flow</div>
-        <div class="flex items-baseline gap-1 mb-1">
-          <span class="text-3xl font-bold tracking-tight font-mono tabular-nums" id="homeCashSpent">$0</span>
-        </div>
-        <div class="text-[11px] text-neutral-500 font-mono" id="homeCashLabel">spent today</div>
-        <div class="mt-3 pt-2 border-t border-white/[0.06]">
-          <div class="flex justify-between text-[10px] text-neutral-500">
-            <span class="font-mono">Month</span>
-            <span class="font-mono font-bold text-neutral-300" id="homeCashMonthly">$0</span>
+    <!-- ═══ Unified Telemetry Strip ═══ -->
+    <div class="mb-5 p-3 rounded-xl bg-slate-900/40 backdrop-blur-md border border-slate-800/60 flex justify-between items-center gap-4">
+
+      <!-- Water -->
+      <div class="flex-1 flex items-center gap-2 cursor-pointer" id="waterTileHome" title="Tap to add 8oz">
+        <svg class="w-4 h-4 text-aura-water flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] font-bold text-neutral-500 font-mono">Water</span>
+            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeWaterCount">0</span>/8</span>
+          </div>
+          <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500" id="homeWaterFill" style="width:0%;background:var(--water)"></div>
           </div>
         </div>
       </div>
 
-      <!-- Sleep Check-In Tile -->
-      <div class="rounded-2xl bg-white/[0.04] backdrop-blur-xl p-4 border border-white/[0.06]">
-        <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-500 mb-2">Sleep</div>
-        <div class="flex items-baseline gap-1 mb-2">
-          <span class="text-3xl font-bold tracking-tight font-mono tabular-nums" id="homeSleepVal">--</span>
-          <span class="text-xs text-neutral-500 font-mono" id="homeSleepUnit">hrs</span>
+      <div class="w-px h-6 bg-slate-800/60 flex-shrink-0"></div>
+
+      <!-- Sleep -->
+      <div class="flex-1 flex items-center gap-2">
+        <svg class="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] font-bold text-neutral-500 font-mono">Sleep</span>
+            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeSleepVal">--</span> <span id="homeSleepUnit">hrs</span></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden flex-1">
+              <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" id="homeSleepFill" style="width:0%"></div>
+            </div>
+            <button class="sleep-btn" id="sleepCheckBtn" style="padding:2px 8px;font-size:9px;min-height:0;border-radius:6px">In</button>
+          </div>
         </div>
-        <div class="text-[11px] text-neutral-500 font-mono mb-3" id="homeSleepLabel">Not tracked</div>
-        <button class="sleep-btn w-full min-h-[44px]" id="sleepCheckBtn">🌙 Check In</button>
       </div>
 
-      <!-- Calendar Analytics Tile -->
-      <div class="rounded-2xl bg-white/[0.04] backdrop-blur-xl p-4 border border-white/[0.06]">
-        <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-500 mb-2">Tasks</div>
-        <div class="flex items-baseline gap-1 mb-1">
-          <span class="text-3xl font-bold tracking-tight font-mono tabular-nums" id="homeTaskDone">0</span>
-          <span class="text-xs text-neutral-500 font-mono" id="homeTaskTotal">/ 0</span>
+      <div class="w-px h-6 bg-slate-800/60 flex-shrink-0"></div>
+
+      <!-- Cash -->
+      <div class="flex-1 flex items-center gap-2 cursor-pointer" id="cashFlowTile">
+        <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] font-bold text-neutral-500 font-mono">Cash</span>
+            <span class="text-[10px] font-bold text-neutral-300 font-mono tabular-nums"><span id="homeCashSpent">$0</span></span>
+          </div>
+          <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full transition-all duration-500" id="homeCashFill" style="width:0%"></div>
+          </div>
+          <div class="text-[9px] text-neutral-600 font-mono mt-0.5">Mo: <span id="homeCashMonthly">$0</span></div>
         </div>
-        <div class="text-[11px] text-neutral-500 font-mono mb-2" id="homeTaskLabel">completed today</div>
-        <div class="flex gap-0.5" id="homeTaskBar"></div>
       </div>
     </div>
 
@@ -976,9 +988,9 @@ body::after{
       <div class="voice-feedback" id="voiceFeedback"></div>
     </div>
 
-    <!-- ═══ Schedule Checklist (Full-Width) ═══ -->
+    <!-- ═══ Daily Intentions ═══ -->
     <div class="mb-4">
-      <div class="section-title">Schedule</div>
+      <div class="section-title">Daily Intentions</div>
       <div class="card gm-card" id="gmCardToday">
         <div class="gm-header">
           <div>
@@ -999,7 +1011,7 @@ body::after{
         <ul id="goalList" class="gm-list"></ul>
         <div id="emptyState" class="empty-state">No goals for today yet — add one below.</div>
         <div class="gm-input-wrap">
-          <input type="text" class="gm-input" id="goalInput" placeholder="Add a goal for today…" maxlength="200">
+          <input type="text" class="gm-input" id="goalInput" placeholder="+ Add a daily goal…" maxlength="200">
           <button class="gm-add-btn" id="goalAddBtn">+ Add</button>
           <button class="gm-polish-btn" id="goalPolishBtn">Polish</button>
         </div>
@@ -1434,8 +1446,8 @@ function renderCalendarAnalytics(){
   var done=goals.filter(function(g){return g.done}).length;
   var total=goals.length;
   doneEl.textContent=done;
-  totalEl.textContent='/ '+total;
-  labelEl.textContent=total===0?'no tasks yet':(done===total?'all done!':(total-done)+' remaining');
+  if(totalEl)totalEl.textContent='/ '+total;
+  if(labelEl)labelEl.textContent=total===0?'no tasks yet':(done===total?'all done!':(total-done)+' remaining');
   // Mini bar
   if(barEl){
     barEl.innerHTML='';
@@ -1614,6 +1626,12 @@ function renderWater(){
   var homeBtn=document.getElementById('homeWaterAddBtn');
   if(homeCount){
     homeCount.textContent=w.glasses;
+    var homeFill=document.getElementById('homeWaterFill');
+    if(homeFill){
+      var fillPct=Math.min(pct*100,100);
+      homeFill.style.width=fillPct+'%';
+      homeFill.style.background=pct>=1?'#6BE3A4':'var(--water)';
+    }
     if(homeBtn){
       homeBtn.textContent=pct>=1?'Goal reached!':'+'+Math.round(8)+'oz';
       homeBtn.style.opacity=pct>=1?'0.5':'1';
@@ -1633,7 +1651,7 @@ document.getElementById('waterAddBtn').addEventListener('click',addGlass);
 var homeWaterBtn=document.getElementById('homeWaterAddBtn');
 var homeWaterTile=document.getElementById('waterTileHome');
 if(homeWaterBtn)homeWaterBtn.addEventListener('click',addGlass);
-if(homeWaterTile)homeWaterTile.addEventListener('click',function(e){if(e.target===homeWaterBtn||homeWaterBtn.contains(e.target))return;addGlass()});
+if(homeWaterTile)homeWaterTile.addEventListener('click',function(e){if(homeWaterBtn&&(e.target===homeWaterBtn||homeWaterBtn.contains(e.target)))return;addGlass()});
 
 /* ════════════ SUPPLEMENTS ════════════ */
 const SUPPL_CATEGORIES=['morning','afternoon','evening','anytime'];
@@ -2400,6 +2418,7 @@ function loadCalendar(){
   if(cached&&cached.events){
     renderCalendarStrip(cached.events);
     selectCalendarDay(0,cached.events);
+    renderHomeEvents();
   }
   if(url)fetchCalendar(url);
 }
@@ -2410,6 +2429,7 @@ function fetchCalendar(url){
     .then(function(data){
       storeSet(CAL_CACHE_KEY,data);
       renderCalendarStrip(data.events);
+      renderHomeEvents();
       var activeDay=document.querySelector('.cal-day.active');
       var idx=activeDay?parseInt(activeDay.dataset.index,10):0;
       selectCalendarDay(idx,data.events);
@@ -2477,6 +2497,30 @@ function renderAgenda(events){
     return;
   }
   agenda.innerHTML=events.map(function(e){
+    var allDay=e.allDay;
+    var timeStr=allDay?'All day':formatTime12(e.start);
+    var rangeStr=allDay?'':formatTime12(e.start)+' \u2013 '+formatTime12(e.end);
+    return '<div class="cal-event'+(allDay?' all-day':'')+'">'+
+      '<div class="cal-event-time">'+escHtml(timeStr)+'</div>'+
+      '<div class="cal-event-bar"></div>'+
+      '<div class="cal-event-body">'+
+        '<div class="cal-event-title">'+escHtml(e.title)+'</div>'+
+        (rangeStr?'<div class="cal-event-range">'+escHtml(rangeStr)+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderHomeEvents(){
+  var el=document.getElementById('homeEvents');
+  if(!el)return;
+  var cached=storeGet(CAL_CACHE_KEY);
+  if(!cached||!cached.events){el.innerHTML='<div class="cal-empty">No events</div>';return}
+  var todayStr=dateStrLocal(new Date());
+  var dayEvents=cached.events.filter(function(e){return dateStrLocal(new Date(e.start))===todayStr})
+    .sort(function(a,b){return new Date(a.start)-new Date(b.start)});
+  if(!dayEvents.length){el.innerHTML='<div class="cal-empty">No events today</div>';return}
+  el.innerHTML=dayEvents.map(function(e){
     var allDay=e.allDay;
     var timeStr=allDay?'All day':formatTime12(e.start);
     var rangeStr=allDay?'':formatTime12(e.start)+' \u2013 '+formatTime12(e.end);
