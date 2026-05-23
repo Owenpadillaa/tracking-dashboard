@@ -83,23 +83,24 @@ body{
   overflow-y:auto;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
-  padding:max(env(safe-area-inset-top,16px),16px) 16px calc(56px + env(safe-area-inset-bottom,0px));
+  padding:max(env(safe-area-inset-top,16px),16px) 16px calc(24px + 50px + 16px + env(safe-area-inset-bottom,0px));
   animation:fadeUp .35s cubic-bezier(.23,1,.32,1) both;
 }
 .tab-page.active{display:block}
 .tab-page#tab-ai.active{display:flex;flex-direction:column}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Edge-to-edge bottom nav bar ── */
+/* ── Floating glass capsule nav bar ── */
 .tab-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  position:fixed;bottom:8px;left:12px;right:12px;z-index:9999;
   display:flex;gap:3px;
-  padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));
-  background:rgba(24,24,27,0.92);
-  backdrop-filter:blur(40px);
-  -webkit-backdrop-filter:blur(40px);
-  border-top:1px solid rgba(255,255,255,0.06);
-  box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+  padding:4px 5px;
+  background:rgba(24,24,27,0.7);
+  backdrop-filter:blur(32px);
+  -webkit-backdrop-filter:blur(32px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),0 1px 0 rgba(255,255,255,0.05) inset;
 }
 
 .tab-btn{
@@ -915,7 +916,7 @@ body{
 
 /* Responsive */
 @media(max-width:480px){
-  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 14px calc(52px + env(safe-area-inset-bottom,0px))}
+  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 14px calc(16px + 46px + 16px + env(safe-area-inset-bottom,0px))}
   .container{padding:0;max-width:100%}
   .dash-title{font-size:28px;margin-bottom:16px}
   .section{margin-bottom:20px}
@@ -952,7 +953,7 @@ body{
   #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
 
   /* Floating tab bar */
-  .tab-bar{padding:5px 8px calc(5px + env(safe-area-inset-bottom,0px));gap:2px}
+  .tab-bar{bottom:6px;left:10px;right:10px;padding:3px 4px;border-radius:16px;gap:2px}
   .tab-btn{padding:5px 3px;border-radius:12px;gap:1px}
   .tab-btn .tab-icon{width:18px;height:18px}
   .tab-btn .tab-icon svg{width:18px;height:18px;stroke-width:1.8}
@@ -1013,13 +1014,13 @@ body{
   .insights-text{font-size:14px}
 }
 @media(max-width:360px){
-  .tab-page{padding:max(env(safe-area-inset-top,10px),10px) 10px calc(44px + env(safe-area-inset-bottom,0px))}
+  .tab-page{padding:max(env(safe-area-inset-top,10px),10px) 10px calc(12px + 42px + 12px + env(safe-area-inset-bottom,0px))}
   .tile-water-bottle{width:18px;height:26px}
   .rings-row{gap:5px}
   .ring-container{width:78px;height:78px}
   .ring-container-lg{width:100px;height:100px}
   .day-ring-pct{font-size:24px}
-  .tab-bar{padding:3px 5px calc(3px + env(safe-area-inset-bottom,0px));gap:1px}
+  .tab-bar{bottom:4px;left:6px;right:6px;padding:2px 3px;border-radius:14px;gap:1px}
   .tab-btn{padding:3px 2px;border-radius:8px;gap:1px}
   .tab-btn .tab-icon{width:16px;height:16px}
   .tab-btn .tab-icon svg{width:16px;height:16px}
