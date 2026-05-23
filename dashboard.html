@@ -1688,6 +1688,13 @@ function switchTab(id){
   document.querySelector('[data-tab="'+id+'"]').classList.add('active');
   document.getElementById(id).classList.add('active');
 }
+  if(id==='tab-finance'){
+    if(typeof renderIncome==='function')renderIncome();
+    if(typeof renderExpenses==='function')renderExpenses();
+  }
+  if(id==='tab-deepwork'){
+    if(typeof renderDWMetrics==='function')renderDWMetrics();
+  }
 document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
     switchTab(btn.dataset.tab);
@@ -3101,6 +3108,7 @@ if(cashFlowTile){
       check=new Date(check.getTime()-dayMs);
     }
     document.getElementById('dwStreak').textContent=streak+' day'+(streak!==1?'s':'');
+  window.renderDWMetrics = renderDWMetrics;
   }
 
   // Fetch from server on load
