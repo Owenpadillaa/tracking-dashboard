@@ -1008,29 +1008,32 @@ body{
 }
 
 /* ── Deep Work ── */
-.dw-intention{width:100%;background:var(--input-bg);border:0.5px solid rgba(255,255,255,0.08);color:var(--text-secondary);text-align:center;padding:14px 18px;border-radius:16px;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s}
-.dw-intention:focus{border-color:var(--accent)}
+.dw-intention{width:100%;max-width:400px;margin:0 auto;background:rgba(39,39,42,0.4);border:1px solid rgba(255,255,255,0.06);color:var(--text-primary);text-align:center;padding:16px 20px;border-radius:16px;font-size:15px;font-family:inherit;outline:none;transition:all .25s cubic-bezier(0.4,0,0.2,1);display:block}
+.dw-intention:focus{border-color:rgba(99,102,241,0.4);background:rgba(39,39,42,0.6);box-shadow:0 0 0 3px rgba(99,102,241,0.06)}
 .dw-intention::placeholder{color:var(--text-tertiary);font-weight:400}
-.dw-timer-display{font-family:"SF Mono",ui-monospace;font-size:60px;font-weight:700;color:#f1f5f9;letter-spacing:-0.03em;line-height:1;margin-bottom:16px;text-align:center;cursor:text;user-select:none}
+.dw-timer-card{background:rgba(24,24,27,0.4);border-radius:24px;padding:32px 20px 24px;margin:16px auto;max-width:400px;border:1px solid rgba(255,255,255,0.04);position:relative;overflow:hidden}
+.dw-timer-card::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,0.3),transparent);pointer-events:none}
+.dw-timer-display{font-family:"SF Mono",ui-monospace;font-size:64px;font-weight:700;color:#f1f5f9;letter-spacing:-0.04em;line-height:1;text-align:center;cursor:text;user-select:none;display:block;width:100%}
 .dw-timer-display:focus{outline:none}
-.dw-pills{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
-.dw-pill{padding:10px 20px;border-radius:99px;border:0.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-secondary);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
-.dw-pill:hover{background:rgba(255,255,255,0.06);color:var(--text-primary)}
-.dw-pill.active{background:var(--accent-glow);color:var(--accent);border-color:rgba(99,102,241,0.3)}
-.dw-start-btn{width:100%;padding:16px;border:none;border-radius:16px;background:var(--accent-gradient);color:#fff;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1);box-shadow:0 4px 14px rgba(99,102,241,0.25)}
+.dw-pills{display:flex;gap:8px;justify-content:center;margin:20px 0 0;flex-wrap:wrap}
+.dw-pill{padding:10px 22px;border-radius:99px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:var(--text-secondary);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1);letter-spacing:-0.01em}
+.dw-pill:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:rgba(255,255,255,0.1)}
+.dw-pill.active{background:var(--accent-glow);color:var(--accent);border-color:rgba(99,102,241,0.3);box-shadow:0 0 12px rgba(99,102,241,0.08)}
+.dw-start-btn{max-width:400px;margin:24px auto 0;display:block;width:100%;padding:16px 24px;border:none;border-radius:16px;background:var(--accent-gradient);color:#fff;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1);box-shadow:0 4px 14px rgba(99,102,241,0.25);letter-spacing:0.02em}
 .dw-start-btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.3)}
 .dw-start-btn:disabled{opacity:0.4;cursor:default}
 .dw-start-btn:active{transform:scale(0.98);box-shadow:0 2px 8px rgba(99,102,241,0.2)}
-.dw-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-.dw-metric{background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 .5px var(--card-border);border-radius:20px;padding:20px;text-align:center}
-.dw-metric-val{font-size:24px;font-weight:700;color:#f1f5f9;line-height:1;margin-bottom:6px}
-.dw-metric-label{font-size:12px;font-weight:600;color:var(--text-tertiary)}
-.dw-overlay{position:fixed;inset:0;background:#000;backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);z-index:99997;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.dw-metrics{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px;max-width:400px;margin-left:auto;margin-right:auto}
+.dw-metric{background:rgba(24,24,27,0.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 0 .5px rgba(255,255,255,0.04);border-radius:20px;padding:22px 16px;text-align:center;border:1px solid rgba(255,255,255,0.04);position:relative;overflow:hidden}
+.dw-metric::before{content:'';position:absolute;top:0;left:30%;right:30%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);pointer-events:none}
+.dw-metric-val{font-size:28px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:8px}
+.dw-metric-label{font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:0.04em;text-transform:uppercase}
+.dw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);z-index:99997;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .dw-overlay.active{opacity:1;pointer-events:auto}
-.dw-overlay-timer{font-family:"SF Mono",ui-monospace;font-size:76px;font-weight:700;color:#f1f5f9;letter-spacing:-0.03em;line-height:1;margin-bottom:12px}
-.dw-overlay-intention{color:var(--text-tertiary);font-size:15px;margin-bottom:32px;max-width:80vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dw-cancel-btn{color:var(--text-tertiary);font-size:15px;cursor:pointer;transition:color .2s;background:none;border:none;font-family:inherit;margin-top:24px;font-weight:500}
-.dw-cancel-btn:hover{color:var(--text-secondary)}
+.dw-overlay-timer{font-family:"SF Mono",ui-monospace;font-size:80px;font-weight:700;color:#f1f5f9;letter-spacing:-0.04em;line-height:1;margin-bottom:16px;text-shadow:0 0 40px rgba(99,102,241,0.15)}
+.dw-overlay-intention{color:var(--text-secondary);font-size:16px;margin-bottom:40px;max-width:80vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
+.dw-cancel-btn{color:var(--text-tertiary);font-size:14px;cursor:pointer;transition:all .2s;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 24px;font-family:inherit;margin-top:24px;font-weight:500}
+.dw-cancel-btn:hover{color:var(--text-secondary);border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
 
 /* ── Toast ── */
 </style>
@@ -1480,11 +1483,13 @@ body{
     <h1 class="dash-title">Deep Work</h1>
     <div class="section" style="text-align:center">
       <input type="text" class="dw-intention" id="dwIntention" placeholder="+ What is your single focus outcome for this block?">
-      <div class="dw-timer-display" id="dwTimerDisplay" contenteditable="true" spellcheck="false">25:00</div>
-      <div class="dw-pills">
-        <button class="dw-pill active" data-min="25" data-label="Sprint">25m · Sprint</button>
-        <button class="dw-pill" data-min="50" data-label="Deep Block">50m · Deep Block</button>
-        <button class="dw-pill" data-min="90" data-label="Lock-In">90m · Lock-In</button>
+      <div class="dw-timer-card">
+        <div class="dw-timer-display" id="dwTimerDisplay" contenteditable="true" spellcheck="false">25:00</div>
+        <div class="dw-pills">
+          <button class="dw-pill active" data-min="25" data-label="Sprint">25m · Sprint</button>
+          <button class="dw-pill" data-min="50" data-label="Deep Block">50m · Deep Block</button>
+          <button class="dw-pill" data-min="90" data-label="Lock-In">90m · Lock-In</button>
+        </div>
       </div>
       <button class="dw-start-btn" id="dwStartBtn">Start Deep Work</button>
     </div>
