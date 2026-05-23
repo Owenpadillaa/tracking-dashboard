@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#09090B}
+.icon{width:512px;height:512px;border-radius:112px;overflow:hidden;position:relative;background:linear-gradient(135deg,#0a0a0f 0%,#12121a 50%,#0e0e14 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,0.06),0 8px 32px rgba(99,102,241,0.15)}
+.icon-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.glow{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,rgba(99,102,241,0.06) 40%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%)}
+.ring{position:absolute;width:260px;height:260px;border-radius:50%;border:1px solid rgba(99,102,241,0.08);top:50%;left:50%;transform:translate(-50%,-50%)}
+.ring-2{position:absolute;width:200px;height:200px;border-radius:50%;border:1px solid rgba(99,102,241,0.05);top:50%;left:50%;transform:translate(-50%,-50%)}
+.letter-a{position:relative;z-index:2}
+.letter-a svg{width:200px;height:200px;filter:drop-shadow(0 0 20px rgba(99,102,241,0.15))}
+.border-line{position:absolute;inset:2px;border-radius:110px;border:1px solid rgba(255,255,255,0.04);pointer-events:none}
+.border-glow{position:absolute;inset:-2px;border-radius:114px;border:1px solid rgba(99,102,241,0.06);pointer-events:none}
+.shine{position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 100%);border-radius:112px 112px 0 0;pointer-events:none}
+</style></head>
+<body>
+<div class="icon">
+  <div class="shine"></div>
+  <div class="border-line"></div>
+  <div class="border-glow"></div>
+  <div class="glow"></div>
+  <div class="ring"></div>
+  <div class="ring-2"></div>
+  <div class="icon-inner letter-a">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#818CF8"/>
+          <stop offset="100%" stop-color="#6366F1"/>
+        </linearGradient>
+      </defs>
+      <path d="M30 78 L50 22 L70 78" stroke="url(#aGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M38 62 L62 62" stroke="url(#aGrad)" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="M50 22 L50 38" stroke="url(#aGrad)" stroke-width="7" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+</body>
+</html>

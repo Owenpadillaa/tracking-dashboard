@@ -605,6 +605,16 @@ body{
 .savings-input{flex:1;padding:10px 14px;border-radius:12px;border:0.5px solid rgba(255,255,255,0.08);background:var(--input-bg);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;min-width:0}
 .savings-input:focus{border-color:rgba(16,185,129,0.4)}
 .savings-input::placeholder{color:var(--text-tertiary);font-weight:400}
+.savings-deadline{font-size:12px;color:var(--text-tertiary);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.savings-advice{font-size:13px;font-weight:600;color:#10B981;margin-top:2px}
+.savings-advice.muted{color:var(--text-tertiary);font-weight:400}
+.savings-goal-form{display:none;flex-direction:column;gap:10px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.06);margin-top:8px}
+.savings-goal-form.open{display:flex}
+.savings-goal-field{display:flex;flex-direction:column;gap:4px}
+.savings-goal-label{font-size:11px;font-weight:600;color:var(--text-tertiary)}
+.savings-goal-row{display:flex;gap:8px}
+.savings-goal-row .savings-input{flex:1}
+.savings-goal-row .savings-btn{flex-shrink:0}
 
 /* ── Finance: Inline Expense Ledger ── */
 .inline-expense-bar{
@@ -998,6 +1008,7 @@ body{
   .exec-ring-wrap{width:80px;height:80px}
   .exec-ring-val{font-size:13px}
   .savings-current{font-size:20px}
+  .savings-advice{font-size:12px}
   .exec-ring-card .savings-title{font-size:10px}
   .budget-grid{flex-direction:column;gap:10px}
   .income-row{flex-direction:column;gap:10px}
@@ -1518,14 +1529,30 @@ body{
           <span class="savings-target" id="savingsTarget">$0</span>
         </div>
         <div class="savings-bar-track" id="savingsBarTrack"></div>
+        <div class="savings-deadline" id="savingsDeadline"></div>
+        <div class="savings-advice" id="savingsAdvice"></div>
         <div class="savings-actions">
           <button class="savings-btn" data-action="contribute" id="savingsContributeBtn">+ Add</button>
-          <button class="savings-btn" data-action="edit" id="savingsEditBtn">Edit</button>
+          <button class="savings-btn" data-action="edit" id="savingsEditBtn">Edit Goal</button>
         </div>
         <div class="savings-input-row" id="savingsInputRow">
           <input type="number" class="savings-input" id="savingsInput" placeholder="Amount" min="0" step="0.01">
           <button class="savings-btn" data-action="contribute" id="savingsSubmitBtn" style="padding:10px 16px">Save</button>
           <button class="savings-btn" id="savingsCancelBtn" style="padding:10px 16px">Cancel</button>
+        </div>
+        <div class="savings-goal-form" id="savingsGoalForm">
+          <div class="savings-goal-field">
+            <span class="savings-goal-label">Target amount</span>
+            <input type="number" class="savings-input" id="savingsGoalTargetInput" placeholder="$0" min="0" step="0.01">
+          </div>
+          <div class="savings-goal-field">
+            <span class="savings-goal-label">Reach by</span>
+            <input type="date" class="savings-input" id="savingsGoalDateInput">
+          </div>
+          <div class="savings-goal-row">
+            <button class="savings-btn" id="savingsGoalSaveBtn" style="flex:1;padding:10px 0">Save Goal</button>
+            <button class="savings-btn" id="savingsGoalCancelBtn" style="flex:1;padding:10px 0">Cancel</button>
+          </div>
         </div>
       </div>
 
@@ -2446,7 +2473,12 @@ function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d
     if(!amount)return;
     storeSet('finance:income',{amount:amount,freq:selectedFreq});
     // Sync to server
-    fetch('/api/v1/finance/income',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amount,freq:selectedFreq})}).catch(function(){});
+    fetch('/api/v1/finance/income',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amount,freq:selectedFreq})}).then(function(){return fetch('/api/v1/finance/savings')}).then(function(r){return r.json()}).then(function(d){
+      savingsState.suggestedMonthly=parseFloat(d.suggestedMonthly)||0;
+      savingsState.suggestedPct=parseInt(d.suggestedPct)||0;
+      savingsState.monthlyIncome=parseInt(d.monthlyIncome)||0;
+      renderSavings();
+    }).catch(function(){});
     renderIncome();
   });
 
@@ -2707,7 +2739,7 @@ function renderExpenseHome(){
 }
 
 /* ── Savings Goal ── */
-var savingsState={target:0,current:0,title:'Savings Goal'};
+var savingsState={target:0,current:0,title:'Savings Goal',deadline:null,suggestedMonthly:0,suggestedPct:0,monthlyIncome:0};
 function renderSavings(){
   if(!savingsState)return;
   var titleEl=document.getElementById('savingsTitle');
@@ -2715,6 +2747,8 @@ function renderSavings(){
   var targetEl=document.getElementById('savingsTarget');
   var pctEl=document.getElementById('savingsPctBadge');
   var barTrack=document.getElementById('savingsBarTrack');
+  var deadlineEl=document.getElementById('savingsDeadline');
+  var adviceEl=document.getElementById('savingsAdvice');
   if(!barTrack)return;
   var s=savingsState;
   if(titleEl)titleEl.textContent=s.title||'Savings Goal';
@@ -2730,6 +2764,37 @@ function renderSavings(){
     seg.className='savings-bar-seg'+(i<filledCount?' filled':'');
     barTrack.appendChild(seg);
   }
+  // Deadline line
+  if(deadlineEl){
+    if(s.deadline&&s.target>0){
+      var d=new Date(s.deadline);
+      var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var label='By '+months[d.getMonth()]+' '+d.getFullYear();
+      if(s.suggestedMonthly>0)label+=' · Save $'+fmtShort(s.suggestedMonthly)+'/mo';
+      deadlineEl.textContent=label;
+    }else{
+      deadlineEl.textContent='';
+    }
+  }
+  // Advice line
+  if(adviceEl){
+    if(s.target>0&&s.suggestedMonthly>0&&s.monthlyIncome>0){
+      adviceEl.textContent='Put aside $'+fmtShort(s.suggestedMonthly)+'/mo — '+s.suggestedPct+'% of your income';
+      adviceEl.className='savings-advice';
+    }else if(s.target>0&&s.suggestedMonthly>0){
+      adviceEl.textContent='Set your income to see what % this is';
+      adviceEl.className='savings-advice muted';
+    }else if(s.target>0){
+      adviceEl.textContent=s.deadline?'Deadline passed — update your goal':'Set a deadline to plan your pace';
+      adviceEl.className='savings-advice muted';
+    }else{
+      adviceEl.textContent='';
+    }
+  }
+}
+function fmtShort(n){
+  if(n>=1000)return (n/1000).toFixed(1).replace(/\.0$/,'')+'k';
+  return Math.round(n).toString();
 }
 
 // Wire savings UI
@@ -2739,7 +2804,16 @@ document.addEventListener('DOMContentLoaded',function(){
     savingsState.target=parseFloat(data.target)||0;
     savingsState.current=parseFloat(data.current)||0;
     savingsState.title=data.title||'Savings Goal';
+    savingsState.deadline=data.deadline||null;
+    savingsState.suggestedMonthly=parseFloat(data.suggestedMonthly)||0;
+    savingsState.suggestedPct=parseInt(data.suggestedPct)||0;
+    savingsState.monthlyIncome=parseInt(data.monthlyIncome)||0;
     renderSavings();
+    // Pre-fill goal form
+    var gt=document.getElementById('savingsGoalTargetInput');
+    var gd=document.getElementById('savingsGoalDateInput');
+    if(gt)gt.value=savingsState.target||'';
+    if(gd&&savingsState.deadline)gd.value=savingsState.deadline;
   }).catch(function(){
     renderSavings();
   });
@@ -2750,41 +2824,78 @@ document.addEventListener('DOMContentLoaded',function(){
   var input=document.getElementById('savingsInput');
   var submitBtn=document.getElementById('savingsSubmitBtn');
   var cancelBtn=document.getElementById('savingsCancelBtn');
+  var goalForm=document.getElementById('savingsGoalForm');
+  var goalTarget=document.getElementById('savingsGoalTargetInput');
+  var goalDate=document.getElementById('savingsGoalDateInput');
+  var goalSave=document.getElementById('savingsGoalSaveBtn');
+  var goalCancel=document.getElementById('savingsGoalCancelBtn');
   var actionMode='contribute';
   function showInput(mode){
     actionMode=mode||'contribute';
-    inputRow.classList.add('open');
-    input.focus();
-    if(mode==='edit'){input.placeholder='Target amount';input.value=''}else{input.placeholder='Amount';input.value=''}
+    if(mode==='edit'){
+      goalForm.classList.add('open');
+      goalTarget.focus();
+    }else{
+      inputRow.classList.add('open');
+      input.focus();
+      input.placeholder='Amount';
+      input.value='';
+    }
   }
-  function hideInput(){inputRow.classList.remove('open');input.value=''}
+  function hideInput(){inputRow.classList.remove('open');input.value='';goalForm.classList.remove('open')}
   if(contrBtn)contrBtn.addEventListener('click',function(){showInput('contribute')});
-  if(editBtn)editBtn.addEventListener('click',function(){showInput('edit')});
+  if(editBtn)editBtn.addEventListener('click',function(){
+    if(goalTarget)goalTarget.value=savingsState.target||'';
+    if(goalDate)goalDate.value=savingsState.deadline||'';
+    showInput('edit');
+  });
   if(cancelBtn)cancelBtn.addEventListener('click',hideInput);
+  if(goalCancel)goalCancel.addEventListener('click',hideInput);
+  function refreshSavingsAdvice(){
+    fetch('/api/v1/finance/savings').then(function(r){return r.json()}).then(function(d){
+      savingsState.suggestedMonthly=parseFloat(d.suggestedMonthly)||0;
+      savingsState.suggestedPct=parseInt(d.suggestedPct)||0;
+      savingsState.monthlyIncome=parseInt(d.monthlyIncome)||0;
+      renderSavings();
+    }).catch(function(){});
+  }
   if(submitBtn)submitBtn.addEventListener('click',function(){
     var val=parseFloat(input.value);
     if(!val||val<=0)return;
-    var body;
-    if(actionMode==='contribute'){
-      body={action:'contribute',amount:val};
-    }else{
-      body={target:val};
-    }
-    fetch('/api/v1/finance/savings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    fetch('/api/v1/finance/savings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'contribute',amount:val})})
     .then(function(r){return r.json()}).then(function(data){
       if(data.ok){
-        savingsState.target=parseFloat(data.savings.target)||0;
         savingsState.current=parseFloat(data.savings.current)||0;
-        savingsState.title=data.savings.title||'Savings Goal';
         renderSavings();
       }
       hideInput();
+      refreshSavingsAdvice();
+    }).catch(function(){hideInput()});
+  });
+  // Goal save
+  if(goalSave)goalSave.addEventListener('click',function(){
+    var t=parseFloat(goalTarget.value);
+    var d=goalDate.value||null;
+    if(!t||t<=0)return;
+    fetch('/api/v1/finance/savings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:t,deadline:d})})
+    .then(function(r){return r.json()}).then(function(data){
+      if(data.ok){
+        savingsState.target=parseFloat(data.savings.target)||0;
+        savingsState.deadline=data.savings.deadline||null;
+        renderSavings();
+      }
+      hideInput();
+      refreshSavingsAdvice();
     }).catch(function(){hideInput()});
   });
   // Keyboard submit
   if(input)input.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&submitBtn)submitBtn.click();
     if(e.key==='Escape'&&cancelBtn)cancelBtn.click();
+  });
+  if(goalTarget)goalTarget.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&goalSave)goalSave.click();
+    if(e.key==='Escape'&&goalCancel)goalCancel.click();
   });
 });
 

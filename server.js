@@ -445,18 +445,37 @@ app.post('/api/v1/finance/income', (req, res) => {
   res.json({ ok: true });
 });
 
-// GET /api/v1/finance/savings — read savings goal
+// GET /api/v1/finance/savings — read savings goal with computed advice
 app.get('/api/v1/finance/savings', (req, res) => {
   const finance = loadFinanceData();
   const savings = finance.savings || { target: 0, current: 0, title: 'Savings Goal' };
-  res.json(savings);
+  const income = finance.income || {};
+  const monthlyIncome = getMonthlyAmount(income);
+  const remaining = Math.max(0, (savings.target || 0) - (savings.current || 0));
+  let suggestedMonthly = 0;
+  let monthsRemaining = 0;
+  let suggestedPct = 0;
+  if (savings.deadline && remaining > 0) {
+    const now = new Date();
+    const deadline = new Date(savings.deadline);
+    if (deadline > now) {
+      monthsRemaining = Math.max(1, (deadline - now) / (1000 * 60 * 60 * 24 * 30.44));
+      suggestedMonthly = remaining / monthsRemaining;
+    }
+  } else if (remaining > 0) {
+    suggestedMonthly = remaining;
+  }
+  if (monthlyIncome > 0 && suggestedMonthly > 0) {
+    suggestedPct = Math.round((suggestedMonthly / monthlyIncome) * 100);
+  }
+  res.json({ ...savings, suggestedMonthly: Math.round(suggestedMonthly * 100) / 100, suggestedPct, monthsRemaining: Math.ceil(monthsRemaining), monthlyIncome: Math.round(monthlyIncome) });
 });
 
 // POST /api/v1/finance/savings — update savings goal or contribute
 app.post('/api/v1/finance/savings', (req, res) => {
-  const { target, current, title, action } = req.body;
-  if (!target && !current && !title && !action) {
-    return res.status(400).json({ error: 'Provide target, current, title, or action' });
+  const { target, current, title, action, deadline } = req.body;
+  if (target === undefined && current === undefined && !title && !action && deadline === undefined) {
+    return res.status(400).json({ error: 'Provide target, current, title, deadline, or action' });
   }
   const finance = loadFinanceData();
   if (!finance.savings) {
@@ -465,6 +484,7 @@ app.post('/api/v1/finance/savings', (req, res) => {
   if (target !== undefined) finance.savings.target = parseFloat(target);
   if (current !== undefined) finance.savings.current = parseFloat(current);
   if (title !== undefined) finance.savings.title = String(title).trim();
+  if (deadline !== undefined) finance.savings.deadline = deadline || null;
   if (action === 'contribute' && req.body.amount) {
     finance.savings.current = (finance.savings.current || 0) + parseFloat(req.body.amount);
   }
