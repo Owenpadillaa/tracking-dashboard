@@ -2894,7 +2894,7 @@ function renderDateRibbon(){
   for(var r=0;r<ribbons.length;r++){
     if(!ribbons[r])continue;
     ribbons[r].innerHTML='';
-    for(var i=0;i<60;i++){
+    for(var i=0;i<1;i++){
       var d=new Date(start);
       d.setDate(start.getDate()+i);
       var ds=dateStrLocal(d);
