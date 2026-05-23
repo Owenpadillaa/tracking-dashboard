@@ -615,6 +615,12 @@ body{
 .savings-goal-row{display:flex;gap:8px}
 .savings-goal-row .savings-input{flex:1}
 .savings-goal-row .savings-btn{flex-shrink:0}
+.savings-contribs{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.savings-contrib{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,0.02);font-size:12px}
+.savings-contrib-amt{font-family:"SF Mono",ui-monospace;font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.savings-contrib-when{font-size:11px;color:var(--text-tertiary);flex:1}
+.savings-contrib-del{background:none;border:none;color:var(--text-tertiary);cursor:pointer;padding:2px 4px;font-size:14px;line-height:1;border-radius:6px;transition:all 0.2s;opacity:0.4}
+.savings-contrib-del:hover{opacity:1;color:var(--danger);background:rgba(255,69,58,0.1)}
 
 /* ── Finance: Inline Expense Ledger ── */
 .inline-expense-bar{
@@ -1531,6 +1537,7 @@ body{
         <div class="savings-bar-track" id="savingsBarTrack"></div>
         <div class="savings-deadline" id="savingsDeadline"></div>
         <div class="savings-advice" id="savingsAdvice"></div>
+        <div class="savings-contribs" id="savingsContribs"></div>
         <div class="savings-actions">
           <button class="savings-btn" data-action="contribute" id="savingsContributeBtn">+ Add</button>
           <button class="savings-btn" data-action="edit" id="savingsEditBtn">Edit Goal</button>
@@ -2739,7 +2746,7 @@ function renderExpenseHome(){
 }
 
 /* ── Savings Goal ── */
-var savingsState={target:0,current:0,title:'Savings Goal',deadline:null,suggestedMonthly:0,suggestedPct:0,monthlyIncome:0};
+var savingsState={target:0,current:0,title:'Savings Goal',deadline:null,suggestedMonthly:0,suggestedPct:0,monthlyIncome:0,contributions:[]};
 function renderSavings(){
   if(!savingsState)return;
   var titleEl=document.getElementById('savingsTitle');
@@ -2794,6 +2801,51 @@ function renderSavings(){
       adviceEl.textContent='';
     }
   }
+  // Contributions list
+  var contribsEl=document.getElementById('savingsContribs');
+  if(contribsEl){
+    contribsEl.innerHTML='';
+    var contribs=s.contributions||[];
+    if(contribs.length>0){
+      var recent=contribs.slice().reverse().slice(0,5);
+      recent.forEach(function(c){
+        var row=document.createElement('div');
+        row.className='savings-contrib';
+        var amtSpan=document.createElement('span');
+        amtSpan.className='savings-contrib-amt';
+        amtSpan.textContent='+$'+fmtShort(c.amount);
+        var whenSpan=document.createElement('span');
+        whenSpan.className='savings-contrib-when';
+        var d=new Date(c.timestamp||c.id);
+        var now=new Date();
+        var diffMs=now-d;
+        if(diffMs<60000)whenSpan.textContent='just now';
+        else if(diffMs<3600000)whenSpan.textContent=Math.floor(diffMs/60000)+'m ago';
+        else if(diffMs<86400000)whenSpan.textContent=Math.floor(diffMs/3600000)+'h ago';
+        else whenSpan.textContent=d.toLocaleDateString();
+        var delBtn=document.createElement('button');
+        delBtn.className='savings-contrib-del';
+        delBtn.textContent='✕';
+        delBtn.setAttribute('data-id',c.id);
+        delBtn.addEventListener('click',function(e){
+          var id=parseInt(e.target.getAttribute('data-id'));
+          fetch('/api/v1/finance/savings/contribution/'+id,{method:'DELETE'})
+          .then(function(r){return r.json()}).then(function(data){
+            if(data.ok){
+              savingsState.current=parseFloat(data.savings.current)||0;
+              savingsState.contributions=data.savings.contributions||[];
+              renderSavings();
+              refreshSavingsAdvice();
+            }
+          }).catch(function(){});
+        });
+        row.appendChild(amtSpan);
+        row.appendChild(whenSpan);
+        row.appendChild(delBtn);
+        contribsEl.appendChild(row);
+      });
+    }
+  }
 }
 function fmtShort(n){
   if(n>=1000)return (n/1000).toFixed(1).replace(/\.0$/,'')+'k';
@@ -2811,6 +2863,7 @@ document.addEventListener('DOMContentLoaded',function(){
     savingsState.suggestedMonthly=parseFloat(data.suggestedMonthly)||0;
     savingsState.suggestedPct=parseInt(data.suggestedPct)||0;
     savingsState.monthlyIncome=parseInt(data.monthlyIncome)||0;
+    savingsState.contributions=data.contributions||[];
     renderSavings();
     // Pre-fill goal form
     var gt=document.getElementById('savingsGoalTargetInput');

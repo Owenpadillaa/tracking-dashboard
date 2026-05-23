@@ -484,8 +484,27 @@ app.post('/api/v1/finance/savings', (req, res) => {
   if (title !== undefined) finance.savings.title = String(title).trim();
   if (deadline !== undefined) finance.savings.deadline = deadline || null;
   if (action === 'contribute' && req.body.amount) {
-    finance.savings.current = (finance.savings.current || 0) + parseFloat(req.body.amount);
+    const amt = parseFloat(req.body.amount);
+    finance.savings.current = (finance.savings.current || 0) + amt;
+    if (!Array.isArray(finance.savings.contributions)) finance.savings.contributions = [];
+    finance.savings.contributions.push({ id: Date.now(), amount: amt, timestamp: Date.now() });
   }
+  finance.savings.updatedAt = Date.now();
+  saveDataFile('finance', finance);
+  res.json({ ok: true, savings: finance.savings });
+});
+
+// DELETE /api/v1/finance/savings/contribution/:id — undo a contribution
+app.delete('/api/v1/finance/savings/contribution/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Missing contribution id' });
+  const finance = loadFinanceData();
+  const contribs = finance.savings?.contributions;
+  if (!Array.isArray(contribs)) return res.status(404).json({ error: 'No contributions found' });
+  const idx = contribs.findIndex(c => c.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Contribution not found' });
+  const removed = contribs.splice(idx, 1)[0];
+  finance.savings.current = Math.max(0, (finance.savings.current || 0) - removed.amount);
   finance.savings.updatedAt = Date.now();
   saveDataFile('finance', finance);
   res.json({ ok: true, savings: finance.savings });
