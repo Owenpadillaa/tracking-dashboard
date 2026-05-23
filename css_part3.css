@@ -307,7 +307,7 @@
 
   /* Compact merged goals+events card */
   #gmCardToday .cal-event{padding:4px 0;gap:5px}
-  #gmCardToday .cal-event-time{min-width:32px;font-size:9px;padding-top:1px}
+  #gmCardToday .cal-event-time{min-width:32px;font-size:10px;padding-top:1px}
   #gmCardToday .cal-event-bar{width:2px}
   #gmCardToday .cal-event-title{font-size:11px}
   #gmCardToday .cal-empty{font-size:10px;padding:1px 0}
@@ -321,98 +321,109 @@
   #gmCardToday .gm-show-more{padding:6px;font-size:11px;margin-bottom:3px}
   .section-title{font-size:11px;margin-bottom:10px}
 
-  /* Homepage tighten */
-  #tab-home .mb-5{margin-bottom:14px}
-  #tab-home .mb-4{margin-bottom:10px}
+  /* Homepage tighten — mobile optimized */
+  #tab-home .mb-5{margin-bottom:12px}
+  #tab-home .mb-4{margin-bottom:8px}
   #insightsCard{padding:14px!important;border-radius:18px!important}
   #insightsCard .mb-4{margin-bottom:8px!important}
   #insightsCard .w-7{display:none!important}
-  #insightsLabel{font-size:8px!important}
-  .insight-cell{padding:10px 12px!important;min-height:60px!important}
-  .insight-cell-header{font-size:7px!important;margin-bottom:4px!important}
-  #sleepTileHome{padding:10px 12px!important}
-  #streakBanner{margin-bottom:10px!important;padding:10px 12px!important;gap:8px!important}
+  #insightsLabel{font-size:10px!important}
+  .insight-cell{padding:12px 14px!important;min-height:72px!important}
+  .insight-cell-header{font-size:10px!important;margin-bottom:5px!important}
+  .insight-cell-footer{font-size:10px!important}
+  #sleepTileHome{padding:12px 14px!important}
+  #streakBanner{margin-bottom:10px!important;padding:12px 14px!important;gap:10px!important}
   #gmCardToday{border-radius:16px!important}
   #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
 
-  /* Tab bar compact */
-  .tab-bar{padding:4px 10px calc(4px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:3px 4px;border-radius:16px;gap:2px}
-  .tab-btn{padding:6px 3px 5px;border-radius:12px;gap:1px}
-  .tab-btn .tab-icon{width:18px;height:18px}
-  .tab-btn .tab-icon svg{width:18px;height:18px;stroke-width:1.8}
-  .tab-btn span:not(.tab-icon){font-size:7px;letter-spacing:0.04em;margin-top:0}
+  /* Tab bar — mobile friendly */
+  .tab-bar{padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px))}
+  .tab-bar-inner{padding:4px 5px;border-radius:18px;gap:2px}
+  .tab-btn{padding:8px 4px 6px;border-radius:14px;gap:3px}
+  .tab-btn .tab-icon{width:22px;height:22px}
+  .tab-btn .tab-icon svg{width:22px;height:22px;stroke-width:1.8}
+  .tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.03em;margin-top:0}
 
   /* Goal ticker */
-  .goal-ticker{padding:12px 14px}
+  .goal-ticker{padding:14px 16px}
   .goal-ticker-label{font-size:10px}
-  .goal-ticker-row{font-size:13px}
-  .goal-ticker-meta{font-size:11px;padding:4px 8px}
+  .goal-ticker-row{font-size:14px}
+  .goal-ticker-meta{font-size:12px;padding:5px 10px}
 
   /* Rings */
-  .rings-row{gap:8px;justify-content:center}
-  .rings-bottom{justify-content:center;gap:14px;margin-bottom:18px;text-align:center}
-  .ring-container{width:95px;height:95px}
-  .ring-container-lg{width:130px;height:130px}
-  .day-ring-pct{font-size:30px}
-  .day-ring-phase{font-size:10px}
-  .day-ring-clock{font-size:11px}
-  .day-ring-status{font-size:13px}
-  .day-ring-remaining{font-size:12px}
-  .day-ring-range{font-size:10px}
+  .rings-row{gap:10px;justify-content:center}
+  .rings-bottom{justify-content:center;gap:16px;margin-bottom:20px;text-align:center}
+  .ring-container{width:100px;height:100px}
+  .ring-container-lg{width:135px;height:135px}
+  .day-ring-pct{font-size:32px}
+  .day-ring-phase{font-size:11px}
+  .day-ring-clock{font-size:12px}
+  .day-ring-status{font-size:14px}
+  .day-ring-remaining{font-size:13px}
+  .day-ring-range{font-size:11px}
   .rings-bottom-status{align-items:center}
-  .sleep-btn{padding:10px 20px;font-size:14px}
+  .sleep-btn{padding:12px 24px;font-size:15px;min-height:44px}
 
   /* Goals */
   .gm-input-wrap{flex-wrap:wrap;gap:8px;padding-top:14px}
   .gm-input{padding:14px 16px;font-size:16px;border-radius:14px;flex:1 1 100%}
   .gm-add-btn,.gm-polish-btn{padding:14px 18px;font-size:15px;font-weight:600;flex:1;min-height:48px}
-  .gm-progress-num{font-size:38px}
+  .gm-progress-num{font-size:40px}
   .gm-status{font-size:12px}
   .gm-header{flex-direction:column;gap:10px;align-items:center;text-align:center}
   .gm-streak{align-self:center}
   .gm-bar{height:6px;margin-top:10px}
+  .goal-item{padding:15px 14px;margin-bottom:8px;gap:12px}
+  .goal-text{font-size:15px}
+  .goal-checkbox{width:22px;height:22px;border-radius:7px}
 
   /* Water */
-  .water-bottle-wrap{width:120px}
-  .water-bottle-num{font-size:30px}
+  .water-bottle-wrap{width:130px}
+  .water-bottle-num{font-size:34px}
 
   /* Supplements */
-  .suppl-grid-tile{padding:16px}
+  .suppl-grid-tile{padding:18px 16px}
+  .suppl-grid-tile .suppl-tile-name{font-size:15px}
 
   /* Workouts */
-  .routine-card{padding:22px 14px}
-  .routine-icon{font-size:30px}
-  .routine-name{font-size:13px}
+  .routine-card{padding:24px 16px}
+  .routine-icon{font-size:32px}
+  .routine-name{font-size:14px}
 
   /* Finance */
-  .exec-row{flex-direction:column;gap:12px}
-  .exec-ring-card{padding:14px 16px;border-radius:var(--radius-md)}
-  .exec-ring-wrap{width:85px;height:85px}
-  .exec-ring-val{font-size:14px}
-  .savings-current{font-size:22px}
-  .savings-advice{font-size:12px}
-  .exec-ring-card .savings-title{font-size:11px}
+  .exec-row{flex-direction:column;gap:14px}
+  .exec-ring-card{padding:16px 18px;border-radius:var(--radius-md)}
+  .exec-ring-wrap{width:95px;height:95px}
+  .exec-ring-val{font-size:16px}
+  .exec-ring-label{font-size:10px!important}
+  .savings-current{font-size:26px}
+  .savings-advice{font-size:13px}
+  .exec-ring-card .savings-title{font-size:12px}
   .income-row{flex-direction:column;gap:10px}
-  .insights-card{padding:16px;border-radius:18px}
+  .insights-card{padding:18px;border-radius:18px}
   .budget-grid{flex-direction:column;gap:10px}
 
   /* Deep work */
-  .dw-timer-display{font-size:52px}
-  .dw-metrics{gap:10px}
-  .dw-metric{padding:18px 14px}
-  .dw-metric-val{font-size:22px}
+  .dw-timer-display{font-size:54px}
+  .dw-metrics{gap:12px}
+  .dw-metric{padding:20px 16px}
+  .dw-metric-val{font-size:24px}
+  .dw-metric-label{font-size:12px}
   .dw-overlay-timer{font-size:60px}
+  .dw-start-btn{font-size:17px;padding:18px 24px}
+  .dw-pill{padding:11px 20px;font-size:14px}
 
   /* Sleep display */
-  .sleep-hours{font-size:56px}
+  .sleep-hours{font-size:58px}
 
   /* Chat */
   .chat-bubble{max-width:90%}
-  .chat-input-row{gap:8px;padding:10px}
+  .chat-input-row{gap:8px;padding:12px}
 
   /* Weekly chart */
-  .weekly-bars{height:110px;gap:6px}
+  .weekly-bars{height:115px;gap:8px}
+  .weekly-bar-label{font-size:12px}
+  .weekly-bar-value{font-size:11px}
 }
 
 /* ── Small mobile (≤360px) ── */
@@ -420,26 +431,27 @@
   .tab-page{
     padding:max(env(safe-area-inset-top,10px),10px) 10px calc(14px + 44px + 12px + env(safe-area-inset-bottom,0px));
   }
-  .tile-water-bottle{width:18px;height:26px}
-  .rings-row{gap:5px}
-  .ring-container{width:78px;height:78px}
-  .ring-container-lg{width:100px;height:100px}
-  .day-ring-pct{font-size:24px}
-  .tab-bar{padding:3px 6px calc(3px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:2px 3px;border-radius:14px;gap:1px}
-  .tab-btn{padding:4px 2px 3px;border-radius:9px;gap:1px}
-  .tab-btn .tab-icon{width:16px;height:16px}
-  .tab-btn .tab-icon svg{width:16px;height:16px}
-  .tab-btn span:not(.tab-icon){font-size:6px;letter-spacing:0.03em;margin-top:0}
+  .tile-water-bottle{width:22px;height:30px}
+  .rings-row{gap:6px}
+  .ring-container{width:82px;height:82px}
+  .ring-container-lg{width:108px;height:108px}
+  .day-ring-pct{font-size:26px}
+  .day-ring-phase{font-size:10px}
+  .tab-bar{padding:4px 8px calc(4px + env(safe-area-inset-bottom,0px))}
+  .tab-bar-inner{padding:3px 4px;border-radius:16px;gap:1px}
+  .tab-btn{padding:7px 3px 5px;border-radius:12px;gap:2px}
+  .tab-btn .tab-icon{width:20px;height:20px}
+  .tab-btn .tab-icon svg{width:20px;height:20px}
+  .tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.03em;margin-top:0}
   #tab-home .mb-4{margin-bottom:8px!important}
-  #insightsCard{padding:10px!important}
-  .insight-cell{padding:8px 10px!important;min-height:52px!important}
-  #gmCardToday>.px-\[18px\]{padding-left:10px!important;padding-right:10px!important}
+  #insightsCard{padding:12px!important}
+  .insight-cell{padding:10px 12px!important;min-height:60px!important}
+  #gmCardToday>.px-\[18px\]{padding-left:12px!important;padding-right:12px!important}
   .card{padding:14px 16px;border-radius:16px}
-  .sleep-hours{font-size:48px}
-  .dw-timer-display{font-size:44px}
-  .dw-overlay-timer{font-size:48px}
-  .dash-title{font-size:24px}
+  .sleep-hours{font-size:50px}
+  .dw-timer-display{font-size:46px}
+  .dw-overlay-timer{font-size:50px}
+  .dash-title{font-size:26px}
 }
 
 /* ── Desktop/Large (≥1024px) ── */

@@ -127,7 +127,7 @@
 .exec-ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.33,1,.68,1);filter:drop-shadow(0 0 10px var(--ring-glow-color,transparent))}
 .exec-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .exec-ring-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1}
-.exec-ring-label{font-family:"SF Mono",ui-monospace;font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
+.exec-ring-label{font-family:"SF Mono",ui-monospace;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
 
 /* Savings glass card */
 .savings-card{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
@@ -201,7 +201,7 @@
 .ai-advisory-list{list-style:none;padding:0;margin:0}
 .ai-advisory-list li{display:flex;gap:10px;padding:10px 0;font-size:14px;color:var(--text-secondary);line-height:1.55;border-bottom:0.5px solid rgba(255,255,255,0.03)}
 .ai-advisory-list li:last-child{border-bottom:none}
-.ai-advisory-bullet{color:var(--success);font-size:8px;margin-top:7px;flex-shrink:0}
+.ai-advisory-bullet{color:var(--success);font-size:10px;margin-top:6px;flex-shrink:0}
 
 /* ── Calendar: Horizontal Rolling Date Ribbon ── */
 .cal-section{margin-bottom:18px}
@@ -209,13 +209,13 @@
 .cal-ribbon::-webkit-scrollbar{display:none}
 .scrollbar-none{scrollbar-width:none;-ms-overflow-style:none}
 .scrollbar-none::-webkit-scrollbar{display:none}
-.cal-cap{scroll-snap-align:center;flex-shrink:0;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:var(--radius-md);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all .25s cubic-bezier(.33,1,.68,1);user-select:none;position:relative}
+.cal-cap{scroll-snap-align:center;flex-shrink:0;width:68px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:var(--radius-md);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all .25s cubic-bezier(.33,1,.68,1);user-select:none;position:relative}
 .cal-cap:hover{background:rgba(255,255,255,0.05)}
 .cal-cap.active{border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06)}
 .cal-cap.today{border-color:rgba(167,139,250,0.25)}
 .cal-cap.today.active{border-color:rgba(167,139,250,0.6);background:rgba(167,139,250,0.1)}
-.cal-cap-dow{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary)}
-.cal-cap-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
+.cal-cap-dow{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary)}
+.cal-cap-num{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
 .cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity .25s}
 .cal-cap-dot.show{opacity:1}
 .cal-event-list{display:flex;flex-direction:column;gap:0}
@@ -239,7 +239,7 @@
 .monthly-cell.active{background:rgba(167,139,250,0.08);color:var(--accent)}
 .monthly-cell.other-month{opacity:0.2}
 .monthly-cell .monthly-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:5px;left:50%;margin-left:-2px;opacity:0.5}
-.monthly-header-cell{font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:4px}
+.monthly-header-cell{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:4px}
 
 /* ── Weekly View ── */
 .cal-week-day{border-bottom:0.5px solid rgba(255,255,255,0.04);padding:10px 0}
@@ -248,7 +248,7 @@
 .cal-week-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .cal-week-dow{font-size:11px;font-weight:600;color:var(--text-secondary);min-width:32px}
 .cal-week-date{font-family:"SF Mono",ui-monospace;font-size:13px;font-weight:600;color:var(--text-primary)}
-.cal-week-badge{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:rgba(167,139,250,0.08);color:var(--accent);margin-left:auto}
+.cal-week-badge{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:rgba(167,139,250,0.08);color:var(--accent);margin-left:auto}
 .cal-week-events{display:flex;flex-direction:column;gap:4px}
 .cal-week-event{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);transition:all .25s}
 .cal-week-event:hover{background:rgba(255,255,255,0.04)}

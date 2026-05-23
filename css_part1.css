@@ -118,7 +118,7 @@ body{
 }
 .tab-btn .tab-icon{width:20px;height:20px;line-height:1}
 .tab-btn .tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab-btn span:not(.tab-icon){font-size:8px;font-weight:600;letter-spacing:0.06em;margin-top:0}
+.tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.04em;margin-top:0}
 
 /* ── Card (Refined Glass Panel) ── */
 .card{
@@ -213,12 +213,12 @@ body{
 .ring-svg{width:100%;height:100%}
 .ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .ring-icon{font-size:22px}
-.ring-label{font-family:"SF Mono",ui-monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
+.ring-label{font-family:"SF Mono",ui-monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
 .ring-val{font-size:15px;font-weight:700;margin-top:2px}
 .ring-sub{font-size:11px;font-weight:600;color:var(--text-tertiary);margin-top:2px}
 .day-ring-pct{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.05em;line-height:1}
-.day-ring-phase{font-family:"SF Mono",ui-monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);margin-top:5px}
-.day-ring-clock{font-family:"SF Mono",ui-monospace;font-size:11px;color:var(--text-tertiary);margin-top:3px}
+.day-ring-phase{font-family:"SF Mono",ui-monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-top:5px}
+.day-ring-clock{font-family:"SF Mono",ui-monospace;font-size:12px;color:var(--text-tertiary);margin-top:3px}
 .rings-bottom{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
 .rings-bottom-status{display:flex;flex-direction:column;align-items:center;gap:3px}
 .day-ring-status{font-size:14px;font-weight:600}
@@ -269,7 +269,7 @@ body{
 .streak-pill::before{content:'';position:absolute;inset:0;border-radius:99px;padding:1px;background:linear-gradient(135deg,#F59E0B,#D97706,#F59E0B);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .streak-pill-icon{font-size:14px;line-height:1}
 .streak-pill-num{font-family:"SF Mono",ui-monospace;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);letter-spacing:-0.02em}
-.streak-pill-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
+.streak-pill-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .gm-streak-label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase}
 .gm-bar{display:flex;gap:4px;height:6px;margin-bottom:16px}
 .gm-bar:empty{display:none}
@@ -287,20 +287,7 @@ body{
 .gm-list{list-style:none;margin-bottom:12px}
 .goal-item{
   display:flex;align-items:center;gap:12px;
-  padding:14px 16px;margin-bottom:8px;border-radius:16px;
-  background:var(--card-bg);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
-  box-shadow:0 0 0 0.5px rgba(255,255,255,0.03),0 2px 12px rgba(0,0,0,0.25);
-  border:1px solid var(--card-border);
-  transition:all .25s cubic-bezier(.33,1,.68,1);position:relative;
-}
-.goal-item:hover{background:rgba(255,255,255,0.03);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
-.goal-item:hover .goal-handle,.goal-item:hover .goal-delete{opacity:1}
-.goal-item.gm-done{opacity:0.35;background:rgba(16,185,129,0.04)}
-.goal-item.gm-done .goal-text{text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.2)}
-.goal-item.gm-queued{background:rgba(245,158,11,0.08);border-left:3px solid var(--gold)}
-.goal-item.gm-queued .goal-text{color:#FDE68A}
+.goal-item{padding:14px 16px;margin-bottom:8px;border-radius:16px}
 .goal-item.is-queue-flashing{animation:gm-queue-flash .5s ease}
 @keyframes gm-queue-flash{0%{background:rgba(245,158,11,0.2);transform:scale(1.01)}100%{background:rgba(245,158,11,0.08);transform:scale(1)}}
 .goal-handle{width:14px;font-size:14px;color:var(--text-tertiary);cursor:grab;opacity:0;transition:opacity .2s;letter-spacing:-2px;user-select:none;flex-shrink:0}
@@ -417,8 +404,8 @@ body{
 .insight-cell{background:rgba(255,255,255,0.02);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;min-height:80px;display:flex;flex-direction:column;transition:all .25s cubic-bezier(.33,1,.68,1);border:1px solid rgba(255,255,255,0.03)}
 .insight-cell:active{transform:scale(0.97)}
 .insight-cell-accent{position:absolute;top:0;left:0;right:0;height:2px;opacity:0.75}
-.insight-cell-header{font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px}
-.insight-cell-footer{font-size:9px;font-weight:600;color:var(--text-tertiary);margin-top:auto;padding-top:4px;font-family:"SF Mono",ui-monospace,monospace;opacity:0.65}
+.insight-cell-header{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px}
+.insight-cell-footer{font-size:10px;font-weight:600;color:var(--text-tertiary);margin-top:auto;padding-top:4px;font-family:"SF Mono",ui-monospace,monospace;opacity:0.65}
 .insight-mini-chart{display:flex;align-items:flex-end;gap:3px;height:34px;flex:1}
 .insight-mini-chart-empty{font-size:10px;color:var(--text-tertiary);width:100%;text-align:center;align-self:center;opacity:0.55}
 .insight-mini-bar{flex:1;border-radius:3px 3px 1px 1px;min-height:2px;transition:height .4s cubic-bezier(.33,1,.68,1);position:relative}
@@ -427,7 +414,7 @@ body{
 .insight-health-row{display:flex;align-items:center;gap:6px;font-size:10px}
 .insight-health-bar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.04);overflow:hidden}
 .insight-health-bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.33,1,.68,1)}
-.insight-health-label{font-family:"SF Mono",ui-monospace;font-size:9px;font-weight:600;color:var(--text-secondary);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+.insight-health-label{font-family:"SF Mono",ui-monospace;font-size:10px;font-weight:600;color:var(--text-secondary);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
 .insight-cash-row{display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center}
 .insight-cash-amount{font-family:"SF Mono",ui-monospace;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;color:var(--text-primary)}
 .insight-cash-bar-track{height:5px;border-radius:3px;background:rgba(255,255,255,0.04);overflow:hidden}
