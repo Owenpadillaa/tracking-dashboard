@@ -1266,6 +1266,7 @@ app.post('/api/v1/workouts', express.json(), (req, res) => {
 });
 
 // Midnight rollover: archive today's workouts to history, recompute streak
+// Also preserve any active sleep session so it survives the date transition
 cron.schedule('55 23 * * *', function() {
   try {
     const wkData = loadWorkoutData();
@@ -1280,6 +1281,8 @@ cron.schedule('55 23 * * *', function() {
   } catch (err) {
     console.error('Workout rollover error:', err.message);
   }
+  // Note: active_sleep_start_time in active_sessions is preserved across midnight
+  // because it uses an absolute epoch timestamp — no date-keyed storage involved.
 }, { timezone: 'America/Los_Angeles' });
 
 /* ════════════ HEALTH / SUPPLEMENT ENDPOINTS ════════════ */
@@ -1479,7 +1482,7 @@ function loadActiveSessions() {
   try {
     return JSON.parse(fs.readFileSync(dataFilePath('active_sessions'), 'utf8'));
   } catch {
-    return { workout: null, deepwork: null };
+    return { workout: null, deepwork: null, sleep: null };
   }
 }
 
@@ -1495,8 +1498,8 @@ app.get('/api/v1/active-sessions', (req, res) => {
 // POST /api/v1/active-sessions — set an active session for a type
 app.post('/api/v1/active-sessions', (req, res) => {
   const { type } = req.body;
-  if (!type || !['workout', 'deepwork'].includes(type)) {
-    return res.status(400).json({ error: 'type must be workout or deepwork' });
+  if (!type || !['workout', 'deepwork', 'sleep'].includes(type)) {
+    return res.status(400).json({ error: 'type must be workout, deepwork, or sleep' });
   }
   const sessions = loadActiveSessions();
   sessions[type] = {
@@ -1511,13 +1514,59 @@ app.post('/api/v1/active-sessions', (req, res) => {
 // DELETE /api/v1/active-sessions/:type — clear an active session
 app.delete('/api/v1/active-sessions/:type', (req, res) => {
   const type = req.params.type;
-  if (!['workout', 'deepwork'].includes(type)) {
-    return res.status(400).json({ error: 'type must be workout or deepwork' });
+  if (!['workout', 'deepwork', 'sleep'].includes(type)) {
+    return res.status(400).json({ error: 'type must be workout, deepwork, or sleep' });
   }
   const sessions = loadActiveSessions();
   sessions[type] = null;
   saveActiveSessions(sessions);
   res.json({ ok: true });
+});
+
+/* ════════════ SLEEP LIFECYCLE API ════════════ */
+
+// POST /api/v1/health/sleep/start — record absolute sleep start timestamp
+app.post('/api/v1/health/sleep/start', (req, res) => {
+  const sessions = loadActiveSessions();
+  // If sleep is already active, reject (don't double-start)
+  if (sessions.sleep && sessions.sleep.session_start_time) {
+    return res.status(409).json({ error: 'Sleep session already active', active_sleep_start_time: sessions.sleep.session_start_time });
+  }
+  sessions.sleep = {
+    session_start_time: req.body.session_start_time || Date.now(),
+  };
+  saveActiveSessions(sessions);
+  res.json({ ok: true, active_sleep_start_time: sessions.sleep.session_start_time });
+});
+
+// POST /api/v1/health/sleep/end — finalize sleep session, return hours
+app.post('/api/v1/health/sleep/end', (req, res) => {
+  const sessions = loadActiveSessions();
+  if (!sessions.sleep || !sessions.sleep.session_start_time) {
+    return res.status(400).json({ error: 'No active sleep session to end' });
+  }
+  const startTs = sessions.sleep.session_start_time;
+  const endTs = req.body.end_time || Date.now();
+  const totalHours = (endTs - startTs) / (1000 * 60 * 60);
+
+  // Persist the completed sleep record into health.json
+  const health = loadHealthData();
+  if (!Array.isArray(health.sleep_records)) health.sleep_records = [];
+  const dateStr = userDateStr('America/Los_Angeles');
+  health.sleep_records.push({
+    date: dateStr,
+    checkIn: startTs,
+    checkOut: endTs,
+    hours: parseFloat(totalHours.toFixed(2)),
+    completedAt: Date.now(),
+  });
+  saveHealthData(health);
+
+  // Clear the active sleep session
+  sessions.sleep = null;
+  saveActiveSessions(sessions);
+
+  res.json({ ok: true, hours: parseFloat(totalHours.toFixed(2)), checkIn: startTs, checkOut: endTs });
 });
 
 /* ════════════ SERVER START ════════════ */

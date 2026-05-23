@@ -1085,6 +1085,10 @@ body{
 
 /* ── Toast ── */
 </style>
+<!-- ══ Premium Onyx Luxe Design System ══ -->
+<link rel="stylesheet" href="/css_part1.css">
+<link rel="stylesheet" href="/css_part2.css">
+<link rel="stylesheet" href="/css_part3.css">
 </head>
 <body>
 <div id="toast"></div>
@@ -2533,6 +2537,7 @@ function renderCashflow(){
 /* ── Frictionless Inline Expense Ledger ── */
 function getExpenses(){return storeGet('finance:expenses')||[]}
 function setExpenses(e){storeSet('finance:expenses',e)}
+function getSubs(){return getExpenses().filter(function(e){return e.cat==="subscriptions"}).map(function(e){return{name:e.desc,amount:e.amount,cycle:e.cycle||"monthly"}})}
 
 function renderExpenses(){
   var expenses=getExpenses();
@@ -3131,19 +3136,20 @@ if(cashFlowTile){
   }).catch(function(){renderDWMetrics()});
 })();
 
-/* ════════════ SLEEP CHECK-IN ════════════ */
-function getSleepKey(){return 'sleep:'+getActiveDateString()}
-function getSleep(){return storeGet(getSleepKey())||{}}
-function setSleep(d){storeSet(getSleepKey(),d)}
-
+/* ════════════ SLEEP CHECK-IN (absolute timestamp model) ════════════ */
 function calcSleepHoursFromTs(checkIn,checkOut){
   return((checkOut-checkIn)/3600000).toFixed(1);
 }
+function getSleep(){
+  var last=storeGet("lastSleepRecord");
+  if(last&&last.checkIn){return{checkIn:last.checkIn,checkOut:last.checkOut}}
+  return{}
+}
 
-function renderSleep(){
+// Fetch active sleep session from server and render UI
+async function renderSleep(){
   const SLEEP_CIRC=2*Math.PI*52;
   const SLEEP_GOAL=8;
-  const s=getSleep();
   const fill=document.getElementById('sleepRingFill');
   const iconEl=document.getElementById('sleepRingIcon');
   const valEl=document.getElementById('sleepRingVal');
@@ -3158,68 +3164,129 @@ function renderSleep(){
 
   if(!btnEl)return;
 
-  if(s.checkIn&&!s.checkOut){
-    // Active — checked in
-    const elapsed=((Date.now()-s.checkIn)/3600000).toFixed(1);
+  // Always fetch live state from server so we survive tab sleep / app close
+  let activeSleep=null;
+  try{
+    const res=await fetch('/api/v1/active-sessions');
+    if(res.ok){
+      const sessions=await res.json();
+      activeSleep=sessions.sleep||null;
+    }
+  }catch(err){console.warn('Could not fetch active sleep session',err);}
+
+  if(activeSleep&&activeSleep.session_start_time){
+    // Active sleep session running — show passive premium state with absolute start time
+    const startTs=activeSleep.session_start_time;
     if(iconEl)iconEl.textContent='☀️';
-    if(valEl)valEl.textContent=elapsed+'h';
-    if(fill){fill.style.stroke='#F2C063';fill.style.strokeDashoffset=SLEEP_CIRC*(1-Math.min(elapsed/SLEEP_GOAL,1));}
+    if(valEl)valEl.textContent='...';
+    if(fill){fill.style.stroke='#F2C063';fill.style.strokeDashoffset=SLEEP_CIRC*0.5;}
     btnEl.textContent='☀️ Check Out';
     btnEl.className='sleep-btn check-out';
     if(hoursEl)hoursEl.textContent='--';
-    if(detailEl)detailEl.textContent='Awake since '+formatTime12(s.checkIn);
-    // Home tile — add purple glow
-    if(homeVal)homeVal.textContent=elapsed;
-    if(homeLabel)homeLabel.textContent='🌙 Tracking Sleep';
+    if(detailEl)detailEl.textContent='🌙 Sleep Session Active... Tracking Background Rest Since '+formatTime12(startTs);
+    // Home tile — add purple glow + passive display
+    if(homeVal)homeVal.textContent='...';
+    if(homeLabel)homeLabel.textContent='🌙 Tracking Background Rest Since '+formatTime12(startTs);
     if(sleepTile){sleepTile.classList.add('sleep-tile-active');sleepTile.style.background='rgba(147,51,234,0.08)'}
-  }else if(s.checkIn&&s.checkOut){
-    // Slept
-    const hrs=calcSleepHoursFromTs(s.checkIn,s.checkOut);
-    if(iconEl)iconEl.textContent='🌙';
-    if(valEl)valEl.textContent=hrs+'h';
-    if(fill){fill.style.stroke=parseFloat(hrs)>=SLEEP_GOAL?'#6BE3A4':'#7B68EE';fill.style.strokeDashoffset=SLEEP_CIRC*(1-Math.min(parseFloat(hrs)/SLEEP_GOAL,1));}
-    btnEl.textContent='Reset';
-    btnEl.className='sleep-btn';
-    btnEl.style.opacity='';btnEl.style.pointerEvents='';
-    if(hoursEl)hoursEl.textContent=hrs;
-    if(detailEl)detailEl.textContent=formatTime12(s.checkIn)+' → '+formatTime12(s.checkOut);
-    // Home tile
-    if(homeVal)homeVal.textContent=hrs;
-    if(homeLabel)homeLabel.textContent=hrs+'h slept';
-    if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
   }else{
-    // Not checked in
-    if(iconEl)iconEl.textContent='🌙';
-    if(valEl)valEl.textContent='--';
-    if(fill){fill.style.stroke='#4D4B47';fill.style.strokeDashoffset=SLEEP_CIRC;}
-    btnEl.textContent='🌙 Check In';
-    btnEl.className='sleep-btn';
-    btnEl.style.opacity='';btnEl.style.pointerEvents='';
-    if(hoursEl)hoursEl.textContent='--';
-    if(detailEl)detailEl.textContent='Check in when you wake up';
-    // Home tile
-    if(homeVal)homeVal.textContent='--';
-    if(homeLabel)homeLabel.textContent='';
-    if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
+    // No active session — check if we have a completed record for today in local store
+    const lastRecord=storeGet('lastSleepRecord');
+    if(lastRecord&&lastRecord.hours&&lastRecord.date===getActiveDateString()){
+      const hrs=lastRecord.hours;
+      if(iconEl)iconEl.textContent='🌙';
+      if(valEl)valEl.textContent=hrs+'h';
+      if(fill){fill.style.stroke=parseFloat(hrs)>=SLEEP_GOAL?'#6BE3A4':'#7B68EE';fill.style.strokeDashoffset=SLEEP_CIRC*(1-Math.min(parseFloat(hrs)/SLEEP_GOAL,1));}
+      btnEl.textContent='Reset';
+      btnEl.className='sleep-btn';
+      btnEl.style.opacity='';btnEl.style.pointerEvents='';
+      if(hoursEl)hoursEl.textContent=hrs;
+      if(detailEl)detailEl.textContent=formatTime12(lastRecord.checkIn)+' → '+formatTime12(lastRecord.checkOut);
+      if(homeVal)homeVal.textContent=hrs;
+      if(homeLabel)homeLabel.textContent=hrs+'h slept';
+      if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
+    }else{
+      // Not checked in today
+      if(iconEl)iconEl.textContent='🌙';
+      if(valEl)valEl.textContent='--';
+      if(fill){fill.style.stroke='#4D4B47';fill.style.strokeDashoffset=SLEEP_CIRC;}
+      btnEl.textContent='🌙 Check In';
+      btnEl.className='sleep-btn';
+      btnEl.style.opacity='';btnEl.style.pointerEvents='';
+      if(hoursEl)hoursEl.textContent='--';
+      if(detailEl)detailEl.textContent='Check in when you wake up';
+      if(homeVal)homeVal.textContent='--';
+      if(homeLabel)homeLabel.textContent='';
+      if(sleepTile){sleepTile.classList.remove('sleep-tile-active');sleepTile.style.background=''}
+    }
   }
 }
 
-document.getElementById('sleepCheckBtn').addEventListener('click',function(){
-  const s=getSleep();
-  if(!s.checkIn){
-    // Check in
-    s.checkIn=Date.now();
-    setSleep(s);
-  }else if(s.checkIn&&!s.checkOut){
-    // Check out
-    s.checkOut=Date.now();
-    setSleep(s);
-  }else if(s.checkIn&&s.checkOut){
-    // Reset
-    storeDelete(getSleepKey());
+// Sleep button click — check in or check out via server, then refresh all UI
+document.getElementById('sleepCheckBtn').addEventListener('click',async function(){
+  const btnEl=document.getElementById('sleepCheckBtn');
+  if(!btnEl)return;
+
+  // Determine current state by fetching active sessions
+  let isActive=false;
+  try{
+    const res=await fetch('/api/v1/active-sessions');
+    if(res.ok){
+      const sessions=await res.json();
+      isActive=!!(sessions.sleep&&sessions.sleep.session_start_time);
+    }
+  }catch(err){
+    console.warn('Could not determine sleep state',err);
+    return;
   }
+
+  if(!isActive){
+    // Check in — record absolute start timestamp on server
+    btnEl.textContent='Starting...';
+    btnEl.disabled=true;
+    try{
+      const startTs=Date.now();
+      const res=await fetch('/api/v1/health/sleep/start',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({session_start_time:startTs})
+      });
+      if(!res.ok)console.warn('Sleep start failed:',await res.text());
+    }catch(err){
+      console.warn('Sleep start error',err);
+    }
+    btnEl.disabled=false;
+  }else{
+    // Check out — finalize, compute duration, persist
+    btnEl.textContent='Logging...';
+    btnEl.disabled=true;
+    try{
+      const endTs=Date.now();
+      const res=await fetch('/api/v1/health/sleep/end',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({end_time:endTs})
+      });
+      if(res.ok){
+        const data=await res.json();
+        // Cache the record locally so renderSleep can show it immediately without another fetch
+        storeSet('lastSleepRecord',{hours:data.hours,checkIn:data.checkIn,checkOut:data.checkOut});
+        // Immediately refresh the home cockpit progress strip
+        if(typeof refreshHomeCockpit==='function')refreshHomeCockpit();
+        else if(typeof renderHomeCockpit==='function')renderHomeCockpit();
+      }else{
+        console.warn('Sleep end failed:',await res.text());
+      }
+    }catch(err){
+      console.warn('Sleep end error',err);
+    }
+    btnEl.disabled=false;
+  }
+  // Re-render sleep state and home dashboard
   renderSleep();
+  if(typeof updateDayBar==='function')updateDayBar();
+  if(typeof renderInsightSections==='function')renderInsightSections();
 });
+
 
 /* ════════════ WORKOUT STATS ════════════ */
 function renderWorkoutStats(){

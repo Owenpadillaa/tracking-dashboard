@@ -1,0 +1,300 @@
+/* ═══════════════════════════════════════════════════════════
+   AURA — Part 2: Health, Workouts, Finance, Calendar, Chat
+   Onyx Luxe Design System
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Health: Water ── */
+.water-bottle-wrap{position:relative;width:140px;margin:0 auto 16px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.water-bottle-wrap:active{transform:scale(0.96)}
+.water-bottle-svg{width:100%;height:auto;filter:drop-shadow(0 4px 24px rgba(6,182,212,0.1))}
+.water-bottle-label{position:absolute;top:0;left:0;right:0;bottom:28px;display:flex;align-items:center;justify-content:center;pointer-events:none;gap:2px;overflow:hidden;flex-wrap:nowrap}
+.water-bottle-num{font-size:36px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.04em;line-height:1;color:#fff;max-width:70px;overflow:hidden;text-overflow:ellipsis}
+.water-bottle-unit{font-family:"SF Mono",ui-monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,0.35);align-self:flex-end;margin-bottom:5px;line-height:1}
+.water-bottle-sub{font-family:"SF Mono",ui-monospace;font-size:12px;color:var(--text-tertiary);text-align:center;margin-bottom:4px}
+.water-log{margin-top:10px;font-family:"SF Mono",ui-monospace;font-size:11px;color:var(--text-tertiary);max-height:60px;overflow-y:auto}
+.water-log span{display:block;padding:1px 0}
+
+/* ── Health: Supplement Grid ── */
+.suppl-grid-tile{
+  background:var(--card-bg);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:0 0 0 0.5px rgba(255,255,255,0.04),0 4px 24px rgba(0,0,0,0.3);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);padding:18px;cursor:pointer;
+  transition:all .3s cubic-bezier(.33,1,.68,1);position:relative;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.suppl-grid-tile:hover{transform:translateY(-2px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.06),0 6px 28px rgba(0,0,0,0.35)}
+.suppl-grid-tile:active{transform:scale(0.96)}
+.suppl-grid-tile.taken{background:rgba(16,185,129,0.08);box-shadow:0 0 0 0.5px rgba(16,185,129,0.22);border-color:rgba(16,185,129,0.12)}
+.suppl-grid-tile .suppl-tile-name{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text-primary)}
+.suppl-grid-tile.taken .suppl-tile-name{color:var(--success)}
+.suppl-grid-tile .suppl-tile-check{
+  width:24px;height:24px;border-radius:8px;border:2px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+  transition:all .3s cubic-bezier(.33,1,.68,1);font-size:13px;color:transparent;
+}
+.suppl-grid-tile.taken .suppl-tile-check{background:var(--success);border-color:var(--success);color:#000;box-shadow:0 0 16px rgba(16,185,129,0.3)}
+.suppl-grid-tile .suppl-tile-streak{position:absolute;top:12px;right:12px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.04);color:var(--text-tertiary)}
+.suppl-grid-tile .suppl-tile-streak.active-streak{background:rgba(245,158,11,0.1);color:var(--gold)}
+.suppl-grid-tile .suppl-tile-delete{position:absolute;bottom:12px;right:12px;font-size:16px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity .2s;padding:4px}
+.suppl-grid-tile:hover .suppl-tile-delete{opacity:1}
+.suppl-grid-tile .suppl-tile-delete:hover{color:var(--danger)}
+.suppl-summary{font-size:13px;font-weight:500;color:var(--text-tertiary);text-align:center;margin-bottom:10px}
+.suppl-add-row{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.suppl-empty{font-size:14px;color:var(--text-tertiary);text-align:center;padding:24px;font-weight:500}
+
+/* ── Workouts: Routine Cards ── */
+.routine-card{
+  background:var(--card-bg);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:0 0 0 0.5px rgba(255,255,255,0.04),0 4px 24px rgba(0,0,0,0.3);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);padding:28px 16px;
+  cursor:pointer;text-align:center;transition:all .3s cubic-bezier(.33,1,.68,1);user-select:none;
+}
+.routine-card:hover{background:rgba(255,255,255,0.03);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.routine-card:active{transform:scale(0.96)}
+.routine-icon{font-size:36px;margin-bottom:10px}
+.routine-name{font-size:14px;font-weight:600;color:var(--text-primary)}
+
+/* Timer Modal */
+.timer-modal-label{font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:32px}
+.timer-finish-btn{padding:16px 48px;border-radius:16px;border:none;cursor:pointer;font-weight:600;font-size:17px;font-family:inherit;background:var(--success);color:#000;box-shadow:0 4px 24px rgba(16,185,129,0.25);transition:all .28s cubic-bezier(.33,1,.68,1)}
+.timer-finish-btn:hover{opacity:0.9;transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,0.35)}
+.timer-finish-btn:active{transform:scale(0.96)}
+
+/* Weekly chart */
+.weekly-bars{display:flex;gap:8px;align-items:flex-end;height:140px;padding:0 4px}
+.weekly-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.weekly-bar{width:100%;border-radius:8px 8px 4px 4px;background:var(--water);min-height:0;transition:height .5s cubic-bezier(.33,1,.68,1);position:relative}
+.weekly-bar.today{background:var(--accent)}
+.weekly-bar-label{font-size:11px;color:var(--text-tertiary);font-weight:600}
+.weekly-bar-value{font-family:"SF Mono",ui-monospace;font-size:10px;color:var(--text-secondary);font-weight:600;position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.weekly-total{margin-top:16px;text-align:center;font-size:13px;color:var(--text-tertiary);font-weight:500}
+
+/* Today's log */
+.today-log-list{list-style:none}
+.today-log-item{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:4px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
+.today-log-type{flex:1;font-size:14px;font-weight:500}
+.today-log-dur{font-family:"SF Mono",ui-monospace;font-size:13px;color:var(--text-secondary);font-weight:500}
+.today-log-when{font-size:11px;color:var(--text-tertiary);min-width:55px;text-align:right}
+.today-log-delete{font-size:16px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity .2s;padding:4px}
+.today-log-item:hover .today-log-delete{opacity:1}
+.today-log-delete:hover{color:var(--danger)}
+
+/* ── Finance: Income ── */
+.income-amount{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.income-num{font-size:40px;font-weight:700;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1}
+.income-freq{font-size:14px;color:var(--text-tertiary);font-weight:500}
+.income-monthly{font-size:13px;color:var(--text-tertiary);margin-bottom:12px}
+.income-edit-btn{padding:8px 16px;border-radius:14px;border:0.5px solid rgba(255,255,255,0.08);background:none;color:var(--text-secondary);cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all .25s cubic-bezier(.33,1,.68,1)}
+.income-edit-btn:hover{color:var(--text-primary);background:rgba(255,255,255,0.03)}
+.income-row{display:flex;gap:12px;flex-wrap:wrap}
+.income-field{flex:1;min-width:120px}
+.income-label{display:block;font-size:12px;font-weight:600;color:var(--text-tertiary);margin-bottom:8px}
+.income-input-wrap{display:flex;align-items:center;border:0.5px solid rgba(255,255,255,0.07);border-radius:14px;background:var(--input-bg);overflow:hidden}
+.income-dollar{padding:0 0 0 14px;color:var(--text-tertiary);font-size:16px;font-weight:600}
+.income-input-wrap .income-input{border:none;background:none;padding-left:4px}
+.income-input-wrap .gm-input{border:none;padding-left:4px}
+
+/* ── Finance: Frequency Toggle ── */
+.freq-toggle-group{display:flex;gap:0;border-radius:14px;overflow:hidden;border:0.5px solid rgba(255,255,255,0.07);background:var(--input-bg)}
+.freq-toggle-btn{flex:1;padding:12px 0;text-align:center;font-size:14px;font-weight:600;font-family:inherit;border:none;background:none;color:var(--text-tertiary);cursor:pointer;transition:all .25s cubic-bezier(.33,1,.68,1);white-space:nowrap}
+.freq-toggle-btn:not(:last-child){border-right:0.5px solid rgba(255,255,255,0.04)}
+.freq-toggle-btn.active{background:rgba(255,255,255,0.08);color:var(--text-primary)}
+.freq-toggle-btn:hover:not(.active){color:var(--text-secondary)}
+
+/* ── Finance: Cash Flow Chart ── */
+.cashflow-chart{display:flex;flex-direction:column;gap:14px}
+.cashflow-row{display:flex;align-items:center;gap:12px}
+.cashflow-label{font-size:12px;font-weight:600;color:var(--text-tertiary);min-width:60px;text-align:right}
+.cashflow-track-wrap{flex:1;height:32px;border-radius:16px;background:rgba(255,255,255,0.03);overflow:hidden;position:relative}
+.cashflow-track{height:100%;border-radius:16px;display:flex;align-items:center;padding:0 12px;transition:width .6s cubic-bezier(.33,1,.68,1);min-width:fit-content}
+.cashflow-inflow{background:rgba(16,185,129,0.55)}
+.cashflow-outflow{background:rgba(239,68,68,0.5)}
+.cashflow-track-val{font-family:"SF Mono",ui-monospace;font-size:12px;font-weight:600;color:#fff;white-space:nowrap}
+.cashflow-balance{text-align:center;font-family:"SF Mono",ui-monospace;font-size:13px;color:var(--text-tertiary);margin-top:6px;font-weight:500}
+
+/* ── Finance: Executive Visual Row ── */
+.exec-row{display:flex;gap:16px;margin-bottom:28px}
+.exec-ring-card{flex:1;min-width:0;background:rgba(18,18,20,0.55);border-radius:var(--radius-lg);padding:22px 20px;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.04),0 4px 28px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .3s cubic-bezier(.33,1,.68,1)}
+.exec-ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
+.exec-ring-svg{width:100%;height:100%;transform:rotate(-90deg)}
+.exec-ring-track{fill:none;stroke:rgba(255,255,255,0.04);stroke-width:6}
+.exec-ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.33,1,.68,1);filter:drop-shadow(0 0 10px var(--ring-glow-color,transparent))}
+.exec-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.exec-ring-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1}
+.exec-ring-label{font-family:"SF Mono",ui-monospace;font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-top:4px}
+
+/* Savings glass card */
+.savings-card{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.savings-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.savings-title{font-size:13px;font-weight:600;letter-spacing:-0.01em;color:rgba(255,255,255,0.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.savings-pct-badge{font-family:"SF Mono",ui-monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(16,185,129,0.1);color:#10B981;white-space:nowrap;font-variant-numeric:tabular-nums}
+.savings-numbers{display:flex;align-items:baseline;gap:4px}
+.savings-current{font-size:28px;font-weight:700;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1}
+.savings-divider{font-size:14px;color:var(--text-tertiary);font-weight:400}
+.savings-target{font-family:"SF Mono",ui-monospace;font-size:14px;color:var(--text-tertiary);font-weight:500}
+.savings-bar-track{display:flex;gap:4px;height:4px}
+.savings-bar-seg{flex:1;border-radius:2px;background:rgba(255,255,255,0.04);transition:all .5s cubic-bezier(.33,1,.68,1)}
+.savings-bar-seg.filled{background:#10B981;box-shadow:0 0 8px rgba(16,185,129,0.3)}
+.savings-actions{display:flex;gap:8px;margin-top:2px}
+.savings-btn{padding:8px 14px;border-radius:var(--radius-sm);border:0.5px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);color:var(--text-secondary);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .25s cubic-bezier(.33,1,.68,1);white-space:nowrap}
+.savings-btn:hover{background:rgba(255,255,255,0.05);color:var(--text-primary)}
+.savings-btn[data-action="contribute"]{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.18);color:#10B981}
+.savings-btn[data-action="contribute"]:hover{background:rgba(16,185,129,0.16)}
+.savings-input-row{display:none;align-items:center;gap:8px}
+.savings-input-row.open{display:flex}
+.savings-input{flex:1;padding:10px 14px;border-radius:var(--radius-sm);border:0.5px solid rgba(255,255,255,0.07);background:var(--input-bg);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;min-width:0}
+.savings-input:focus{border-color:rgba(16,185,129,0.35);box-shadow:0 0 0 3px rgba(16,185,129,0.05)}
+.savings-input::placeholder{color:var(--text-tertiary);font-weight:400}
+.savings-deadline{font-size:12px;color:var(--text-tertiary);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.savings-advice{font-size:13px;font-weight:600;color:#10B981;margin-top:2px}
+.savings-advice.muted{color:var(--text-tertiary);font-weight:400}
+.savings-goal-form{display:none;flex-direction:column;gap:10px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.04);margin-top:8px}
+.savings-goal-form.open{display:flex}
+.savings-goal-field{display:flex;flex-direction:column;gap:4px}
+.savings-goal-label{font-size:11px;font-weight:600;color:var(--text-tertiary)}
+.savings-goal-row{display:flex;gap:8px}
+.savings-goal-row .savings-input{flex:1}
+.savings-goal-row .savings-btn{flex-shrink:0}
+.savings-contribs{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.savings-contrib{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,0.02);font-size:12px}
+.savings-contrib-amt{font-family:"SF Mono",ui-monospace;font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.savings-contrib-when{font-size:11px;color:var(--text-tertiary);flex:1}
+.savings-contrib-del{background:none;border:none;color:var(--text-tertiary);cursor:pointer;padding:2px 4px;font-size:14px;line-height:1;border-radius:6px;transition:all .25s cubic-bezier(.33,1,.68,1);opacity:0.35}
+.savings-contrib-del:hover{opacity:1;color:var(--danger);background:rgba(239,68,68,0.08)}
+
+/* ── Finance: Inline Expense Ledger ── */
+.inline-expense-bar{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.inline-expense-amount{flex:0 0 120px}
+.inline-expense-desc{flex:1}
+.inline-expense-add{padding:12px 20px;min-height:46px}
+.expense-list{list-style:none}
+.expense-item{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:4px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
+.expense-item:hover .expense-delete{opacity:1}
+.expense-cat-name{flex:1;font-size:14px;font-weight:500}
+.expense-cat-amount{font-family:"SF Mono",ui-monospace;font-size:13px;font-weight:600}
+.expense-delete{font-size:16px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity .2s;padding:4px}
+.expense-delete:hover{color:var(--danger)}
+.expense-empty{font-size:14px;color:var(--text-tertiary);text-align:center;padding:16px 0;font-weight:500}
+
+/* ── Finance: AI Advisory ── */
+.ai-advisory-btn{
+  width:100%;padding:16px;border-radius:var(--radius-md);
+  border:1px solid rgba(255,255,255,0.05);background:rgba(18,18,20,0.45);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  color:var(--text-secondary);font-size:15px;font-weight:600;font-family:inherit;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .25s cubic-bezier(.33,1,.68,1);
+}
+.ai-advisory-btn:hover{background:rgba(255,255,255,0.03);color:var(--text-primary)}
+.ai-advisory-btn:disabled{opacity:0.5;cursor:wait}
+.ai-advisory-btn .advisory-spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.12);border-top-color:var(--text-primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-advisory-card{margin-top:14px;padding:20px;border-radius:var(--radius-md);background:var(--card-bg);box-shadow:0 0 0 0.5px rgba(255,255,255,0.04);border:1px solid var(--card-border)}
+.ai-advisory-header{font-size:12px;font-weight:600;color:var(--text-tertiary);margin-bottom:10px}
+.ai-advisory-list{list-style:none;padding:0;margin:0}
+.ai-advisory-list li{display:flex;gap:10px;padding:10px 0;font-size:14px;color:var(--text-secondary);line-height:1.55;border-bottom:0.5px solid rgba(255,255,255,0.03)}
+.ai-advisory-list li:last-child{border-bottom:none}
+.ai-advisory-bullet{color:var(--success);font-size:8px;margin-top:7px;flex-shrink:0}
+
+/* ── Calendar: Horizontal Rolling Date Ribbon ── */
+.cal-section{margin-bottom:18px}
+.cal-ribbon{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cal-ribbon::-webkit-scrollbar{display:none}
+.scrollbar-none{scrollbar-width:none;-ms-overflow-style:none}
+.scrollbar-none::-webkit-scrollbar{display:none}
+.cal-cap{scroll-snap-align:center;flex-shrink:0;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:var(--radius-md);background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all .25s cubic-bezier(.33,1,.68,1);user-select:none;position:relative}
+.cal-cap:hover{background:rgba(255,255,255,0.05)}
+.cal-cap.active{border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06)}
+.cal-cap.today{border-color:rgba(167,139,250,0.25)}
+.cal-cap.today.active{border-color:rgba(167,139,250,0.6);background:rgba(167,139,250,0.1)}
+.cal-cap-dow{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary)}
+.cal-cap-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
+.cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity .25s}
+.cal-cap-dot.show{opacity:1}
+.cal-event-list{display:flex;flex-direction:column;gap:0}
+.cal-empty{text-align:center;padding:20px 0;color:var(--text-tertiary);font-size:13px;font-weight:500}
+.cal-event{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,0.03);align-items:center}
+.cal-event:last-child{border-bottom:none}
+.cal-event:hover .cal-event-del{opacity:0.7!important}
+.cal-event .cal-event-del:hover{opacity:1!important;color:var(--danger)!important}
+.cal-event-time{min-width:48px;text-align:right;font-size:11px;font-weight:600;color:var(--text-tertiary);font-family:"SF Mono",ui-monospace;padding-top:2px}
+.cal-event-bar{width:2px;border-radius:1px;background:var(--accent);flex-shrink:0}
+.cal-event-body{flex:1;min-width:0}
+.cal-event-title{font-size:14px;font-weight:500;color:var(--text-primary)}
+.cal-event-title small{font-size:11px;color:var(--text-tertiary);font-weight:400}
+
+/* ── Multi-View Calendar ── */
+.calendar-view-btn{color:var(--text-tertiary)}
+.calendar-view-btn.active{background:rgba(255,255,255,0.05);color:var(--accent);box-shadow:0 0 0 1px rgba(167,139,250,0.1)}
+.monthly-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:11px;font-weight:500;color:var(--text-secondary);position:relative}
+.monthly-cell:hover{background:rgba(255,255,255,0.03)}
+.monthly-cell.today{border:1px solid rgba(167,139,250,0.25)}
+.monthly-cell.active{background:rgba(167,139,250,0.08);color:var(--accent)}
+.monthly-cell.other-month{opacity:0.2}
+.monthly-cell .monthly-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:5px;left:50%;margin-left:-2px;opacity:0.5}
+.monthly-header-cell{font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:4px}
+
+/* ── Weekly View ── */
+.cal-week-day{border-bottom:0.5px solid rgba(255,255,255,0.04);padding:10px 0}
+.cal-week-day:last-child{border-bottom:none}
+.cal-week-today{background:rgba(167,139,250,0.04);margin:0 -8px;padding:10px 8px;border-radius:10px;border-bottom-color:transparent}
+.cal-week-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cal-week-dow{font-size:11px;font-weight:600;color:var(--text-secondary);min-width:32px}
+.cal-week-date{font-family:"SF Mono",ui-monospace;font-size:13px;font-weight:600;color:var(--text-primary)}
+.cal-week-badge{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:rgba(167,139,250,0.08);color:var(--accent);margin-left:auto}
+.cal-week-events{display:flex;flex-direction:column;gap:4px}
+.cal-week-event{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);transition:all .25s}
+.cal-week-event:hover{background:rgba(255,255,255,0.04)}
+.cal-week-event:hover .cal-week-event-del{opacity:0.6!important}
+.cal-week-event .cal-week-event-del:hover{opacity:1!important;color:var(--danger)!important}
+.cal-week-event-bar{width:2px;height:14px;border-radius:1px;background:var(--accent);flex-shrink:0}
+.cal-week-event-body{flex:1;min-width:0;display:flex;align-items:center;gap:4px}
+.cal-week-event-time{font-family:"SF Mono",ui-monospace;font-size:10px;font-weight:600;color:var(--text-tertiary);white-space:nowrap}
+.cal-week-event-title{font-size:12px;font-weight:500;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-week-event-del{background:none;border:none;color:var(--text-tertiary);font-size:14px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity .25s;line-height:1;flex-shrink:0}
+.cal-week-empty{font-size:11px;color:var(--text-tertiary);padding:2px 0 2px 40px;font-weight:500}
+.cal-week-nav{background:none;border:none;color:var(--text-tertiary);font-size:22px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all .25s;line-height:1}
+.cal-week-nav:hover{background:rgba(255,255,255,0.04);color:var(--text-primary)}
+.cal-week-nav:active{transform:scale(0.88)}
+.cal-month-nav{background:none;border:none;color:var(--text-tertiary);font-size:22px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all .25s;line-height:1}
+.cal-month-nav:hover{background:rgba(255,255,255,0.04);color:var(--text-primary)}
+.cal-month-nav:active{transform:scale(0.88)}
+
+/* ── Chat widget ── */
+.chat-card{padding:0;overflow:hidden}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:0.5px solid rgba(255,255,255,0.04);font-size:12px;font-weight:600;color:var(--text-tertiary)}
+.chat-reset-btn{padding:6px 12px;border-radius:10px;border:0.5px solid rgba(255,255,255,0.08);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .25s}
+.chat-reset-btn:hover{background:rgba(255,255,255,0.04);color:var(--text-primary)}
+.chat-log{max-height:300px;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent}
+.chat-log::-webkit-scrollbar{width:3px}
+.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
+.chat-msg{display:flex}
+.chat-msg.user{justify-content:flex-end}
+.chat-bubble{max-width:80%;padding:12px 16px;border-radius:18px;font-size:15px;line-height:1.55;color:var(--text-primary);word-wrap:break-word}
+.chat-msg.aura .chat-bubble{background:rgba(255,255,255,0.04);border-bottom-left-radius:6px;border:1px solid rgba(255,255,255,0.04)}
+.chat-msg.user .chat-bubble{background:var(--accent-gradient);color:#fff;border-bottom-right-radius:6px;box-shadow:0 4px 16px rgba(167,139,250,0.25)}
+.chat-cursor{display:inline-block;width:2px;height:16px;background:var(--accent);margin-left:2px;vertical-align:text-bottom;animation:chatBlink 1s step-end infinite}
+@keyframes chatBlink{0%,100%{opacity:1}50%{opacity:0}}
+.chat-input-row{display:flex;gap:10px;padding:14px;border-top:0.5px solid rgba(255,255,255,0.04)}
+.chat-input{flex:1;padding:12px 16px;border-radius:16px;border:0.5px solid rgba(255,255,255,0.07);background:var(--input-bg);color:var(--text-primary);font-size:16px;font-family:inherit;outline:none;resize:none}
+.chat-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(167,139,250,0.06)}
+.chat-input::placeholder{color:var(--text-tertiary);font-weight:400}
+.chat-send-btn{padding:12px 18px;border-radius:14px;border:none;cursor:pointer;font-weight:600;font-size:15px;font-family:inherit;background:var(--accent-gradient);color:#fff;transition:all .28s cubic-bezier(.33,1,.68,1);white-space:nowrap;box-shadow:0 4px 16px rgba(167,139,250,0.25)}
+.chat-send-btn:hover{opacity:0.92;transform:translateY(-1px);box-shadow:0 8px 24px rgba(167,139,250,0.3)}
+.chat-send-btn:disabled{opacity:0.4;cursor:not-allowed}
+.chat-send-btn:active{transform:scale(0.96);box-shadow:0 2px 8px rgba(167,139,250,0.15)}
+.chat-mic-btn{width:44px;height:44px;border-radius:14px;border:none;cursor:pointer;background:rgba(255,255,255,0.04);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0}
+.chat-mic-btn:hover{background:rgba(255,255,255,0.06);color:var(--text-primary)}
+
+/* ── Workout stats ── */
+.wstats-row{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.wstat-item{flex:1;min-width:80px;padding:16px 14px;border-radius:var(--radius-md);text-align:center;background:var(--card-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.04),0 4px 24px rgba(0,0,0,0.3);border:1px solid var(--card-border)}
+.wstat-num{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px}
+.wstat-label{font-size:11px;font-weight:600;color:var(--text-tertiary)}

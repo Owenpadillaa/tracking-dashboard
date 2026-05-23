@@ -1,0 +1,462 @@
+/* ═══════════════════════════════════════════════════════════
+   AURA — Part 3: Deep Work, Settings, Responsive, Animations
+   Onyx Luxe Design System
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Deep Work: Intention Input ── */
+.dw-intention{
+  width:100%;max-width:400px;margin:0 auto;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  color:var(--text-primary);
+  text-align:center;padding:16px 20px;border-radius:var(--radius-md);
+  font-size:15px;font-family:inherit;outline:none;
+  transition:all .3s cubic-bezier(.33,1,.68,1);display:block;
+}
+.dw-intention:focus{
+  border-color:rgba(167,139,250,0.35);
+  background:rgba(255,255,255,0.05);
+  box-shadow:0 0 0 3px rgba(167,139,250,0.05);
+}
+.dw-intention::placeholder{color:var(--text-tertiary);font-weight:400}
+
+/* ── Deep Work: Timer Card ── */
+.dw-timer-card{
+  background:rgba(18,18,20,0.45);
+  border-radius:var(--radius-xl);padding:36px 24px 28px;
+  margin:18px auto;max-width:400px;
+  border:1px solid rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(32px);
+  -webkit-backdrop-filter:blur(32px);
+  box-shadow:0 0 0 0.5px rgba(255,255,255,0.03),0 8px 48px rgba(0,0,0,0.5);
+}
+.dw-timer-card::before{
+  content:'';position:absolute;top:0;left:18%;right:18%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,0.35),transparent);
+  pointer-events:none;
+}
+
+/* Timer Display */
+.dw-timer-display{
+  font-family:"SF Mono",ui-monospace;
+  font-size:68px;font-weight:700;color:#f1f5f9;
+  letter-spacing:-0.05em;line-height:1;text-align:center;
+  cursor:text;user-select:none;display:block;width:100%;
+  text-shadow:0 0 40px rgba(167,139,250,0.1);
+  transition:text-shadow .3s;
+}
+.dw-timer-display:focus{outline:none}
+
+/* Timer Preset Pills */
+.dw-pills{display:flex;gap:8px;justify-content:center;margin:22px 0 0;flex-wrap:wrap}
+.dw-pill{
+  padding:10px 22px;border-radius:99px;
+  border:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.02);
+  color:var(--text-secondary);
+  font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:all .28s cubic-bezier(.33,1,.68,1);letter-spacing:-0.01em;
+}
+.dw-pill:hover{
+  background:rgba(255,255,255,0.05);color:var(--text-primary);
+  border-color:rgba(255,255,255,0.08);
+}
+.dw-pill.active{
+  background:rgba(167,139,250,0.1);
+  color:var(--accent);
+  border-color:rgba(167,139,250,0.25);
+  box-shadow:0 0 16px rgba(167,139,250,0.06);
+}
+
+/* Start Button */
+.dw-start-btn{
+  max-width:400px;margin:28px auto 0;display:block;width:100%;
+  padding:16px 24px;border:none;border-radius:16px;
+  background:var(--accent-gradient);color:#fff;
+  font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:all .28s cubic-bezier(.33,1,.68,1);
+  box-shadow:0 4px 20px rgba(167,139,250,0.25);letter-spacing:0.02em;
+}
+.dw-start-btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 8px 28px rgba(167,139,250,0.32)}
+.dw-start-btn:disabled{opacity:0.4;cursor:default}
+.dw-start-btn:active{transform:scale(0.97);box-shadow:0 2px 8px rgba(167,139,250,0.15)}
+
+/* Metrics Grid */
+.dw-metrics{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  margin-top:28px;max-width:400px;margin-left:auto;margin-right:auto;
+}
+.dw-metric{
+  background:rgba(18,18,20,0.45);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:0 0 0 0.5px rgba(255,255,255,0.03),0 4px 24px rgba(0,0,0,0.35);
+  border-radius:20px;padding:22px 16px;text-align:center;
+  border:1px solid rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;
+}
+.dw-metric::before{
+  content:'';position:absolute;top:0;left:28%;right:28%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);
+  pointer-events:none;
+}
+.dw-metric-val{
+  font-size:28px;font-weight:700;
+  background:var(--accent-gradient);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:8px;
+}
+.dw-metric-label{
+  font-size:11px;font-weight:600;color:var(--text-tertiary);
+  letter-spacing:0.06em;text-transform:uppercase;
+}
+
+/* Deep Work Overlay (modal timer) */
+.dw-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.95);
+  backdrop-filter:blur(48px);
+  -webkit-backdrop-filter:blur(48px);
+  z-index:99997;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s cubic-bezier(.33,1,.68,1);
+}
+.dw-overlay.active{opacity:1;pointer-events:auto}
+.dw-overlay-timer{
+  font-family:"SF Mono",ui-monospace;
+  font-size:84px;font-weight:700;color:#f1f5f9;
+  letter-spacing:-0.05em;line-height:1;margin-bottom:16px;
+  text-shadow:0 0 60px rgba(167,139,250,0.15);
+}
+.dw-overlay-intention{
+  color:var(--text-secondary);font-size:16px;margin-bottom:48px;
+  max-width:80vw;text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;
+}
+.dw-cancel-btn{
+  color:var(--text-tertiary);font-size:14px;cursor:pointer;
+  transition:all .25s;background:none;
+  border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);
+  padding:10px 24px;font-family:inherit;margin-top:24px;font-weight:500;
+}
+.dw-cancel-btn:hover{
+  color:var(--text-secondary);
+  border-color:rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.03);
+}
+
+/* Notif time inputs focus */
+.notif-time:focus{
+  border-color:rgba(167,139,250,0.5)!important;
+  box-shadow:0 0 0 3px rgba(167,139,250,0.06);
+}
+
+/* ── Settings Panel ── */
+.settings-gear-btn{
+  background:none;border:none;color:var(--text-tertiary);
+  cursor:pointer;padding:6px;border-radius:10px;
+  transition:all .25s cubic-bezier(.33,1,.68,1);
+  display:flex;align-items:center;
+}
+.settings-gear-btn:hover{
+  color:var(--text-secondary);
+  background:rgba(255,255,255,0.03);
+}
+.settings-overlay{
+  position:fixed;inset:0;z-index:99995;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  opacity:0;pointer-events:none;
+  transition:opacity .35s cubic-bezier(.33,1,.68,1);
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.settings-overlay.active{opacity:1;pointer-events:auto}
+.settings-sheet{
+  background:#000;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:28px 28px 0 0;
+  padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));
+  width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.33,1,.68,1);
+  box-shadow:0 -12px 60px rgba(0,0,0,0.7);
+}
+.settings-overlay.active .settings-sheet{transform:translateY(0)}
+.settings-sheet-drag{
+  width:36px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.1);margin:0 auto 18px;flex-shrink:0;
+}
+
+/* ── Sleep Hours Display (Health tab) ── */
+.sleep-hours{
+  font-size:72px;font-weight:700;letter-spacing:-0.06em;
+  font-variant-numeric:tabular-nums;line-height:1;
+  background:linear-gradient(135deg,#A78BFA,#C4B5FD,#E9D5FF);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:4px;
+}
+.sleep-hours-unit{
+  font-size:13px;font-weight:600;
+  color:var(--text-tertiary);
+  letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+/* ── Workout Timer Modal Polish (see also css_part2.css for base) ── */
+
+/* ── Page Transitions ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes scaleIn{
+  from{opacity:0;transform:scale(0.95)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Stagger card entrance */
+.tab-page.active .card,
+.tab-page.active .section{
+  animation:slideUp .45s cubic-bezier(.33,1,.68,1) both;
+}
+.tab-page.active .card:nth-child(1),
+.tab-page.active .section:nth-child(1){animation-delay:0s}
+.tab-page.active .card:nth-child(2),
+.tab-page.active .section:nth-child(2){animation-delay:.06s}
+.tab-page.active .card:nth-child(3),
+.tab-page.active .section:nth-child(3){animation-delay:.12s}
+.tab-page.active .card:nth-child(4),
+.tab-page.active .section:nth-child(4){animation-delay:.18s}
+.tab-page.active .card:nth-child(5),
+.tab-page.active .section:nth-child(5){animation-delay:.24s}
+
+/* ── Horizontal scroll hint ── */
+.cal-ribbon{
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%);
+}
+
+/* ── Selection color ── */
+::selection{background:rgba(167,139,250,0.25);color:#fff}
+::-moz-selection{background:rgba(167,139,250,0.25);color:#fff}
+
+/* ── Disabled button states (premium override) ── */
+.sleep-btn:disabled,
+.gm-add-btn:disabled,
+.gm-polish-btn:disabled,
+.gm-push-btn:disabled,
+.voice-btn:disabled{
+  opacity:0.35;cursor:not-allowed;filter:grayscale(30%);pointer-events:none;
+}
+.sleep-btn:disabled:hover,
+.gm-add-btn:disabled:hover{
+  transform:none;opacity:0.35;box-shadow:none;
+}
+
+/* Goal item drag state */
+.goal-item.drag-over{border-top:2px solid rgba(167,139,250,0.25)}
+
+/* ── Reduced motion ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablet (481px - 768px) ── */
+@media(min-width:481px) and (max-width:768px){
+  .tab-page{padding:max(env(safe-area-inset-top,16px),16px) 20px calc(24px + 56px + 16px + env(safe-area-inset-bottom,0px))}
+  .container{max-width:100%;padding:0}
+  .dash-title{font-size:30px;margin-bottom:20px}
+  .card{padding:20px 22px}
+  .rings-row{gap:18px}
+  .ring-container{width:115px;height:115px}
+  .exec-row{gap:12px}
+}
+
+/* ── Mobile (≤480px) ── */
+@media(max-width:480px){
+  /* Reduce grain texture overhead on mobile */
+  html::before{opacity:0.35}
+  .tab-page{
+    padding:max(env(safe-area-inset-top,16px),16px) 14px calc(18px + 50px + 16px + env(safe-area-inset-bottom,0px));
+  }
+  .container{padding:0;max-width:100%}
+  .dash-title{font-size:28px;margin-bottom:18px}
+  .section{margin-bottom:22px}
+
+  /* Cards compact */
+  .card{padding:16px 18px;border-radius:var(--radius-md)}
+
+  /* Compact merged goals+events card */
+  #gmCardToday .cal-event{padding:4px 0;gap:5px}
+  #gmCardToday .cal-event-time{min-width:32px;font-size:9px;padding-top:1px}
+  #gmCardToday .cal-event-bar{width:2px}
+  #gmCardToday .cal-event-title{font-size:11px}
+  #gmCardToday .cal-empty{font-size:10px;padding:1px 0}
+  #gmCardToday .gm-list .goal-item{padding:8px 10px;margin-bottom:3px;gap:8px;border-radius:10px}
+  #gmCardToday .goal-checkbox{width:18px;height:18px;border-radius:5px}
+  #gmCardToday .goal-checkbox:checked::after{top:2px;left:5px;width:4px;height:8px}
+  #gmCardToday .goal-text{font-size:13px}
+  #gmCardToday .goal-handle{display:none}
+  #gmCardToday .gm-queue-btn{padding:2px;font-size:12px}
+  #gmCardToday .goal-delete{padding:2px;font-size:13px;opacity:0.35}
+  #gmCardToday .gm-show-more{padding:6px;font-size:11px;margin-bottom:3px}
+  .section-title{font-size:11px;margin-bottom:10px}
+
+  /* Homepage tighten */
+  #tab-home .mb-5{margin-bottom:14px}
+  #tab-home .mb-4{margin-bottom:10px}
+  #insightsCard{padding:14px!important;border-radius:18px!important}
+  #insightsCard .mb-4{margin-bottom:8px!important}
+  #insightsCard .w-7{display:none!important}
+  #insightsLabel{font-size:8px!important}
+  .insight-cell{padding:10px 12px!important;min-height:60px!important}
+  .insight-cell-header{font-size:7px!important;margin-bottom:4px!important}
+  #sleepTileHome{padding:10px 12px!important}
+  #streakBanner{margin-bottom:10px!important;padding:10px 12px!important;gap:8px!important}
+  #gmCardToday{border-radius:16px!important}
+  #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
+
+  /* Tab bar compact */
+  .tab-bar{padding:4px 10px calc(4px + env(safe-area-inset-bottom,0px))}
+  .tab-bar-inner{padding:3px 4px;border-radius:16px;gap:2px}
+  .tab-btn{padding:6px 3px 5px;border-radius:12px;gap:1px}
+  .tab-btn .tab-icon{width:18px;height:18px}
+  .tab-btn .tab-icon svg{width:18px;height:18px;stroke-width:1.8}
+  .tab-btn span:not(.tab-icon){font-size:7px;letter-spacing:0.04em;margin-top:0}
+
+  /* Goal ticker */
+  .goal-ticker{padding:12px 14px}
+  .goal-ticker-label{font-size:10px}
+  .goal-ticker-row{font-size:13px}
+  .goal-ticker-meta{font-size:11px;padding:4px 8px}
+
+  /* Rings */
+  .rings-row{gap:8px;justify-content:center}
+  .rings-bottom{justify-content:center;gap:14px;margin-bottom:18px;text-align:center}
+  .ring-container{width:95px;height:95px}
+  .ring-container-lg{width:130px;height:130px}
+  .day-ring-pct{font-size:30px}
+  .day-ring-phase{font-size:10px}
+  .day-ring-clock{font-size:11px}
+  .day-ring-status{font-size:13px}
+  .day-ring-remaining{font-size:12px}
+  .day-ring-range{font-size:10px}
+  .rings-bottom-status{align-items:center}
+  .sleep-btn{padding:10px 20px;font-size:14px}
+
+  /* Goals */
+  .gm-input-wrap{flex-wrap:wrap;gap:8px;padding-top:14px}
+  .gm-input{padding:14px 16px;font-size:16px;border-radius:14px;flex:1 1 100%}
+  .gm-add-btn,.gm-polish-btn{padding:14px 18px;font-size:15px;font-weight:600;flex:1;min-height:48px}
+  .gm-progress-num{font-size:38px}
+  .gm-status{font-size:12px}
+  .gm-header{flex-direction:column;gap:10px;align-items:center;text-align:center}
+  .gm-streak{align-self:center}
+  .gm-bar{height:6px;margin-top:10px}
+
+  /* Water */
+  .water-bottle-wrap{width:120px}
+  .water-bottle-num{font-size:30px}
+
+  /* Supplements */
+  .suppl-grid-tile{padding:16px}
+
+  /* Workouts */
+  .routine-card{padding:22px 14px}
+  .routine-icon{font-size:30px}
+  .routine-name{font-size:13px}
+
+  /* Finance */
+  .exec-row{flex-direction:column;gap:12px}
+  .exec-ring-card{padding:14px 16px;border-radius:var(--radius-md)}
+  .exec-ring-wrap{width:85px;height:85px}
+  .exec-ring-val{font-size:14px}
+  .savings-current{font-size:22px}
+  .savings-advice{font-size:12px}
+  .exec-ring-card .savings-title{font-size:11px}
+  .income-row{flex-direction:column;gap:10px}
+  .insights-card{padding:16px;border-radius:18px}
+  .budget-grid{flex-direction:column;gap:10px}
+
+  /* Deep work */
+  .dw-timer-display{font-size:52px}
+  .dw-metrics{gap:10px}
+  .dw-metric{padding:18px 14px}
+  .dw-metric-val{font-size:22px}
+  .dw-overlay-timer{font-size:60px}
+
+  /* Sleep display */
+  .sleep-hours{font-size:56px}
+
+  /* Chat */
+  .chat-bubble{max-width:90%}
+  .chat-input-row{gap:8px;padding:10px}
+
+  /* Weekly chart */
+  .weekly-bars{height:110px;gap:6px}
+}
+
+/* ── Small mobile (≤360px) ── */
+@media(max-width:360px){
+  .tab-page{
+    padding:max(env(safe-area-inset-top,10px),10px) 10px calc(14px + 44px + 12px + env(safe-area-inset-bottom,0px));
+  }
+  .tile-water-bottle{width:18px;height:26px}
+  .rings-row{gap:5px}
+  .ring-container{width:78px;height:78px}
+  .ring-container-lg{width:100px;height:100px}
+  .day-ring-pct{font-size:24px}
+  .tab-bar{padding:3px 6px calc(3px + env(safe-area-inset-bottom,0px))}
+  .tab-bar-inner{padding:2px 3px;border-radius:14px;gap:1px}
+  .tab-btn{padding:4px 2px 3px;border-radius:9px;gap:1px}
+  .tab-btn .tab-icon{width:16px;height:16px}
+  .tab-btn .tab-icon svg{width:16px;height:16px}
+  .tab-btn span:not(.tab-icon){font-size:6px;letter-spacing:0.03em;margin-top:0}
+  #tab-home .mb-4{margin-bottom:8px!important}
+  #insightsCard{padding:10px!important}
+  .insight-cell{padding:8px 10px!important;min-height:52px!important}
+  #gmCardToday>.px-\[18px\]{padding-left:10px!important;padding-right:10px!important}
+  .card{padding:14px 16px;border-radius:16px}
+  .sleep-hours{font-size:48px}
+  .dw-timer-display{font-size:44px}
+  .dw-overlay-timer{font-size:48px}
+  .dash-title{font-size:24px}
+}
+
+/* ── Desktop/Large (≥1024px) ── */
+@media(min-width:1024px){
+  .tab-page{padding:max(env(safe-area-inset-top,24px),24px) 24px calc(24px + 60px + 24px + env(safe-area-inset-bottom,0px))}
+  .container{max-width:960px}
+  .dash-title{font-size:38px}
+  .card{padding:28px 32px}
+  .dw-timer-display{font-size:76px}
+  .dw-metrics{max-width:500px}
+  .dw-metric{padding:28px 20px}
+  .dw-metric-val{font-size:32px}
+  .exec-row{gap:20px}
+  .exec-ring-card{padding:28px 24px}
+  .exec-ring-wrap{width:120px;height:120px}
+  .exec-ring-val{font-size:20px}
+  .savings-current{font-size:32px}
+  .sleep-hours{font-size:84px}
+  .tab-bar-inner{max-width:600px}
+}
