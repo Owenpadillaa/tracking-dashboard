@@ -691,7 +691,7 @@ app.post('/api/parse-voice', async (req, res) => {
           { role: 'system', content: VOICE_SYSTEM_PROMPT + '\n\nThe user\'s current local date, time, and timezone profile is: ' + dateStr + ' at ' + new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true }) + ' (' + dayName + ') (' + tz + '). You are an omniscient parser. For relative date and time calculations, note that right now is explicitly: ' + new Date().toString() + '. Use this absolute anchor to convert phrases like "this Friday", "tomorrow", or "the 21st of this month" into exact standard format calendar records.' },
           { role: 'user', content: text }
         ],
-        max_tokens: 300,
+        max_tokens: 500,
         temperature: 0
       }),
     });
@@ -835,7 +835,8 @@ app.post('/api/v1/quick-log', (req, res) => {
       const ev = {
         id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
         title: payload.calendar_details.title.trim(),
-        date: payload.calendar_details.target_date || dateStr,
+        date: payload.calendar_details.target_date ? payload.calendar_details.target_date.slice(0, 10) : dateStr,
+        time: payload.calendar_details.target_date && payload.calendar_details.target_date.length > 16 ? payload.calendar_details.target_date.slice(11, 16) : null,
         createdAt: now,
       };
       calData.push(ev);
