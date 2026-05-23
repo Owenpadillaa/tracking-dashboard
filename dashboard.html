@@ -2967,13 +2967,6 @@ function renderDateChips(){
   if(!activeCalDate)activeCalDate=todayStr;
   ribbon.innerHTML='';
   for(var i=0;i<7;i++){
-    var d=new Date(start);
-    d.setDate(start.getDate()+i);
-    var ds=dateStrLocal(d);
-    var isToday=ds===todayStr;
-    var isActive=ds===activeCalDate;
-    var chip=document.createElement('div');
-    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] bg-slate-900/60 border rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-slate-800/60'+(isActive?' border-cyan-500 bg-slate-900 text-cyan-400':' border-slate-800/80');
     chip.dataset.date=ds;
     chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
       +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>';
