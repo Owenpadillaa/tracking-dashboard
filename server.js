@@ -68,7 +68,7 @@ function loadWorkoutData() {
       for (const entry of raw) {
         if (entry.date === todayStr) {
           today_workouts = today_workouts.concat(entry.sessions || []);
-        } else {
+  } else if (timeOfDay === 'night' || timeOfDay === 'evening') {
           history.push(entry);
         }
       }
@@ -355,6 +355,28 @@ app.post('/api/notifications/register', (req, res) => {
 });
 
 // Test endpoint — sends a push notification to all saved subscriptions
+/* ════════════ AI PULSE SCHEDULE CONFIG ════════════ */
+function loadPulseConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFilePath('notification_config'), 'utf8'));
+  } catch {
+    return { morning: '06:00', midday: '12:00', night: '21:00' };
+  }
+}
+function savePulseConfig(config) {
+  fs.writeFileSync(dataFilePath('notification_config'), JSON.stringify(config, null, 2));
+}
+
+app.post('/api/v1/settings/notifications', express.json(), (req, res) => {
+  const { morning, midday, night } = req.body;
+  if (!morning || !midday || !night) {
+    return res.status(400).json({ error: 'All three pulse times required' });
+  }
+  savePulseConfig({ morning, midday, night });
+  console.log(`Pulse config updated: M=${morning} D=${midday} N=${night}`);
+  res.json({ ok: true });
+});
+
 app.post('/api/notifications/test', async (req, res) => {
   const subs = loadSubscriptions();
   if (!subs.length) {
@@ -886,6 +908,22 @@ app.get('/api/v1/calendar', (req, res) => {
   res.json({ events: events });
 });
 
+// POST /api/v1/calendar/delete — remove an event by id
+app.post('/api/v1/calendar/delete', (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'id is required' });
+  }
+  let events = loadDataFile('calendar_events');
+  const lenBefore = events.length;
+  events = events.filter(e => e.id !== id);
+  if (events.length === lenBefore) {
+    return res.status(404).json({ error: 'event not found' });
+  }
+  saveDataFile('calendar_events', events);
+  res.json({ ok: true });
+});
+
 // POST /api/v1/calendar/add — append a new event
 app.post('/api/v1/calendar/add', (req, res) => {
   const { title, date, time } = req.body;
@@ -1321,8 +1359,19 @@ async function sendBriefing(timeOfDay) {
       return;
     }
 
-    // Push to all subscribers
-    const payload = JSON.stringify({ title: `Aura ${timeOfDay === 'morning' ? 'Morning' : 'Evening'} Briefing`, body: briefing });
+    // Build high-priority payload for lock-screen hijack
+    const labels = { morning: 'Morning Rocket', midday: 'Midday Audit', night: 'Night Debrief' };
+    const title = `Aura ${labels[timeOfDay] || 'Pulse'}`;
+    const payload = JSON.stringify({
+      title: title,
+      body: briefing,
+      tag: 'aura-critical-pulse',
+      renotify: true,
+      requireInteraction: true,
+      priority: 'high',
+      vibrate: [100, 50, 100],
+      data: { pulse: timeOfDay, timestamp: Date.now() }
+    });
     let sent = 0, failed = 0;
     const alive = [];
 
@@ -1346,12 +1395,46 @@ async function sendBriefing(timeOfDay) {
   }
 }
 
-// Morning briefing at 7:00 AM
-cron.schedule('0 7 * * *', () => sendBriefing('morning'), { timezone: 'America/New_York' });
-// Midday check-in at 12:00 PM
-cron.schedule('0 12 * * *', () => sendBriefing('midday'), { timezone: 'America/New_York' });
-// Evening briefing at 9:00 PM
-cron.schedule('0 21 * * *', () => sendBriefing('evening'), { timezone: 'America/New_York' });
+/* ════════════ PULSE CLOCK (minute-matching background loop) ════════════ */
+function clockToMins(t) {
+  var p = t.split(':');
+  return parseInt(p[0],10) * 60 + parseInt(p[1],10);
+}
+
+var lastFired = { morning: false, midday: false, night: false };
+
+function resetFiredIfDayChanged() {
+  var h = new Date().getHours();
+  var m = new Date().getMinutes();
+  // At midnight (00:00) reset all fired flags
+  if (h === 0 && m === 0) {
+    lastFired = { morning: false, midday: false, night: false };
+  }
+}
+
+setInterval(function() {
+  var now = new Date();
+  var currentMins = now.getHours() * 60 + now.getMinutes();
+  resetFiredIfDayChanged();
+
+  var config = loadPulseConfig();
+  var pulses = [
+    { key: 'morning', time: config.morning },
+    { key: 'midday', time: config.midday },
+    { key: 'night', time: config.night }
+  ];
+
+  pulses.forEach(function(p) {
+    var target = clockToMins(p.time);
+    if (currentMins === target && !lastFired[p.key]) {
+      lastFired[p.key] = true;
+      console.log('Pulse trigger: ' + p.key + ' at ' + p.time);
+      sendBriefing(p.key);
+    }
+    // If we passed the target time this day, reset fired flag is handled at midnight
+    // Allow re-fire if clock wrapped (user changes time to earlier)
+  });
+}, 30000); // Check every 30 seconds
 
 /* ════════════ ACTIVE SESSION HELPERS ════════════ */
 

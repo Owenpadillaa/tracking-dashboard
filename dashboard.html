@@ -1041,6 +1041,7 @@ body{
 .dw-overlay-intention{color:var(--text-secondary);font-size:16px;margin-bottom:40px;max-width:80vw;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
 .dw-cancel-btn{color:var(--text-tertiary);font-size:14px;cursor:pointer;transition:all .2s;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 24px;font-family:inherit;margin-top:24px;font-weight:500}
 .dw-cancel-btn:hover{color:var(--text-secondary);border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
+.notif-time:focus{border-color:rgba(99,102,241,0.5)!important;box-shadow:0 0 0 3px rgba(99,102,241,0.08)}
 
 /* ── Toast ── */
 </style>
@@ -1510,6 +1511,62 @@ body{
         <div class="dw-metric-label">Focus Streak</div>
       </div>
     </div>
+  <!-- ═══════ SETTINGS TAB ═══════ -->
+  <div class="tab-page" id="tab-settings">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-8 h-8 rounded-[12px] flex items-center justify-center flex-shrink-0" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.2)">
+        <svg class="w-4 h-4 stroke-indigo-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-400/80">Settings</span>
+    </div>
+
+    <!-- Notification Pulse Schedule -->
+    <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-5">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="text-sm font-semibold text-slate-200">AI Pulse Schedule</span>
+        <span class="text-[10px] font-medium text-slate-500">Daily accountability notifications</span>
+      </div>
+
+      <!-- Morning Rocket -->
+      <div class="flex items-center justify-between py-3 border-b border-slate-800/40">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">🌅</span>
+          <div>
+            <div class="text-sm font-medium text-slate-200">Morning Rocket</div>
+            <div class="text-[11px] text-slate-500">Daily intention &amp; focus setter</div>
+          </div>
+        </div>
+        <input type="time" class="notif-time" id="pulseMorning" value="06:00" style="background:rgba(2,6,23,0.6);border:1px solid rgba(51,65,85,0.5);border-radius:12px;padding:8px 12px;color:#22d3ee;font-family:'SF Mono',ui-monospace,monospace;font-size:14px;font-weight:600;outline:none;transition:border-color .2s">
+      </div>
+
+      <!-- Midday Audit -->
+      <div class="flex items-center justify-between py-3 border-b border-slate-800/40">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">☀️</span>
+          <div>
+            <div class="text-sm font-medium text-slate-200">Midday Audit</div>
+            <div class="text-[11px] text-slate-500">Progress check &amp; course correct</div>
+          </div>
+        </div>
+        <input type="time" class="notif-time" id="pulseMidday" value="12:00" style="background:rgba(2,6,23,0.6);border:1px solid rgba(51,65,85,0.5);border-radius:12px;padding:8px 12px;color:#22d3ee;font-family:'SF Mono',ui-monospace,monospace;font-size:14px;font-weight:600;outline:none;transition:border-color .2s">
+      </div>
+
+      <!-- Night Debrief -->
+      <div class="flex items-center justify-between py-3 border-b border-slate-800/40">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">🌌</span>
+          <div>
+            <div class="text-sm font-medium text-slate-200">Night Debrief</div>
+            <div class="text-[11px] text-slate-500">End-of-day reflection &amp; insight</div>
+          </div>
+        </div>
+        <input type="time" class="notif-time" id="pulseNight" value="21:00" style="background:rgba(2,6,23,0.6);border:1px solid rgba(51,65,85,0.5);border-radius:12px;padding:8px 12px;color:#22d3ee;font-family:'SF Mono',ui-monospace,monospace;font-size:14px;font-weight:600;outline:none;transition:border-color .2s">
+      </div>
+
+      <!-- Save button -->
+      <button id="pulseSaveBtn" class="mt-5 w-full py-3 rounded-2xl text-sm font-semibold transition-all duration-200" style="background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.25)" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Save Schedule</button>
+      <div id="pulseStatus" class="mt-3 text-center text-[11px] font-medium text-slate-500 hidden"></div>
+    </div>
   </div>
 
 </div>
@@ -1540,6 +1597,10 @@ body{
   <button class="tab-btn" data-tab="tab-deepwork">
     <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
     <span>Focus</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-settings">
+    <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    <span>Settings</span>
   </button>
 </div>
 
@@ -1594,6 +1655,31 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
 document.addEventListener('click',function(e){
   var block=e.target.closest('[data-tab-target]');
   if(block)switchTab(block.dataset.tabTarget);
+});
+
+/* ════════════ PULSE SCHEDULE SAVE ════════════ */
+document.getElementById('pulseSaveBtn').addEventListener('click',function(){
+  var morning=document.getElementById('pulseMorning').value;
+  var midday=document.getElementById('pulseMidday').value;
+  var night=document.getElementById('pulseNight').value;
+  var status=document.getElementById('pulseStatus');
+  status.classList.remove('hidden');
+  status.textContent='Saving…';
+  fetch('/api/v1/settings/notifications',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({morning:morning,midday:midday,night:night})
+  }).then(function(r){
+    if(!r.ok)throw new Error('Failed');
+    return r.json();
+  }).then(function(){
+    status.textContent='✓ Schedule saved';
+    status.style.color='#22d3ee';
+    setTimeout(function(){status.classList.add('hidden')},3000);
+  }).catch(function(){
+    status.textContent='✗ Failed to save';
+    status.style.color='#ef4444';
+  });
 });
 
 /* ════════════ ROLLOVER ════════════ */
