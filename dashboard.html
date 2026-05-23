@@ -52,10 +52,11 @@ tailwind.config = {
 }
 
 /* ── 100dvh Layout (floating nav) ── */
-html{height:100dvh;overflow:hidden}
+html{height:100dvh;overflow:hidden;background:var(--bg-primary)}
 body{
-  height:100dvh;overflow:hidden;
+  height:100dvh;min-height:-webkit-fill-available;overflow:hidden;
   background:var(--bg-gradient);
+  background-color:var(--bg-primary);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
   color:var(--text-primary);
   -webkit-text-size-adjust:100%;
@@ -87,7 +88,7 @@ body{
 
 /* ── Floating glass capsule nav bar ── */
 .tab-bar{
-  position:fixed;bottom:8px;left:12px;right:12px;z-index:9999;
+  position:fixed;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:12px;right:12px;z-index:9999;
   display:flex;gap:3px;
   padding:4px 5px;
   background:rgba(24,24,27,0.75);
@@ -97,6 +98,7 @@ body{
   border-radius:20px;
   box-shadow:0 8px 32px rgba(0,0,0,0.6),0 1px 0 rgba(255,255,255,0.05) inset;
 }
+.tab-bar-bg{position:fixed;bottom:0;left:0;right:0;height:calc(8px + 50px + 16px + env(safe-area-inset-bottom,0px));background:var(--bg-primary);z-index:9998;pointer-events:none}
 .tab-btn{
   display:flex;flex-direction:column;align-items:center;gap:2px;
   flex:1;padding:7px 4px 5px;border:none;background:none;cursor:pointer;
@@ -933,7 +935,8 @@ body{
   .card{padding:16px 18px;border-radius:18px}
 
   /* Floating tab bar */
-  .tab-bar{bottom:6px;left:10px;right:10px;padding:3px 4px;border-radius:16px;gap:2px}
+  .tab-bar{bottom:calc(6px + env(safe-area-inset-bottom,0px));left:10px;right:10px;padding:3px 4px;border-radius:16px;gap:2px}
+  .tab-bar-bg{height:calc(6px + 46px + 16px + env(safe-area-inset-bottom,0px))}
   .tab-btn{padding:5px 3px;border-radius:12px;gap:1px}
   .tab-btn .tab-icon{width:18px;height:18px}
   .tab-btn .tab-icon svg{width:18px;height:18px;stroke-width:1.8}
@@ -1000,7 +1003,8 @@ body{
   .ring-container{width:82px;height:82px}
   .ring-container-lg{width:110px;height:110px}
   .day-ring-pct{font-size:26px}
-  .tab-bar{bottom:4px;left:6px;right:6px;padding:2px 3px;border-radius:14px;gap:1px}
+  .tab-bar{bottom:calc(4px + env(safe-area-inset-bottom,0px));left:6px;right:6px;padding:2px 3px;border-radius:14px;gap:1px}
+  .tab-bar-bg{height:calc(4px + 42px + 12px + env(safe-area-inset-bottom,0px))}
   .tab-btn{padding:4px 2px;border-radius:10px;gap:1px}
   .tab-btn .tab-icon{width:17px;height:17px}
   .tab-btn .tab-icon svg{width:17px;height:17px}
@@ -1510,6 +1514,7 @@ body{
 </div>
 
 <!-- Floating glass capsule nav bar (fixed, suspended above content) -->
+<div class="tab-bar-bg"></div>
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="tab-home">
     <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.5z"/><path d="M9 21V13h6v8"/></svg></span>
