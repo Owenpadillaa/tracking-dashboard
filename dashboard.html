@@ -1658,27 +1658,28 @@ document.getElementById('settingsBtn').addEventListener('click',function(){overl
 document.getElementById('settingsCloseBtn').addEventListener('click',function(){overlay.classList.remove('active')});
 overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('active')});
 
-// Pull-to-close: track drag on sheet
-var startY=0, currentY=0, dragging=false;
+// Pull-to-close: drag anywhere on sheet when scrolled to top
+var startY=0, currentY=0, draggingPTC=false;
 sheet.addEventListener('touchstart',function(e){
-  if(e.touches.length===1 && e.target.closest('.settings-sheet-drag')){
+  if(e.touches.length===1 && sheet.scrollTop===0){
     startY=e.touches[0].clientY;
-    dragging=true;
+    draggingPTC=true;
     sheet.style.transition='none';
   }
 },{passive:true});
 sheet.addEventListener('touchmove',function(e){
-  if(!dragging)return;
+  if(!draggingPTC)return;
   currentY=e.touches[0].clientY;
   var diff=currentY-startY;
-  if(diff>0)sheet.style.transform='translateY('+diff+'px)';
+  if(diff>0){sheet.style.transform='translateY('+diff+'px)'}
+  else{draggingPTC=false;sheet.style.transition=''}
 },{passive:true});
 sheet.addEventListener('touchend',function(){
-  if(!dragging)return;
-  dragging=false;
+  if(!draggingPTC)return;
+  draggingPTC=false;
   sheet.style.transition='transform .35s cubic-bezier(.23,1,.32,1)';
   var diff=currentY-startY;
-  if(diff>80){overlay.classList.remove('active');sheet.style.transform=''}
+  if(diff>70){overlay.classList.remove('active');sheet.style.transform=''}
   else{sheet.style.transform=''}
   startY=0;currentY=0;
 },{passive:true});
