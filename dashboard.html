@@ -2778,14 +2778,17 @@ function renderSavings(){
   }
   // Advice line
   if(adviceEl){
-    if(s.target>0&&s.suggestedMonthly>0&&s.monthlyIncome>0){
+    if(s.target>0&&s.deadline&&s.suggestedMonthly>0&&s.monthlyIncome>0){
       adviceEl.textContent='Put aside $'+fmtShort(s.suggestedMonthly)+'/mo — '+s.suggestedPct+'% of your income';
       adviceEl.className='savings-advice';
-    }else if(s.target>0&&s.suggestedMonthly>0){
+    }else if(s.target>0&&s.deadline&&s.suggestedMonthly>0){
       adviceEl.textContent='Set your income to see what % this is';
       adviceEl.className='savings-advice muted';
+    }else if(s.target>0&&s.deadline){
+      adviceEl.textContent='Deadline passed — update your goal';
+      adviceEl.className='savings-advice muted';
     }else if(s.target>0){
-      adviceEl.textContent=s.deadline?'Deadline passed — update your goal':'Set a deadline to plan your pace';
+      adviceEl.textContent='Set a deadline to plan your pace';
       adviceEl.className='savings-advice muted';
     }else{
       adviceEl.textContent='';

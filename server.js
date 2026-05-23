@@ -462,8 +462,6 @@ app.get('/api/v1/finance/savings', (req, res) => {
       monthsRemaining = Math.max(1, (deadline - now) / (1000 * 60 * 60 * 24 * 30.44));
       suggestedMonthly = remaining / monthsRemaining;
     }
-  } else if (remaining > 0) {
-    suggestedMonthly = remaining;
   }
   if (monthlyIncome > 0 && suggestedMonthly > 0) {
     suggestedPct = Math.round((suggestedMonthly / monthlyIncome) * 100);
