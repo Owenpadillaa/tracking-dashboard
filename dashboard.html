@@ -3365,6 +3365,13 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
         items.push('event: '+data.calendar.event_title);
       }
 
+      // Server-side CALENDAR_EVENT intent was persisted — inject into local cache for instant UI
+      if(data.calendar_created && data.calendar_event){
+        calendarEvents.push(data.calendar_event);
+        selectCalDate(activeCalDate||dateStrLocal(new Date()));
+        items.push('event: '+data.calendar_event.title);
+      }
+
       input.value='';
 
       // Persist to server and use response for toast + full UI refresh

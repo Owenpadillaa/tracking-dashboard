@@ -657,7 +657,13 @@ EXPECTED JSON SCHEMA:
     "title": string | null,
     "target_date": string | null (ISO 8601 YYYY-MM-DD),
     "event_match_keyword": string | null
-  }
+  },
+  "intent": "CALENDAR_EVENT" | null,
+  "data": {
+    "title": string,
+    "date": string (ISO 8601 YYYY-MM-DD),
+    "time": string (HH:MM)
+  } | null
 }`;
 
 app.post('/api/parse-voice', async (req, res) => {
@@ -682,7 +688,7 @@ app.post('/api/parse-voice', async (req, res) => {
         model: 'llama-3.1-8b-instant',
         stream: false,
         messages: [
-          { role: 'system', content: VOICE_SYSTEM_PROMPT + '\n\nThe user\'s current local date, time, and timezone profile is: ' + dateStr + ' at ' + new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true }) + ' (' + dayName + ') (' + tz + '). Interpret relative terms like "today", "tomorrow", "tonight", or "3 PM" strictly matching this specific geographic timeline context.' },
+          { role: 'system', content: VOICE_SYSTEM_PROMPT + '\n\nThe user\'s current local date, time, and timezone profile is: ' + dateStr + ' at ' + new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true }) + ' (' + dayName + ') (' + tz + '). You are an omniscient parser. For relative date and time calculations, note that right now is explicitly: ' + new Date().toString() + '. Use this absolute anchor to convert phrases like "this Friday", "tomorrow", or "the 21st of this month" into exact standard format calendar records.' },
           { role: 'user', content: text }
         ],
         max_tokens: 300,
@@ -706,6 +712,22 @@ app.post('/api/parse-voice', async (req, res) => {
       parsed = JSON.parse(raw);
     } catch {
       parsed = { raw: raw };
+    }
+
+    // If calendar event intent detected, persist directly to calendar file
+    if (parsed.intent === 'CALENDAR_EVENT' && parsed.data && parsed.data.title && parsed.data.date) {
+      const events = loadDataFile('calendar_events');
+      const ev = {
+        id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        title: String(parsed.data.title).trim(),
+        date: parsed.data.date,
+        time: parsed.data.time || null,
+        createdAt: Date.now(),
+      };
+      events.push(ev);
+      saveDataFile('calendar_events', events);
+      parsed.calendar_created = true;
+      parsed.calendar_event = ev;
     }
 
     res.json(parsed);
