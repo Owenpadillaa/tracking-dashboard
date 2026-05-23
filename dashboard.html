@@ -72,6 +72,10 @@ body{
 .tab-page::-webkit-scrollbar-track{background:transparent}
 .tab-page::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
 
+/* ── Dashboard nav blocks ── */
+.nav-block{cursor:pointer;transition:all .2s cubic-bezier(0.4,0,0.2,1)}
+.nav-block:active{transform:scale(0.97)}
+
 /* ── Tab system: each tab is an independent scroll container ── */
 .tab-page{
   display:none;
@@ -1070,28 +1074,28 @@ body{
       </div>
       <div class="grid grid-cols-2 gap-2" id="insightGrid">
         <!-- Workouts -->
-        <div class="insight-cell">
+        <div class="insight-cell nav-block" data-tab-target="tab-workouts">
           <div class="insight-cell-accent" style="background:#F59E0B"></div>
           <div class="insight-cell-header">Workouts</div>
           <div class="insight-mini-chart" id="insightWkChart"><div class="insight-mini-chart-empty">--</div></div>
           <div class="insight-cell-footer" id="insightWkFooter"></div>
         </div>
         <!-- Health -->
-        <div class="insight-cell">
+        <div class="insight-cell nav-block" data-tab-target="tab-health">
           <div class="insight-cell-accent" style="background:#38bdf8"></div>
           <div class="insight-cell-header">Health</div>
           <div class="insight-health-rows" id="insightHealthBody"></div>
           <div class="insight-cell-footer" id="insightHealthFooter"></div>
         </div>
         <!-- Finance -->
-        <div class="insight-cell">
+        <div class="insight-cell nav-block" data-tab-target="tab-finance">
           <div class="insight-cell-accent" style="background:#22c55e"></div>
           <div class="insight-cell-header">Finance</div>
           <div class="insight-cash-row" id="insightCashBody"></div>
           <div class="insight-cell-footer" id="insightCashFooter"></div>
         </div>
         <!-- Events -->
-        <div class="insight-cell">
+        <div class="insight-cell nav-block" data-tab-target="tab-home">
           <div class="insight-cell-accent" style="background:#a78bfa"></div>
           <div class="insight-cell-header">Events</div>
           <div class="insight-event-list" id="insightEventBody"></div>
@@ -1101,7 +1105,7 @@ body{
     </div>
 
     <!-- ═══ Compact Sleep Tile ═══ -->
-    <div class="mb-4 p-3 rounded-[18px] flex items-center gap-3 transition-all duration-700" id="sleepTileHome" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.05)">
+    <div class="mb-4 p-3 rounded-[18px] flex items-center gap-3 transition-all duration-700 nav-block" id="sleepTileHome" data-tab-target="tab-health" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.05)">
       <svg class="w-5 h-5 flex-shrink-0" style="color:rgba(167,139,250,0.7)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2">
@@ -1115,7 +1119,7 @@ body{
     </div>
 
     <!-- Workout Streak Banner -->
-    <div class="streak-banner mb-4" id="streakBanner">
+    <div class="streak-banner mb-4 nav-block" id="streakBanner" data-tab-target="tab-workouts">
       <span class="streak-banner-icon">🔥</span>
       <span class="streak-banner-label">Workout Streak</span>
       <span class="streak-banner-num" id="homeStreakNum">0</span>
@@ -1576,13 +1580,20 @@ function showToast(msg,duration){
 }
 
 /* ════════════ TAB SYSTEM ════════════ */
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
+  document.querySelector('[data-tab="'+id+'"]').classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
 document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
-    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
-    document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
+    switchTab(btn.dataset.tab);
   });
+});
+document.addEventListener('click',function(e){
+  var block=e.target.closest('[data-tab-target]');
+  if(block)switchTab(block.dataset.tabTarget);
 });
 
 /* ════════════ ROLLOVER ════════════ */
