@@ -338,11 +338,11 @@
 
   /* Tab bar — mobile friendly */
   .tab-bar{padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:4px 5px;border-radius:18px;gap:2px}
-  .tab-btn{padding:8px 4px 6px;border-radius:14px;gap:3px}
+  .tab-bar-inner{padding:4px 5px;border-radius:20px;gap:2px}
+  .tab-btn{padding:8px 4px 6px;border-radius:15px;gap:3px}
   .tab-btn .tab-icon{width:22px;height:22px}
   .tab-btn .tab-icon svg{width:22px;height:22px;stroke-width:1.8}
-  .tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.03em;margin-top:0}
+  .tab-btn span:not(.tab-icon){font-size:11px;font-weight:600;letter-spacing:0.03em;margin-top:0}
 
   /* Goal ticker */
   .goal-ticker{padding:14px 16px}

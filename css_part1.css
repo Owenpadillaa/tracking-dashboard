@@ -110,15 +110,15 @@ body{
   border-radius:15px;color:var(--text-tertiary);
   transition:all .3s cubic-bezier(.33,1,.68,1);position:relative;
 }
-.tab-btn:hover{color:var(--text-secondary)}
+.tab-btn:hover{color:var(--text-primary)}
 .tab-btn.active{
   color:var(--accent);
   background:var(--accent-glow);
   box-shadow:0 0 24px rgba(167,139,250,0.06),0 0 0 1px rgba(167,139,250,0.1) inset;
 }
-.tab-btn .tab-icon{width:20px;height:20px;line-height:1}
-.tab-btn .tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab-btn span:not(.tab-icon){font-size:10px;font-weight:600;letter-spacing:0.04em;margin-top:0}
+.tab-btn .tab-icon{width:22px;height:22px;line-height:1}
+.tab-btn .tab-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn span:not(.tab-icon){font-size:11px;font-weight:600;letter-spacing:0.04em;margin-top:0}
 
 /* ── Card (Refined Glass Panel) ── */
 .card{
