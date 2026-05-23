@@ -845,10 +845,7 @@ body{
 .monthly-cell.other-month{opacity:0.25}
 .monthly-cell .monthly-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:5px;left:50%;margin-left:-2px;opacity:0.6}
 .monthly-header-cell{font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);padding-bottom:4px}
-.yearly-month-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:6px;cursor:pointer;transition:all 0.2s}
-.yearly-month-block:hover{border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.04)}
-.yearly-day.has-event{background:rgba(99,102,241,0.15)}
-.yearly-day.today{border:0.5px solid rgba(99,102,241,0.4)}
+
 
 /* ── Weekly View (7-day agenda) ── */
 .cal-week-day{border-bottom:0.5px solid rgba(255,255,255,0.06);padding:10px 0}
@@ -872,6 +869,9 @@ body{
 .cal-week-nav{background:none;border:none;color:var(--text-tertiary);font-size:22px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all.2s;line-height:1}
 .cal-week-nav:hover{background:rgba(255,255,255,0.06);color:var(--text-primary)}
 .cal-week-nav:active{transform:scale(0.9)}
+.cal-month-nav{background:none;border:none;color:var(--text-tertiary);font-size:22px;cursor:pointer;padding:4px 10px;border-radius:8px;transition:all.2s;line-height:1}
+.cal-month-nav:hover{background:rgba(255,255,255,0.06);color:var(--text-primary)}
+.cal-month-nav:active{transform:scale(0.9)}
 
 /* ── Chat widget ── */
 .chat-card{padding:0;overflow:hidden}
@@ -1262,10 +1262,9 @@ body{
     <div class="rounded-3xl p-5 mt-4" style="background:rgba(24,24,27,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.04)">
 
       <!-- View Switcher -->
-      <div class="flex p-0.5 rounded-lg mb-3 max-w-[280px] mx-auto" style="background:rgba(0,0,0,0.3)">
+      <div class="flex p-0.5 rounded-lg mb-3 max-w-[200px] mx-auto" style="background:rgba(0,0,0,0.3)">
         <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn active" data-view="weekly" onclick="switchCalendarView('weekly')">Weekly</button>
         <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="monthly" onclick="switchCalendarView('monthly')">Monthly</button>
-        <button class="flex-1 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all duration-200 calendar-view-btn" data-view="yearly" onclick="switchCalendarView('yearly')">Yearly</button>
       </div>
 
       <!-- ═══ WEEKLY VIEW (7-day agenda, Monday-anchored) ═══ -->
@@ -1280,12 +1279,12 @@ body{
 
       <!-- ═══ MONTHLY VIEW (7x5 dot grid) ═══ -->
       <div id="calendar-view-monthly" class="hidden">
+        <div class="flex items-center justify-between mb-3">
+          <button class="cal-month-nav" id="calMonthPrev" title="Previous month">‹</button>
+          <span class="text-sm font-semibold text-slate-300" id="calMonthLabel"></span>
+          <button class="cal-month-nav" id="calMonthNext" title="Next month">›</button>
+        </div>
         <div class="grid grid-cols-7 gap-0" id="monthlyGrid"></div>
-      </div>
-
-      <!-- ═══ YEARLY VIEW (3x4 micro-matrix) ═══ -->
-      <div id="calendar-view-yearly" class="hidden">
-        <div class="grid grid-cols-3 gap-1.5" id="yearlyGrid"></div>
       </div>
 
     </div>
@@ -3089,6 +3088,7 @@ var calendarEvents=[];
 var activeCalDate=null;
 var currentView='weekly';
 var weekOffset=0;
+var monthOffset=0;
 
   function loadCalendar(){
     fetch('/api/v1/calendar').then(function(r){return r.json()}).then(function(data){
@@ -3097,7 +3097,6 @@ var weekOffset=0;
       renderDateRibbon();
       renderWeeklyView();
       renderMonthlyView();
-      renderYearlyView();
       if(!activeCalDate)activeCalDate=dateStrLocal(new Date());
       selectCalDate(activeCalDate);
     }).catch(function(){
@@ -3187,7 +3186,6 @@ function selectCalDate(dateStr){
   renderDateChips();
   renderWeeklyView();
   renderMonthlyView();
-  renderYearlyView();
 }
 
 function updateHomeEvents(){
@@ -3242,7 +3240,7 @@ window.switchCalendarView=function(viewName){
   });
   document.getElementById('calendar-view-weekly').classList.toggle('hidden',viewName!=='weekly');
   document.getElementById('calendar-view-monthly').classList.toggle('hidden',viewName!=='monthly');
-  document.getElementById('calendar-view-yearly').classList.toggle('hidden',viewName!=='yearly');
+  if(viewName==='monthly')renderMonthlyView();
 };
 
 function getMonthGrid(year,month){
@@ -3270,9 +3268,13 @@ function renderMonthlyView(){
   var grid=document.getElementById('monthlyGrid');
   if(!grid)return;
   var now=new Date();
+  now.setMonth(now.getMonth()+monthOffset);
   var year=now.getFullYear(),month=now.getMonth();
-  var todayStr=dateStrLocal(now);
+  var todayStr=dateStrLocal(new Date());
   var cells=getMonthGrid(year,month);
+  var label=document.getElementById('calMonthLabel');
+  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if(label)label.textContent=monthNames[month]+' '+year;
   var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var html='';
   dayNames.forEach(function(n){
@@ -3295,35 +3297,6 @@ function renderMonthlyView(){
   grid.innerHTML=html;
 }
 
-function renderYearlyView(){
-  var grid=document.getElementById('yearlyGrid');
-  if(!grid)return;
-  var now=new Date();
-  var year=now.getFullYear();
-  var todayStr=dateStrLocal(now);
-  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var dayAbbr=['S','M','T','W','T','F','S'];
-  var html='';
-  for(var m=0;m<12;m++){
-    var cells=getMonthGrid(year,m);
-    html+='<div class="yearly-month-block" data-month="'+m+'" onclick="renderMonthlyView();switchCalendarView(\'monthly\')">'
-      +'<div class="yearly-month-label">'+monthNames[m]+'</div>'
-      +'<div class="yearly-grid">';
-    dayAbbr.forEach(function(a){html+='<div class="yearly-day" style="font-size:4px;color:rgba(255,255,255,0.15)">'+a+'</div>'});
-    cells.forEach(function(c){
-      var ds=dateStrLocal(c.date);
-      var hasEvent=calendarEvents.some(function(e){return e.date===ds});
-      var isToday=ds===todayStr;
-      var cls='yearly-day';
-      if(hasEvent)cls+=' has-event';
-      if(isToday)cls+=' today';
-      if(c.other)cls+=''// keep subtle
-      html+='<div class="'+cls+'">'+c.day+'</div>';
-    });
-    html+='</div></div>';
-  }
-  grid.innerHTML=html;
-}
 function renderWeeklyView(){
   var grid=document.getElementById('calWeeklyGrid');
   if(!grid)return;
@@ -3392,7 +3365,6 @@ function renderWeeklyView(){
 }
 
 window.renderMonthlyView=renderMonthlyView;
-window.renderYearlyView=renderYearlyView;
 window.renderWeeklyView=renderWeeklyView;
 window.selectCalDate=selectCalDate;
 var chatMessages=[]; // role/content pairs sent to server
@@ -3861,6 +3833,16 @@ document.getElementById('calWeekPrev').addEventListener('click',function(){
 document.getElementById('calWeekNext').addEventListener('click',function(){
   weekOffset++;
   renderWeeklyView();
+});
+
+/* ── Monthly view navigation ── */
+document.getElementById('calMonthPrev').addEventListener('click',function(){
+  monthOffset--;
+  renderMonthlyView();
+});
+document.getElementById('calMonthNext').addEventListener('click',function(){
+  monthOffset++;
+  renderMonthlyView();
 });
 
 /* ════════════ PWA + PUSH NOTIFICATIONS ════════════ */
