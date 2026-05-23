@@ -985,44 +985,8 @@ body{
       </div>
     </div>
 
-    <!-- ═══ Today's Schedule + Daily Intentions (side by side) ═══ -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-
-      <div class="cal-section">
-        <div class="section-title">Today's Schedule</div>
-        <div class="cal-ribbon" id="calRibbon"></div>
-        <div class="card" style="padding:16px 18px">
-          <div class="cal-event-list" id="calEventList">
-            <div class="cal-empty" id="calEmpty">Loading events…</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="section-title">Daily Intentions</div>
-        <div class="card gm-card" id="gmCardToday">
-          <div class="gm-header">
-            <div class="gm-eyebrow" id="todayLabel"></div>
-            <div class="gm-progress-row">
-              <span class="gm-progress-num" id="gmProgressNum">0</span>
-              <span class="gm-progress-total mono" id="gmProgressTotal">/ 0</span>
-              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
-            </div>
-          </div>
-          <div class="gm-bar" id="gmBar"></div>
-          <ul id="goalList" class="gm-list"></ul>
-          <div id="emptyState" class="empty-state">No goals for today yet — add one below.</div>
-          <div class="gm-input-wrap">
-            <input type="text" class="gm-input" id="goalInput" placeholder="+ Add a daily goal…" maxlength="200">
-            <button class="gm-add-btn" id="goalAddBtn">+ Add</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
     <!-- ═══ Unified Telemetry Strip (premium 3-col) ═══ -->
-    <div class="mb-5 p-3 rounded-[18px] flex justify-between items-stretch gap-0" style="background:rgba(22,22,23,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06)">
+    <div class="mb-4 p-3 rounded-[18px] flex justify-between items-stretch gap-0" style="background:rgba(22,22,23,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06)">
 
       <!-- Water — CSS bottle silhouette -->
       <div class="flex-1 flex items-center gap-2.5 px-2 cursor-pointer" id="waterTileHome" title="Tap to add 8oz">
@@ -1086,6 +1050,50 @@ body{
       </div>
     </div>
 
+    <!-- Workout Streak Banner -->
+    <div class="streak-banner mb-4" id="streakBanner">
+      <span class="streak-banner-icon">🔥</span>
+      <span class="streak-banner-label">Workout Streak</span>
+      <span class="streak-banner-num" id="homeStreakNum">0</span>
+      <span class="streak-banner-unit">days</span>
+    </div>
+
+    <!-- ═══ Today's Schedule + Daily Intentions (side by side) ═══ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+
+      <div class="cal-section">
+        <div class="section-title">Today's Schedule</div>
+        <div class="cal-ribbon" id="calRibbon"></div>
+        <div class="card" style="padding:16px 18px">
+          <div class="cal-event-list" id="calEventList">
+            <div class="cal-empty" id="calEmpty">Loading events…</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Daily Intentions</div>
+        <div class="card gm-card" id="gmCardToday">
+          <div class="gm-header">
+            <div class="gm-eyebrow" id="todayLabel"></div>
+            <div class="gm-progress-row">
+              <span class="gm-progress-num" id="gmProgressNum">0</span>
+              <span class="gm-progress-total mono" id="gmProgressTotal">/ 0</span>
+              <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+            </div>
+          </div>
+          <div class="gm-bar" id="gmBar"></div>
+          <ul id="goalList" class="gm-list"></ul>
+          <div id="emptyState" class="empty-state">No goals for today yet — add one below.</div>
+          <div class="gm-input-wrap">
+            <input type="text" class="gm-input" id="goalInput" placeholder="+ Add a daily goal…" maxlength="200">
+            <button class="gm-add-btn" id="goalAddBtn">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- Voice Log Input + Speak button -->
     <div class="voice-bar mb-5">
       <input type="text" class="voice-input" id="voiceInput" placeholder="Or type... e.g. drank water, ran 20 min" autocomplete="off">
@@ -1097,14 +1105,6 @@ body{
         </button>
       </div>
       <div class="voice-feedback" id="voiceFeedback"></div>
-    </div>
-
-    <!-- Workout Streak Banner -->
-    <div class="streak-banner mb-4" id="streakBanner">
-      <span class="streak-banner-icon">🔥</span>
-      <span class="streak-banner-label">Workout Streak</span>
-      <span class="streak-banner-num" id="homeStreakNum">0</span>
-      <span class="streak-banner-unit">days</span>
     </div>
 
     <!-- ═══ Calendar: Multi-View Hybrid ═══ -->
