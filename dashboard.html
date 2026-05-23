@@ -427,14 +427,6 @@ body{
   background:var(--success);border-color:var(--success);color:#000;
   box-shadow:0 0 12px rgba(16,185,129,0.3);
 }
-.suppl-grid-tile .suppl-tile-streak{
-  position:absolute;top:12px;right:12px;font-size:11px;font-weight:600;
-  padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.06);
-  color:var(--text-tertiary);
-}
-.suppl-grid-tile .suppl-tile-streak.active-streak{
-  background:rgba(255,214,10,0.12);color:#FFD60A;
-}
 .suppl-grid-tile .suppl-tile-delete{
   position:absolute;bottom:12px;right:12px;font-size:16px;background:none;border:none;
   cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity .2s;padding:4px;
@@ -2144,16 +2136,6 @@ function loadSupplFromServer(){
 }
 
 // Supplement streak: count consecutive days with supplement taken
-function getSupplStreak(name){
-  var streak=0;
-  for(var i=0;i<365;i++){
-    var d=new Date();d.setDate(d.getDate()-i);
-    var key='supplements:'+dateStrLocal(d);
-    var day=storeGet(key)||{};
-    if(day[name]&&day[name].taken){streak++}else{break}
-  }
-  return streak;
-}
 
 function renderSuppl(){
   const master=getSupplMaster(),day=getSupplDay();
@@ -2175,7 +2157,6 @@ function renderSuppl(){
     const isTaken=!!state.taken;
     if(isTaken)totalTaken++;
 
-    const streak=getSupplStreak(m.name);
 
     const tile=document.createElement('div');
     tile.className='suppl-grid-tile'+(isTaken?' taken':'');
@@ -2190,13 +2171,6 @@ function renderSuppl(){
     nameEl.className='suppl-tile-name';
     nameEl.textContent=m.name;
 
-    // Streak badge
-    if(streak>0){
-      const streakEl=document.createElement('div');
-      streakEl.className='suppl-tile-streak'+(streak>=3?' active-streak':'');
-      streakEl.textContent='🔥 '+streak+'d';
-      tile.appendChild(streakEl);
-    }
 
     // Delete button
     const delBtn=document.createElement('button');
@@ -3271,7 +3245,7 @@ document.getElementById('sleepCheckBtn').addEventListener('click',async function
       if(res.ok){
         const data=await res.json();
         // Cache the record locally so renderSleep can show it immediately without another fetch
-        storeSet('lastSleepRecord',{hours:data.hours,checkIn:data.checkIn,checkOut:data.checkOut});
+        storeSet('lastSleepRecord',{date:getActiveDateString(),hours:data.hours,checkIn:data.checkIn,checkOut:data.checkOut});
         // Immediately refresh the home cockpit progress strip
         if(typeof refreshHomeCockpit==='function')refreshHomeCockpit();
         else if(typeof renderHomeCockpit==='function')renderHomeCockpit();

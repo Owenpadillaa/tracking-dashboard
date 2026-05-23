@@ -36,8 +36,6 @@
   transition:all .3s cubic-bezier(.33,1,.68,1);font-size:13px;color:transparent;
 }
 .suppl-grid-tile.taken .suppl-tile-check{background:var(--success);border-color:var(--success);color:#000;box-shadow:0 0 16px rgba(16,185,129,0.3)}
-.suppl-grid-tile .suppl-tile-streak{position:absolute;top:12px;right:12px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,0.04);color:var(--text-tertiary)}
-.suppl-grid-tile .suppl-tile-streak.active-streak{background:rgba(245,158,11,0.1);color:var(--gold)}
 .suppl-grid-tile .suppl-tile-delete{position:absolute;bottom:12px;right:12px;font-size:16px;background:none;border:none;cursor:pointer;color:var(--text-tertiary);opacity:0;transition:opacity .2s;padding:4px}
 .suppl-grid-tile:hover .suppl-tile-delete{opacity:1}
 .suppl-grid-tile .suppl-tile-delete:hover{color:var(--danger)}

@@ -1096,7 +1096,8 @@ function getHistoricalMatrix(daysBack) {
   lines.push('');
 
   // Supplements
-  var checked = healthData.checked_supplements || {};
+  var supplByDate = healthData.checked_supplements_by_date || {};
+  var checked = supplByDate[userDateStr('America/Los_Angeles')] || {};
   var totalSupps = 0, takenSupps = 0;
   if (typeof checked === 'object' && !Array.isArray(checked)) {
     totalSupps = Object.keys(checked).length;
@@ -1291,7 +1292,7 @@ function loadHealthData() {
   try {
     return JSON.parse(fs.readFileSync(dataFilePath('health'), 'utf8'));
   } catch {
-    return { checked_supplements: [] };
+    return { checked_supplements_by_date: {} };
   }
 }
 function saveHealthData(data) {
@@ -1301,17 +1302,34 @@ function saveHealthData(data) {
 // GET /api/v1/health/supplements — returns today's checked supplement state from server
 app.get('/api/v1/health/supplements', (req, res) => {
   const health = loadHealthData();
-  res.json({ checked_supplements: health.checked_supplements || {} });
+  const todayStr = userDateStr('America/Los_Angeles');
+  // Migrate old flat checked_supplements to date-keyed format on read
+  if (!health.checked_supplements_by_date) {
+    health.checked_supplements_by_date = {};
+    if (health.checked_supplements && typeof health.checked_supplements === 'object' && !Array.isArray(health.checked_supplements)) {
+      // Only migrate if it looks like today's data (it has entries)
+      health.checked_supplements_by_date[todayStr] = health.checked_supplements;
+    }
+    delete health.checked_supplements;
+    saveHealthData(health);
+  }
+  // Return ONLY today's supplements — ensures daily reset
+  res.json({ checked_supplements: health.checked_supplements_by_date[todayStr] || {} });
 });
 
-// POST /api/v1/health/supplements — updates checked supplements on server
+// POST /api/v1/health/supplements — updates checked supplements on server, date-keyed
 app.post('/api/v1/health/supplements', express.json(), (req, res) => {
   const { checked_supplements } = req.body;
   if (!checked_supplements || typeof checked_supplements !== 'object') {
     return res.status(400).json({ error: 'checked_supplements must be an object' });
   }
   const health = loadHealthData();
-  health.checked_supplements = checked_supplements;
+  if (!health.checked_supplements_by_date) {
+    health.checked_supplements_by_date = {};
+    delete health.checked_supplements;
+  }
+  const todayStr = userDateStr('America/Los_Angeles');
+  health.checked_supplements_by_date[todayStr] = checked_supplements;
   saveHealthData(health);
   res.json({ ok: true });
 });
@@ -1536,6 +1554,12 @@ app.post('/api/v1/health/sleep/start', (req, res) => {
     session_start_time: req.body.session_start_time || Date.now(),
   };
   saveActiveSessions(sessions);
+
+  // Backup sleep start time in health.json so session survives any active_sessions.json issues
+  const health = loadHealthData();
+  health.pending_sleep_start_time = sessions.sleep.session_start_time;
+  saveHealthData(health);
+
   res.json({ ok: true, active_sleep_start_time: sessions.sleep.session_start_time });
 });
 
@@ -1562,14 +1586,37 @@ app.post('/api/v1/health/sleep/end', (req, res) => {
   });
   saveHealthData(health);
 
-  // Clear the active sleep session
+  // Clear the active sleep session AND the pending backup
   sessions.sleep = null;
   saveActiveSessions(sessions);
+
+  // Clear the pending_sleep_start_time backup from health.json
+  delete health.pending_sleep_start_time;
+  saveHealthData(health);
 
   res.json({ ok: true, hours: parseFloat(totalHours.toFixed(2)), checkIn: startTs, checkOut: endTs });
 });
 
 /* ════════════ SERVER START ════════════ */
+
+// Restore pending sleep session from health.json backup on startup
+(function restorePendingSleep() {
+  try {
+    const health = loadHealthData();
+    if (health.pending_sleep_start_time) {
+      const sessions = loadActiveSessions();
+      // Only restore if no active sleep session already exists
+      if (!sessions.sleep || !sessions.sleep.session_start_time) {
+        sessions.sleep = { session_start_time: health.pending_sleep_start_time };
+        saveActiveSessions(sessions);
+        console.log('Restored pending sleep session from health.json backup (start:', new Date(health.pending_sleep_start_time).toISOString(), ')');
+      }
+    }
+  } catch (err) {
+    console.error('Failed to restore pending sleep session:', err.message);
+  }
+})();
+
 app.listen(PORT, () => {
   console.log(`Aura server running on port ${PORT} | TZ=${process.env.TZ || 'system'}`);
 });
