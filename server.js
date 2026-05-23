@@ -1,5 +1,5 @@
 require('dotenv').config();
-process.env.TZ = 'America/New_York';
+process.env.TZ = 'America/Los_Angeles';
 const express = require('express');
 
 const path = require('path');
@@ -63,7 +63,7 @@ function loadWorkoutData() {
     // Migrate old flat array format → new structured format
     if (Array.isArray(raw)) {
       const history = [];
-      const todayStr = userDateStr('America/New_York');
+      const todayStr = userDateStr('America/Los_Angeles');
       let today_workouts = [];
       for (const entry of raw) {
         if (entry.date === todayStr) {
@@ -91,7 +91,7 @@ function computeServerStreak(wkData) {
   // Build a set of dates that had workouts (from history + today)
   const datesWithWorkouts = new Set();
   if (wkData.today_workouts && wkData.today_workouts.length) {
-    datesWithWorkouts.add(userDateStr('America/New_York'));
+    datesWithWorkouts.add(userDateStr('America/Los_Angeles'));
   }
   for (const entry of (wkData.history || [])) {
     if (entry.sessions && entry.sessions.length) {
@@ -102,7 +102,7 @@ function computeServerStreak(wkData) {
   let streak = 0;
   let gapDays = 0;
   const check = new Date();
-  const todayStr = userDateStr('America/New_York');
+  const todayStr = userDateStr('America/Los_Angeles');
   if (!datesWithWorkouts.has(todayStr)) {
     check.setDate(check.getDate() - 1);
     gapDays = 1;
@@ -695,7 +695,7 @@ app.post('/api/parse-voice', async (req, res) => {
   const { text, user_timezone } = req.body;
   if (!text || !text.trim()) return res.status(400).json({ error: 'Missing text' });
 
-  const tz = user_timezone || 'America/New_York';
+  const tz = user_timezone || 'America/Los_Angeles';
   const dateStr = userDateStr(tz);
   const dayName = userDayName(tz);
 
@@ -767,7 +767,7 @@ app.post('/api/v1/quick-log', (req, res) => {
     return res.status(400).json({ error: 'Missing or invalid payload' });
   }
 
-  const dateStr = userDateStr(payload.user_timezone || 'America/New_York');
+  const dateStr = userDateStr(payload.user_timezone || 'America/Los_Angeles');
   const now = Date.now();
   const mutations = [];
   const summaryParts = [];
@@ -967,7 +967,7 @@ function getHistoricalMatrix(daysBack) {
 
   var water = byDate(loadDataFile('water'), 'time');
   var wkRaw = loadWorkoutData();
-  var todayStr = userDateStr('America/New_York');
+  var todayStr = userDateStr('America/Los_Angeles');
   var allWorkouts = wkRaw.history.slice();
   if (wkRaw.today_workouts && wkRaw.today_workouts.length) {
     allWorkouts.push({ date: todayStr, sessions: wkRaw.today_workouts });
@@ -1200,7 +1200,7 @@ app.post('/api/v1/insights/refresh', async function(req, res) {
 });
 
 // Auto-refresh insights every 12 hours
-cron.schedule('0 */12 * * *', function() { generateInsights(); }, { timezone: 'America/New_York' });
+cron.schedule('0 */12 * * *', function() { generateInsights(); }, { timezone: 'America/Los_Angeles' });
 
 /* ════════════ WORKOUT DATA ENDPOINTS ════════════ */
 
@@ -1232,7 +1232,7 @@ app.post('/api/v1/workouts', express.json(), (req, res) => {
 cron.schedule('55 23 * * *', function() {
   try {
     const wkData = loadWorkoutData();
-    const todayStr = userDateStr('America/New_York');
+    const todayStr = userDateStr('America/Los_Angeles');
     if (wkData.today_workouts && wkData.today_workouts.length) {
       wkData.history.push({ date: todayStr, sessions: wkData.today_workouts });
     }
@@ -1243,7 +1243,7 @@ cron.schedule('55 23 * * *', function() {
   } catch (err) {
     console.error('Workout rollover error:', err.message);
   }
-}, { timezone: 'America/New_York' });
+}, { timezone: 'America/Los_Angeles' });
 
 /* ════════════ HEALTH / SUPPLEMENT ENDPOINTS ════════════ */
 
