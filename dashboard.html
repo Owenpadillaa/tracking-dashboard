@@ -1218,17 +1218,23 @@ body{
       </div>
     </div>
 
-    <!-- Voice Log Input + Speak button -->
-    <div class="voice-bar mb-5">
-      <input type="text" class="voice-input" id="voiceInput" placeholder="Or type... e.g. drank water, ran 20 min" autocomplete="off">
-      <button class="voice-btn" id="voiceLogBtn">Log</button>
-      <div class="relative">
-        <div class="absolute -inset-2 rounded-full opacity-0" id="micPulseRing" style="background:rgba(99,102,241,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
-        <button class="voice-mic-btn" id="aura-mic-btn">
-          <svg class="w-5 h-5 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(99,102,241,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </button>
+    <!-- Quick Log -->
+    <div class="mb-4" style="background:rgba(24,24,27,0.4);border-radius:18px;padding:14px 16px;border:1px solid rgba(255,255,255,0.04)">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Quick Log</span>
+        <span class="text-[9px] text-slate-600">— tap or type what you did</span>
       </div>
-      <div class="voice-feedback" id="voiceFeedback"></div>
+      <div class="voice-bar" style="margin:0">
+        <input type="text" class="voice-input" id="voiceInput" placeholder="e.g. 30 min run, 64oz water, took vitamins" autocomplete="off">
+        <button class="voice-btn" id="voiceLogBtn">Log</button>
+        <div class="relative">
+          <div class="absolute -inset-2 rounded-full opacity-0" id="micPulseRing" style="background:rgba(99,102,241,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
+          <button class="voice-mic-btn" id="aura-mic-btn">
+            <svg class="w-5 h-5 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(99,102,241,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+        </div>
+        <div class="voice-feedback" id="voiceFeedback"></div>
+      </div>
     </div>
 
     <!-- ═══ Calendar: Multi-View Hybrid ═══ -->
