@@ -921,21 +921,35 @@ body{
   .section{margin-bottom:20px}
 
   /* Compact merged goals+events card */
-  #gmCardToday .cal-event{padding:5px 0;gap:6px}
-  #gmCardToday .cal-event-time{min-width:36px;font-size:10px;padding-top:1px}
+  #gmCardToday .cal-event{padding:4px 0;gap:5px}
+  #gmCardToday .cal-event-time{min-width:32px;font-size:9px;padding-top:1px}
   #gmCardToday .cal-event-bar{width:2px}
-  #gmCardToday .cal-event-title{font-size:12px}
-  #gmCardToday .cal-empty{font-size:11px;padding:2px 0}
-  #gmCardToday .gm-list .goal-item{padding:8px 10px;margin-bottom:3px;gap:8px;border-radius:10px}
-  #gmCardToday .goal-checkbox{width:18px;height:18px;border-radius:5px}
-  #gmCardToday .goal-checkbox:checked::after{top:2px;left:5px;width:4px;height:7px}
-  #gmCardToday .goal-text{font-size:13px}
+  #gmCardToday .cal-event-title{font-size:11px}
+  #gmCardToday .cal-empty{font-size:10px;padding:1px 0}
+  #gmCardToday .gm-list .goal-item{padding:6px 8px;margin-bottom:2px;gap:6px;border-radius:8px}
+  #gmCardToday .goal-checkbox{width:16px;height:16px;border-radius:4px}
+  #gmCardToday .goal-checkbox:checked::after{top:1px;left:4px;width:4px;height:7px}
+  #gmCardToday .goal-text{font-size:12px}
   #gmCardToday .goal-handle{display:none}
-  #gmCardToday .gm-queue-btn{padding:2px;font-size:12px}
-  #gmCardToday .goal-delete{padding:2px;font-size:14px;opacity:0.5}
-  #gmCardToday .gm-show-more{padding:6px;font-size:11px;margin-bottom:4px}
-  .section-title{font-size:13px;margin-bottom:10px}
-  .card{padding:16px 18px;border-radius:18px}
+  #gmCardToday .gm-queue-btn{padding:1px;font-size:11px}
+  #gmCardToday .goal-delete{padding:1px;font-size:12px;opacity:0.4}
+  #gmCardToday .gm-show-more{padding:4px;font-size:10px;margin-bottom:2px}
+  .section-title{font-size:12px;margin-bottom:8px}
+  .card{padding:14px 16px;border-radius:16px}
+
+  /* Homepage spacing tighten */
+  #tab-home .mb-5{margin-bottom:14px}
+  #tab-home .mb-4{margin-bottom:10px}
+  #insightsCard{padding:14px!important;border-radius:18px!important}
+  #insightsCard .mb-4{margin-bottom:8px!important}
+  #insightsCard .w-7{display:none!important}
+  #insightsLabel{font-size:8px!important}
+  .insight-cell{padding:8px 10px!important;min-height:60px!important}
+  .insight-cell-header{font-size:7px!important;margin-bottom:4px!important}
+  #sleepTileHome{padding:8px 10px!important}
+  #streakBanner{margin-bottom:10px!important;padding:8px 10px!important;gap:6px!important}
+  #gmCardToday{border-radius:16px!important}
+  #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
 
   /* Floating tab bar */
   .tab-bar{padding:5px 8px calc(5px + env(safe-area-inset-bottom,0px));gap:2px}
@@ -999,14 +1013,20 @@ body{
   .insights-text{font-size:14px}
 }
 @media(max-width:360px){
-  .tab-page{padding:max(env(safe-area-inset-top,12px),12px) 12px calc(48px + env(safe-area-inset-bottom,0px))}
+  .tab-page{padding:max(env(safe-area-inset-top,10px),10px) 10px calc(44px + env(safe-area-inset-bottom,0px))}
   .tile-water-bottle{width:18px;height:26px}
-  .rings-row{gap:6px}
-  .ring-container{width:82px;height:82px}
-  .ring-container-lg{width:110px;height:110px}
-  .day-ring-pct{font-size:26px}
-  .tab-bar{padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px));gap:1px}
-  .tab-btn{padding:4px 2px;border-radius:10px;gap:1px}
+  .rings-row{gap:5px}
+  .ring-container{width:78px;height:78px}
+  .ring-container-lg{width:100px;height:100px}
+  .day-ring-pct{font-size:24px}
+  .tab-bar{padding:3px 5px calc(3px + env(safe-area-inset-bottom,0px));gap:1px}
+  .tab-btn{padding:3px 2px;border-radius:8px;gap:1px}
+  .tab-btn .tab-icon{width:16px;height:16px}
+  .tab-btn .tab-icon svg{width:16px;height:16px}
+  #tab-home .mb-4{margin-bottom:8px!important}
+  #insightsCard{padding:10px!important}
+  .insight-cell{padding:6px 8px!important;min-height:50px!important}
+  #gmCardToday>.px-\[18px\]{padding-left:10px!important;padding-right:10px!important}
   .tab-btn .tab-icon{width:17px;height:17px}
   .tab-btn .tab-icon svg{width:17px;height:17px}
   .tab-btn span:not(.tab-icon){font-size:6px;letter-spacing:0.02em;margin-top:0}
