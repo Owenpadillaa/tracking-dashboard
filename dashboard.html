@@ -2912,6 +2912,7 @@ document.addEventListener('DOMContentLoaded',function(){
       savingsState.suggestedMonthly=parseFloat(d.suggestedMonthly)||0;
       savingsState.suggestedPct=parseInt(d.suggestedPct)||0;
       savingsState.monthlyIncome=parseInt(d.monthlyIncome)||0;
+      savingsState.contributions=d.contributions||[];
       renderSavings();
     }).catch(function(){});
   }
@@ -2922,6 +2923,7 @@ document.addEventListener('DOMContentLoaded',function(){
     .then(function(r){return r.json()}).then(function(data){
       if(data.ok){
         savingsState.current=parseFloat(data.savings.current)||0;
+        savingsState.contributions=data.savings.contributions||[];
         renderSavings();
       }
       hideInput();
