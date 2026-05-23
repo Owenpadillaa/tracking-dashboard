@@ -713,6 +713,29 @@ body{
   font-size:11px;font-weight:500;color:var(--text-tertiary);
 }
 
+/* Insight Dashboard cells */
+.insight-cell{background:rgba(255,255,255,0.03);border-radius:14px;padding:10px 12px;position:relative;overflow:hidden;min-height:76px;display:flex;flex-direction:column}
+.insight-cell-accent{position:absolute;top:0;left:0;right:0;height:2px;opacity:0.7}
+.insight-cell-header{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:6px}
+.insight-cell-footer{font-size:9px;font-weight:600;color:var(--text-tertiary);margin-top:auto;padding-top:4px;font-family:"SF Mono",ui-monospace,monospace}
+.insight-mini-chart{display:flex;align-items:flex-end;gap:3px;height:32px;flex:1}
+.insight-mini-chart-empty{font-size:10px;color:var(--text-tertiary);width:100%;text-align:center;align-self:center}
+.insight-mini-bar{flex:1;border-radius:3px 3px 1px 1px;min-height:2px;transition:height 0.4s cubic-bezier(.23,1,.32,1);position:relative}
+.insight-mini-bar.today{box-shadow:0 0 6px currentColor}
+.insight-health-rows{display:flex;flex-direction:column;gap:5px;flex:1}
+.insight-health-row{display:flex;align-items:center;gap:6px;font-size:10px}
+.insight-health-bar-track{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.insight-health-bar-fill{height:100%;border-radius:2px;transition:width 0.5s cubic-bezier(.23,1,.32,1)}
+.insight-health-label{font-family:"SF Mono",ui-monospace;font-size:9px;font-weight:600;color:var(--text-secondary);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+.insight-cash-row{display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center}
+.insight-cash-amount{font-family:"SF Mono",ui-monospace;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;color:var(--text-primary)}
+.insight-cash-bar-track{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.insight-cash-bar-fill{height:100%;border-radius:2px;transition:width 0.5s cubic-bezier(.23,1,.32,1)}
+.insight-event-list{display:flex;flex-direction:column;gap:3px;flex:1;justify-content:center}
+.insight-event-pill{font-size:10px;font-weight:500;color:var(--text-secondary);padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.insight-event-pill .insight-event-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.insight-event-empty{font-size:10px;color:var(--text-tertiary);text-align:center}
+
 /* Mic FAB pulse */
 @keyframes micPulse{0%,100%{opacity:0;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
 
@@ -962,26 +985,44 @@ body{
       </div>
     </div>
 
-    <!-- Hero Insights Block (premium glass panel) -->
-    <div class="relative mb-5 p-5 rounded-[24px] overflow-hidden" id="insightsCard" style="background:rgba(22,22,23,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 8px 40px rgba(0,0,0,0.4)">
+    <!-- Hero Insights Block — 4-section live dashboard -->
+    <div class="relative mb-5 p-4 rounded-[24px] overflow-hidden" id="insightsCard" style="background:rgba(22,22,23,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 8px 40px rgba(0,0,0,0.4)">
       <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
-      <div class="flex items-center gap-2.5 mb-3">
-        <div class="w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.2)">
-          <svg class="w-4 h-4 stroke-sky-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-6 h-6 rounded-[9px] flex items-center justify-center flex-shrink-0" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.2)">
+          <svg class="w-3.5 h-3.5 stroke-sky-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </div>
-        <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-sky-400/90">Aura Insights</span>
-        <button class="insights-refresh-btn" id="insightsRefreshBtn" title="Refresh">↻</button>
+        <span class="text-[9px] font-bold uppercase tracking-[0.18em] text-sky-400/80" id="insightsLabel">Dashboard</span>
       </div>
-      <div id="insightsBody">
-        <div class="insights-skeleton" id="insightsSkeleton">
-          <div class="insights-skeleton-bar"></div>
-          <div class="insights-skeleton-bar"></div>
-          <div class="insights-skeleton-bar"></div>
+      <div class="grid grid-cols-2 gap-2" id="insightGrid">
+        <!-- Workouts -->
+        <div class="insight-cell">
+          <div class="insight-cell-accent" style="background:#f97316"></div>
+          <div class="insight-cell-header">Workouts</div>
+          <div class="insight-mini-chart" id="insightWkChart"><div class="insight-mini-chart-empty">--</div></div>
+          <div class="insight-cell-footer" id="insightWkFooter"></div>
         </div>
-      </div>
-      <div class="insights-footer" id="insightsFooter" style="display:none">
-        <span class="insights-dot"></span>
-        <span class="insights-timestamp" id="insightsTimestamp"></span>
+        <!-- Health -->
+        <div class="insight-cell">
+          <div class="insight-cell-accent" style="background:#38bdf8"></div>
+          <div class="insight-cell-header">Health</div>
+          <div class="insight-health-rows" id="insightHealthBody"></div>
+          <div class="insight-cell-footer" id="insightHealthFooter"></div>
+        </div>
+        <!-- Finance -->
+        <div class="insight-cell">
+          <div class="insight-cell-accent" style="background:#22c55e"></div>
+          <div class="insight-cell-header">Finance</div>
+          <div class="insight-cash-row" id="insightCashBody"></div>
+          <div class="insight-cell-footer" id="insightCashFooter"></div>
+        </div>
+        <!-- Events -->
+        <div class="insight-cell">
+          <div class="insight-cell-accent" style="background:#a78bfa"></div>
+          <div class="insight-cell-header">Events</div>
+          <div class="insight-event-list" id="insightEventBody"></div>
+          <div class="insight-cell-footer" id="insightEventFooter"></div>
+        </div>
       </div>
     </div>
 
@@ -2874,15 +2915,16 @@ var calendarEvents=[];
 var activeCalDate=null;
 var currentView='weekly';
 
-function loadCalendar(){
-  fetch('/api/v1/calendar').then(function(r){return r.json()}).then(function(data){
-    calendarEvents=data.events||[];
-    renderDateRibbon();
-    renderMonthlyView();
-    renderYearlyView();
-    if(!activeCalDate)activeCalDate=dateStrLocal(new Date());
-    selectCalDate(activeCalDate);
-  }).catch(function(){
+  function loadCalendar(){
+    fetch('/api/v1/calendar').then(function(r){return r.json()}).then(function(data){
+      calendarEvents=data.events||[];
+      renderInsightSections();
+      renderDateRibbon();
+      renderMonthlyView();
+      renderYearlyView();
+      if(!activeCalDate)activeCalDate=dateStrLocal(new Date());
+      selectCalDate(activeCalDate);
+    }).catch(function(){
     var empty=document.getElementById('calEmpty');
     if(empty)empty.textContent='Could not load events';
   });
@@ -3397,6 +3439,7 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
             showToast(result.summary);
           }
           // Refresh all UI components with server state
+          renderInsightSections();
           renderWater();renderSuppl();
           renderWeeklyChart();renderTodayLog();renderWorkoutStats();
           renderExpenses();renderExpenseHome();
@@ -3530,7 +3573,7 @@ renderStreak();
 loadToday();
 updateDayBar();
 renderCalendarAnalytics();
-setInterval(function(){updateDayBar();renderSleep()},60000);
+setInterval(function(){updateDayBar();renderSleep();renderInsightSections()},60000);
 
 makeAddHandlers(document.getElementById('goalInput'),document.getElementById('goalAddBtn'),'goals:'+getActiveDateString(),loadToday);
 
@@ -3781,80 +3824,111 @@ renderDateChips();
   window.stopLocalNotifs=stopLocalNotifs;
 })();
 
-/* ════════════ AI INSIGHTS ════════════ */
-(function(){
-  var body=document.getElementById('insightsBody');
-  var skeleton=document.getElementById('insightsSkeleton');
-  var footer=document.getElementById('insightsFooter');
-  var tsEl=document.getElementById('insightsTimestamp');
-  var refreshBtn=document.getElementById('insightsRefreshBtn');
-  var loaded=false;
+/* ════════════ INSIGHT DASHBOARD RENDERER ════════════ */
+function renderInsightSections(){
+  var weekDates=getWeekDates();
+  var dayAbbr=['M','T','W','T','F','S','S'];
+  var todayStr=dateStrLocal(new Date());
+  var activeStr=getActiveDateString();
 
-  function timeAgo(isoStr){
-    var diff=Date.now()-new Date(isoStr).getTime();
-    var mins=Math.floor(diff/60000);
-    if(mins<1)return 'just now';
-    if(mins<60)return 'Updated '+mins+'m ago';
-    var hrs=Math.floor(mins/60);
-    if(hrs<24)return 'Updated '+hrs+'h ago';
-    return 'Updated '+Math.floor(hrs/24)+'d ago';
-  }
-
-  function renderInsight(text,ts){
-    if(loaded)return;loaded=true;
-    if(skeleton)skeleton.style.display='none';
-    body.innerHTML='';
-    var p=document.createElement('p');
-    p.className='insights-text';
-    p.textContent=text;
-    body.appendChild(p);
-    requestAnimationFrame(function(){p.classList.add('visible')});
-    if(ts&&tsEl&&footer){
-      tsEl.textContent=timeAgo(ts);
-      footer.style.display='flex';
-    }else if(footer){
-      footer.style.display='none';
+  // ── Workouts: mini bar chart ──
+  var wkChart=document.getElementById('insightWkChart');
+  var wkFooter=document.getElementById('insightWkFooter');
+  if(wkChart){
+    var maxSecs=300;
+    var dayTotals=weekDates.map(function(date){
+      var ws=storeGet('workouts:'+date)||[];
+      var total=ws.reduce(function(s,w){return s+(w.duration||0)},0);
+      if(total>maxSecs)maxSecs=total;
+      return total;
+    });
+    var wkTotal=dayTotals.reduce(function(a,b){return a+b},0);
+    var hasData=dayTotals.some(function(t){return t>0});
+    if(hasData){
+      wkChart.innerHTML='';
+      dayTotals.forEach(function(sec,i){
+        var pct=maxSecs>0?(sec/maxSecs)*100:0;
+        var bar=document.createElement('div');
+        bar.className='insight-mini-bar'+(weekDates[i]===activeStr?' today':'');
+        bar.style.height=Math.max(pct,2)+'%';
+        bar.style.background=weekDates[i]===todayStr?'#f97316':'rgba(249,115,22,0.4)';
+        bar.style.color='#f97316';
+        wkChart.appendChild(bar);
+      });
+      wkFooter.textContent=Math.round(wkTotal/60)+'min this week';
+    }else{
+      wkChart.innerHTML='<div class="insight-mini-chart-empty">No workouts</div>';
+      wkFooter.textContent='Log a session to start';
     }
   }
 
-  function showFallback(msg){
-    if(loaded)return;loaded=true;
-    if(skeleton)skeleton.style.display='none';
-    body.innerHTML='';
-    var p=document.createElement('p');
-    p.className='insights-fallback';
-    p.textContent=msg||'Nothing logged yet — tap quick-log to start.';
-    body.appendChild(p);
-    if(footer)footer.style.display='none';
+  // ── Health: water + supplements ──
+  var healthBody=document.getElementById('insightHealthBody');
+  var healthFooter=document.getElementById('insightHealthFooter');
+  if(healthBody){
+    var water=storeGet('water:'+activeStr);
+    var glasses=water?water.glasses||0:0;
+    var waterPct=Math.min(glasses/8,1);
+
+    var suppMaster=storeGet('supplements:master')||[];
+    var suppDay=storeGet('supplements:'+activeStr)||{};
+    var suppTaken=0;
+    suppMaster.forEach(function(m){if(suppDay[m.name]&&suppDay[m.name].taken)suppTaken++});
+    var suppTotal=suppMaster.length;
+
+    healthBody.innerHTML=
+      '<div class="insight-health-row">'
+        +'<span style="color:#38bdf8;font-size:11px;width:14px">💧</span>'
+        +'<div class="insight-health-bar-track"><div class="insight-health-bar-fill" style="width:'+(waterPct*100)+'%;background:#38bdf8;box-shadow:'+(waterPct>=1?'0 0 6px rgba(56,189,248,0.5)':'none')+'"></div></div>'
+        +'<span class="insight-health-label">'+glasses+'/8</span>'
+      +'</div>'
+      +'<div class="insight-health-row">'
+        +'<span style="color:#a78bfa;font-size:11px;width:14px">💊</span>'
+        +'<div class="insight-health-bar-track"><div class="insight-health-bar-fill" style="width:'+(suppTotal>0?(suppTaken/suppTotal)*100:0)+'%;background:#a78bfa"></div></div>'
+        +'<span class="insight-health-label">'+suppTaken+'/'+suppTotal+'</span>'
+      +'</div>';
+    var wRem=Math.max(0,8-glasses);
+    healthFooter.textContent=waterPct>=1?'Hydration goal met':(wRem+' more glass'+(wRem>1?'es':'')+' to go');
   }
 
-  function loadInsights(){
-    fetch('/api/v1/insights/latest')
-      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
-      .then(function(data){
-        if(data&&data.text)renderInsight(data.text,data.generatedAt);
-        else showFallback();
-      })
-      .catch(function(){showFallback()});
+  // ── Finance: spending ──
+  var cashBody=document.getElementById('insightCashBody');
+  var cashFooter=document.getElementById('insightCashFooter');
+  if(cashBody){
+    var expenses=storeGet('finance:expenses')||[];
+    var totalSpent=expenses.reduce(function(s,e){return s+e.amount},0);
+    var monthly=getMonthlyIncome();
+    var pct=monthly>0?Math.min(totalSpent/monthly,1):0;
+
+    cashBody.innerHTML=
+      '<div class="insight-cash-amount">'+fmtMoney(totalSpent)+'</div>'
+      +'<div class="insight-cash-bar-track"><div class="insight-cash-bar-fill" style="width:'+(pct*100)+'%;background:'+(pct>0.9?'#ef4444':pct>0.7?'#f59e0b':'#22c55e')+'"></div></div>';
+    cashFooter.textContent=monthly>0?fmtMoney(Math.max(0,monthly-totalSpent))+' remaining':'Set income in Finance';
   }
 
-  loadInsights();
-  setTimeout(function(){if(!loaded)showFallback('Still loading… tap ↻ to retry')},8000);
+  // ── Events: today + upcoming ──
+  var eventBody=document.getElementById('insightEventBody');
+  var eventFooter=document.getElementById('insightEventFooter');
+  if(eventBody){
+    var todayEvents=calendarEvents.filter(function(e){return e.date===todayStr}).sort(function(a,b){return(a.time||'')>(b.time||'')?1:-1});
+    if(todayEvents.length){
+      eventBody.innerHTML='';
+      todayEvents.slice(0,2).forEach(function(e){
+        var pill=document.createElement('div');
+        pill.className='insight-event-pill';
+        pill.innerHTML='<span class="insight-event-dot" style="background:#a78bfa"></span>'+(e.time?e.time+' ':'')+escHtml(e.title);
+        eventBody.appendChild(pill);
+      });
+      eventFooter.textContent=todayEvents.length>2?'+'+(todayEvents.length-2)+' more':todayEvents.length+' event'+(todayEvents.length>1?'s':'');
+    }else{
+      eventBody.innerHTML='<div class="insight-event-empty">No events today</div>';
+      eventFooter.textContent='Clear calendar';
+    }
+  }
+}
 
-  if(refreshBtn)refreshBtn.addEventListener('click',function(){
-    loaded=false;
-    body.innerHTML='';
-    if(skeleton){skeleton.style.display='';body.appendChild(skeleton)}
-    if(footer)footer.style.display='none';
-    fetch('/api/v1/insights/refresh',{method:'POST'})
-      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
-      .then(function(data){
-        if(data&&data.text)renderInsight(data.text,data.generatedAt);
-        else showFallback();
-      })
-      .catch(function(){showFallback()});
-  });
-})();
+// Initial render
+renderInsightSections();
 
 /* ════════════ CONTEXT SYNC TO SERVER ════════════ */
 // Send localStorage context to server so scheduled briefings have real data
