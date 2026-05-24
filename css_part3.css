@@ -337,8 +337,8 @@
   #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
 
   /* Tab bar — mobile friendly */
-  .tab-bar{padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:4px 5px;border-radius:20px;gap:2px}
+  .tab-bar{padding:0 8px env(safe-area-inset-bottom,0px);height:56px}
+  .tab-bar-inner{padding:0;gap:2px}
   .tab-btn{padding:8px 4px 6px;border-radius:15px;gap:3px}
   .tab-btn .tab-icon{width:22px;height:22px}
   .tab-btn .tab-icon svg{width:22px;height:22px;stroke-width:1.8}

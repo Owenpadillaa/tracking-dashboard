@@ -91,8 +91,8 @@ body{
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Bottom nav bar (fills full screen, floating capsule inside) ── */
-.tab-bar{position:fixed;bottom:12px;left:0;right:0;z-index:9999;display:flex;justify-content:center;align-items:center;gap:3px;padding:0 12px calc(12px + env(safe-area-inset-bottom,0px));background:transparent;pointer-events:none}
-.tab-bar-inner{display:flex;gap:2px;padding:5px 6px;width:100%;max-width:480px;background:rgba(24,24,27,0.45);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.12);border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.05) inset;pointer-events:auto}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;justify-content:space-around;align-items:center;height:64px;padding:0 12px env(safe-area-inset-bottom,0px);background:rgba(15,23,42,0.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(30,41,59,0.8);pointer-events:auto}
+.tab-bar-inner{display:flex;gap:2px;padding:0;width:100%;max-width:480px;background:transparent;pointer-events:auto}
 
 .tab-btn{
   display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -960,8 +960,8 @@ body{
   #gmCardToday{border-radius:16px!important}
   #gmCardToday>.px-\[18px\]{padding-left:14px!important;padding-right:14px!important}
 
-  .tab-bar{padding:4px 10px calc(4px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:4px 5px;border-radius:18px;gap:2px}
+  .tab-bar{padding:0 8px env(safe-area-inset-bottom,0px);height:56px}
+  .tab-bar-inner{padding:0;gap:2px}
   .tab-btn{padding:8px 4px 6px;border-radius:14px;gap:3px}
   .tab-btn .tab-icon{width:18px;height:18px}
   .tab-btn .tab-icon svg{width:18px;height:18px;stroke-width:1.8}
@@ -1029,8 +1029,8 @@ body{
   .ring-container{width:78px;height:78px}
   .ring-container-lg{width:100px;height:100px}
   .day-ring-pct{font-size:24px}
-  .tab-bar{padding:3px 6px calc(3px + env(safe-area-inset-bottom,0px))}
-  .tab-bar-inner{padding:2px 3px;border-radius:14px;gap:1px}
+  .tab-bar{padding:0 4px env(safe-area-inset-bottom,0px);height:48px}
+  .tab-bar-inner{padding:0;gap:1px}
   .tab-btn .tab-icon{width:16px;height:16px}
   .tab-btn .tab-icon svg{width:16px;height:16px}
   .tab-btn{padding:3px 2px;border-radius:8px;gap:1px}
@@ -1363,10 +1363,10 @@ body{
   </div>
 
   <!-- ═══════ HEALTH TAB ═══════ -->
-  <div class="tab-page" id="tab-health">
-    <h1 class="dash-title">Health & Workouts</h1>
+    <div class="tab-page" id="tab-health">
+    <h1 class="dash-title">Vitals</h1>
 
-    <!-- Water Bottle -->
+    <!-- ═══ Hero: Water Bottle ═══ -->
     <div class="section" id="section-water">
       <div class="section-title">Water Intake</div>
       <div class="card" style="text-align:center">
@@ -1382,19 +1382,14 @@ body{
               </linearGradient>
               <filter id="bottleGlow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             </defs>
-            <!-- Bottle outline -->
             <path d="M44,48 L44,38 Q44,32 48,30 L48,18 Q48,14 52,14 L68,14 Q72,14 72,18 L72,30 Q76,32 76,38 L76,48 Q96,52 96,68 L96,172 Q96,186 82,188 L38,188 Q24,186 24,172 L24,68 Q24,52 44,48 Z"
               fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
-            <!-- Cap -->
             <rect x="49" y="8" width="22" height="8" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-            <!-- Fluid (clipped to bottle shape, height controlled by JS) -->
             <g clip-path="url(#bottleClip)">
               <rect id="waterFluid" x="20" y="190" width="80" height="0" fill="url(#fluidGrad)" filter="url(#bottleGlow)"
                 style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1), height 0.6s cubic-bezier(0.22,1,0.36,1)"/>
-              <!-- Wave ripple on fluid surface -->
               <path id="waterWave" d="" fill="#22d3ee" fill-opacity="0.3" style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1)"/>
             </g>
-            <!-- Level markers -->
             <line x1="96" y1="140" x2="102" y2="140" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
             <line x1="96" y1="110" x2="102" y2="110" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
             <line x1="96" y1="80" x2="102" y2="80" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
@@ -1409,20 +1404,34 @@ body{
       </div>
     </div>
 
-    <!-- Sleep -->
-    <div class="section" id="section-sleep">
-      <div class="section-title">Sleep</div>
-      <div class="card" style="text-align:center;padding:20px">
-        <div class="sleep-hours" id="sleepHours">--</div>
-        <div class="sleep-hours-unit">hours</div>
-        <div style="font-size:13px;color:var(--text-tertiary)" id="sleepHealthDetail">Use the Home tab to check in/out</div>
+    <!-- ═══ Daily Health Stats Row ═══ -->
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <!-- Sleep -->
+      <div class="rounded-2xl p-4 text-center" id="section-sleep" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:24px;margin-bottom:4px">🌙</div>
+        <div class="sleep-hours" id="sleepHours" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">--</div>
+        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">hours</div>
+        <div style="font-size:9px;color:var(--text-tertiary);margin-top:4px;opacity:0.6" id="sleepHealthDetail">Check in</div>
+      </div>
+
+      <!-- Supplements -->
+      <div class="rounded-2xl p-4 text-center" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:24px;margin-bottom:4px">💊</div>
+        <div id="supplSummary" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">0/0</div>
+        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">taken</div>
+      </div>
+
+      <!-- Streak -->
+      <div class="rounded-2xl p-4 text-center" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:24px;margin-bottom:4px">🔥</div>
+        <div id="streakBadgeNum" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:#fbbf24">0</div>
+        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">day streak</div>
       </div>
     </div>
 
-    <!-- Supplement Matrix -->
+    <!-- ═══ Supplement Grid ═══ -->
     <div class="section" id="section-supplements">
       <div class="section-title">Supplements</div>
-      <div class="suppl-summary" id="supplSummary">0/0 taken today</div>
       <div class="grid grid-cols-2 gap-4 my-4" id="supplGrid"></div>
       <div class="suppl-add-row">
         <input type="text" class="gm-input" id="supplInput" placeholder="+ Add supplement…" maxlength="100" style="flex:1;min-width:100px">
@@ -1430,23 +1439,12 @@ body{
       </div>
     </div>
 
-    <!-- ═══════ Workouts ═══════ -->
+    <!-- ═══ Workouts ═══ -->
     <div class="section" id="section-workouts">
       <div class="section-title">Workouts</div>
 
-    <!-- Streak Badge (gradient border pill) -->
-    <div class="text-center mb-6">
-      <span class="streak-pill" id="streakBadge" style="font-size:15px">
-        <span class="streak-pill-icon">🔥</span>
-        <span class="streak-pill-num" id="streakBadgeNum">0</span>
-        <span class="streak-pill-label">day streak</span>
-      </span>
-    </div>
-
-    <!-- Quick-Start Routine Selector -->
-    <div class="section">
-      <div class="section-title">Start a Session</div>
-      <div class="grid grid-cols-2 gap-4 mb-6" id="routineGrid">
+      <!-- Quick-Start Routine Selector -->
+      <div class="grid grid-cols-2 gap-3 mb-5" id="routineGrid">
         <div class="routine-card" data-routine="Pool Swim">
           <div class="routine-icon">🏊</div>
           <div class="routine-name">Pool Swim</div>
@@ -1464,22 +1462,19 @@ body{
           <div class="routine-name">Active Recovery</div>
         </div>
       </div>
-    </div>
 
-    <!-- Weekly Performance Chart -->
-    <div class="section">
-      <div class="section-title">This Week</div>
-      <div class="card">
+      <!-- Weekly Performance Chart -->
+      <div class="card mb-4">
         <div class="weekly-bars" id="weeklyBars"></div>
         <div class="weekly-total" id="weeklyTotal">0 min total this week</div>
       </div>
-    </div>
 
-    <!-- Today's Sessions Log -->
-    <div class="section" id="todayLogSection" style="display:none">
-      <div class="section-title">Today's Sessions</div>
-      <div class="card" style="padding:0">
-        <ul class="today-log-list" id="todayLogList"></ul>
+      <!-- Today's Sessions Log -->
+      <div class="section" id="todayLogSection" style="display:none">
+        <div class="section-title">Today's Sessions</div>
+        <div class="card" style="padding:0">
+          <ul class="today-log-list" id="todayLogList"></ul>
+        </div>
       </div>
     </div>
 
@@ -1490,8 +1485,7 @@ body{
     <button class="timer-finish-btn" id="modalFinishBtn">⏹️ Finish & Log</button>
     <a href="javascript:void(0)" class="text-slate-500 hover:text-slate-400 text-sm mt-4 cursor-pointer" id="modalCancelBtn">Cancel Session</a>
   </div>
-
-  <!-- ═══════ FINANCE TAB ═══════ -->
+<!-- ═══════ FINANCE TAB ═══════ -->
   <div class="tab-page" id="tab-finance">
     <h1 class="dash-title">Finance</h1>
 
@@ -1675,7 +1669,7 @@ body{
     </button>
     <button class="tab-btn" data-tab="tab-health">
       <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-      <span>Health</span>
+      <span>Vitals</span>
     </button>
     <button class="tab-btn" data-tab="tab-finance">
       <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 8.5c0-2.76-2.24-4.5-5-4.5S7 5.74 7 8.5c0 4 10 4.5 10 8.5 0 2.76-2.24 4.5-5 4.5s-5-1.74-5-4.5"/></svg></span>
@@ -1726,13 +1720,15 @@ function showToast(msg,duration){
 
 /* ════════════ TAB SYSTEM ════════════ */
 function switchTab(id){
+  // Ensure nav bar is visible (belt-and-suspenders)
+  var tabBar=document.querySelector('.tab-bar');
+  if(tabBar){tabBar.style.display='';tabBar.style.opacity='';tabBar.style.visibility='';tabBar.style.pointerEvents='';}
   // Re-enable all tabs in case hijacking left them disabled
   document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='';b.style.opacity=''});
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
   document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
   document.querySelector('[data-tab="'+id+'"]').classList.add('active');
   document.getElementById(id).classList.add('active');
-}
   if(id==='tab-finance'){
     if(typeof renderIncome==='function')renderIncome();
     if(typeof renderExpenses==='function')renderExpenses();
@@ -1740,6 +1736,7 @@ function switchTab(id){
   if(id==='tab-deepwork'){
     if(typeof renderDWMetrics==='function')renderDWMetrics();
   }
+}
 document.querySelectorAll('.tab-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
     switchTab(btn.dataset.tab);
