@@ -1118,6 +1118,26 @@ body{
 .skeleton-log-entry{height:42px;border-radius:10px;margin-bottom:6px}
 .skeleton-hidden{display:none!important}
 
+
+/* ═══ WATER BOTTLE ANIMATIONS ═══ */
+#waterFluid{transition:height .6s cubic-bezier(.23,1,.32,1),y .6s cubic-bezier(.23,1,.32,1),fill .4s ease}
+@keyframes water-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes water-breathe{0%,100%{filter:drop-shadow(0 0 8px rgba(56,189,248,0.3))}50%{filter:drop-shadow(0 0 20px rgba(56,189,248,0.6))}}
+.water-bottle-wrap.goal-reached{animation:water-breathe 2s ease-in-out infinite}
+.water-bottle-wrap.goal-reached .water-bottle-num{animation:water-pulse 2s ease-in-out infinite}
+@keyframes water-num-pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+.water-bottle-num.pop{animation:water-num-pop .45s cubic-bezier(.23,1,.32,1)}
+
+
+/* ═══ FINANCE SKELETONS ═══ */
+.skeleton-income-val{height:28px;width:120px;margin:0 auto;border-radius:8px}
+.skeleton-income-label{height:10px;width:60px;margin:6px auto 0;border-radius:5px}
+.skeleton-cf-stat{height:14px;width:48px;margin:0 auto;border-radius:5px}
+.skeleton-cf-label{height:8px;width:32px;margin:4px auto 0;border-radius:4px}
+.skeleton-savings-bar{height:8px;width:100%;border-radius:4px}
+.skeleton-savings-num{height:22px;width:80px;margin:0 auto;border-radius:6px}
+.skeleton-expense-item{height:40px;border-radius:10px;margin-bottom:6px}
+
 </style>
 <!-- ══ Premium Onyx Luxe Design System ══ -->
 <link rel="stylesheet" href="/css_part1.css">
@@ -1419,8 +1439,7 @@ body{
               fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
             <rect x="49" y="8" width="22" height="8" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
             <g clip-path="url(#bottleClip)">
-              <rect id="waterFluid" x="20" y="190" width="80" height="0" fill="url(#fluidGrad)" filter="url(#bottleGlow)"
-                style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1), height 0.6s cubic-bezier(0.22,1,0.36,1)"/>
+              <rect id="waterFluid" x="20" y="190" width="80" height="0" fill="url(#fluidGrad)" filter="url(#bottleGlow)"/>
               <path id="waterWave" d="" fill="#22d3ee" fill-opacity="0.3" style="transition:y 0.6s cubic-bezier(0.22,1,0.36,1)"/>
             </g>
             <line x1="96" y1="140" x2="102" y2="140" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
@@ -1555,7 +1574,12 @@ body{
     <div class="section">
       <div class="section-title">Income</div>
       <div class="card" id="incomeCard">
-        <div id="incomeDisplay" style="display:none">
+        <!-- Skeleton loader -->
+        <div id="incomeSkeleton" style="padding:14px 0;text-align:center">
+          <div class="skeleton skeleton-income-val"></div>
+          <div class="skeleton skeleton-income-label"></div>
+        </div>
+        <div id="incomeDisplay" class="skeleton-hidden" style="display:none">
           <div class="income-amount">
             <span class="income-num mono" id="incomeNum">$0</span>
             <span class="income-freq" id="incomeFreqLabel">/ month</span>
@@ -1591,7 +1615,16 @@ body{
 
       <!-- Cash Flow SVG Ring -->
       <div class="exec-ring-card">
-        <div class="exec-ring-wrap">
+        <!-- Skeleton loader -->
+        <div id="cfSkeleton" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 0">
+          <div class="skeleton skeleton-ring"></div>
+          <div style="display:flex;gap:16px">
+            <div style="text-align:center"><div class="skeleton skeleton-cf-stat"></div><div class="skeleton skeleton-cf-label"></div></div>
+            <div style="text-align:center"><div class="skeleton skeleton-cf-stat"></div><div class="skeleton skeleton-cf-label"></div></div>
+            <div style="text-align:center"><div class="skeleton skeleton-cf-stat"></div><div class="skeleton skeleton-cf-label"></div></div>
+          </div>
+        </div>
+        <div class="exec-ring-wrap skeleton-hidden" id="cfRingWrap">
           <svg class="exec-ring-svg" viewBox="0 0 100 100">
             <circle class="exec-ring-track" cx="50" cy="50" r="42"/>
             <circle class="exec-ring-fill" id="cfRingFill" cx="50" cy="50" r="42"
@@ -1624,7 +1657,12 @@ body{
           <span class="savings-title" id="savingsTitle">Savings Goal</span>
           <span class="savings-pct-badge" id="savingsPctBadge">0%</span>
         </div>
-        <div class="savings-numbers">
+        <!-- Skeleton loader -->
+        <div id="savingsSkeleton" style="padding:16px 0;text-align:center">
+          <div class="skeleton skeleton-savings-num" style="margin-bottom:10px"></div>
+          <div class="skeleton skeleton-savings-bar"></div>
+        </div>
+        <div class="savings-numbers skeleton-hidden" id="savingsNumbers">
           <span class="savings-current" id="savingsCurrent">$0</span>
           <span class="savings-divider">/</span>
           <span class="savings-target" id="savingsTarget">$0</span>
@@ -1672,7 +1710,11 @@ body{
           <input type="text" class="gm-input inline-expense-desc" id="expenseDesc" placeholder="Description (e.g., Gas, Food)...">
           <button class="gm-add-btn inline-expense-add" id="expenseAddBtn" title="Add expense">Add</button>
         </div>
-        <ul class="expense-list" id="expenseList"></ul>
+        <ul class="expense-list" id="expenseList">
+          <li class="skeleton skeleton-expense-item" style="list-style:none"></li>
+          <li class="skeleton skeleton-expense-item" style="list-style:none"></li>
+          <li class="skeleton skeleton-expense-item" style="list-style:none"></li>
+        </ul>
         <div class="expense-empty" id="expenseEmpty">No expenses yet.</div>
       </div>
     </div>
@@ -2146,8 +2188,15 @@ function renderWater(){
     const maxH=138, bottomY=188;
     const h=Math.round(pct*maxH);
     const y=bottomY-h;
-    fluid.setAttribute('height',h);
-    fluid.setAttribute('y',y);
+    fluid.style.height=h+'px';
+    fluid.style.y=y+'px';
+
+    // Goal-reached animation
+    var bw=document.getElementById('waterBottleWrap');
+    if(bw){
+      if(pct>=1)bw.classList.add('goal-reached');
+      else bw.classList.remove('goal-reached');
+    }
 
     // Color shift: cyan → green when goal reached
     if(pct>=1){
@@ -2167,7 +2216,15 @@ function renderWater(){
       wave.setAttribute('d','');
     }
   }
-  if(num) num.textContent=oz;
+  if(num){
+    var changed=(num.textContent!==String(oz));
+    num.textContent=oz;
+    if(changed){
+      num.classList.remove('pop');
+      void num.offsetWidth; // force reflow
+      num.classList.add('pop');
+    }
+  }
   if(sub) sub.textContent=pct>=1?'Goal reached!':'/ 64 oz \u00b7 tap to drink';
   if(log){
     log.innerHTML='';
@@ -2564,8 +2621,10 @@ function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d
     var inc=storeGet('finance:income');
     var display=document.getElementById('incomeDisplay');
     var form=document.getElementById('incomeForm');
+    // Hide skeleton regardless of income state
+    var isk=document.getElementById('incomeSkeleton');if(isk)isk.classList.add('skeleton-hidden');
     if(inc&&inc.amount){
-      display.style.display='block';form.style.display='none';
+      display.style.display='block';display.classList.remove('skeleton-hidden');form.style.display='none';
       document.getElementById('incomeNum').textContent=fmtMoney(inc.amount);
       var freqLabels={weekly:'/ week',biweekly:'/ 2 weeks',monthly:'/ month'};
       document.getElementById('incomeFreqLabel').textContent=freqLabels[inc.freq]||'/ month';
@@ -2615,7 +2674,10 @@ function renderCashflow(){
   var inflowVal=document.getElementById('cfInflowVal');
   var outflowVal=document.getElementById('cfOutflowVal');
   var balanceVal=document.getElementById('cfBalanceVal');
-  if(ringFill){
+    // Hide skeleton, show real ring
+  var csk=document.getElementById('cfSkeleton');if(csk)csk.classList.add('skeleton-hidden');
+  var crs=document.getElementById('cfRingWrap');if(crs)crs.classList.remove('skeleton-hidden');
+if(ringFill){
     var pct=monthly>0?Math.min(totalOut/monthly,1):0;
     var offset=CF_CIRC*(1-pct);
     ringFill.setAttribute('stroke-dashoffset',offset);
@@ -2860,6 +2922,9 @@ function renderSavings(){
   var barTrack=document.getElementById('savingsBarTrack');
   var deadlineEl=document.getElementById('savingsDeadline');
   var adviceEl=document.getElementById('savingsAdvice');
+  // Hide skeleton, show real numbers (must be before early return)
+  var ssk=document.getElementById('savingsSkeleton');if(ssk)ssk.classList.add('skeleton-hidden');
+  var snm=document.getElementById('savingsNumbers');if(snm)snm.classList.remove('skeleton-hidden');
   if(!barTrack)return;
   var s=savingsState;
   if(titleEl)titleEl.textContent=s.title||'Savings Goal';
