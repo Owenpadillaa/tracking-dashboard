@@ -3943,29 +3943,43 @@ function handleProposedAction(fullText,bubble){
   try { actions = parseProposedActions(fullText); } catch(e) { return; }
   if(!actions||actions.length===0) return;
   bubble._actionCardRendered = true;
-  var cleanText=fullText.replace(/\[\/?PROPOSED_ACTION\]/g,'').trim();
-  bubble.textContent=cleanText;
-  var lastMsg=chatMessages[chatMessages.length-1];
-  if(lastMsg&&lastMsg.role==='assistant')lastMsg.content=cleanText;
-  actions.forEach(function(action){ renderActionCard(action,bubble); });
+
+  // Properly strip paired [PROPOSED_ACTION] tags without a slash
+  var cleanText = fullText;
+  var actionRegex = /\[PROPOSED_ACTION\]([\s\S]*?)\[PROPOSED_ACTION\]/g;
+  actionRegex.lastIndex = 0;
+  var match;
+  while ((match = actionRegex.exec(fullText)) !== null) {
+    var rawJson = match[1].trim();
+    cleanText = cleanText.replace(match[0], '');
+    try {
+      var actionData = JSON.parse(rawJson.replace(/'/g, '"'));
+      renderActionCardToStream(actionData, bubble);
+    } catch (e) {
+      console.error('Failed to parse action card data slot:', e);
+    }
+  }
+  bubble.textContent = cleanText.trim();
+  var lastMsg = chatMessages[chatMessages.length - 1];
+  if (lastMsg && lastMsg.role === 'assistant') lastMsg.content = cleanText.trim();
 }
 
-function renderActionCard(action,bubble){
+function renderActionCardToStream(actionData, bubble){
   if(!bubble||!bubble.parentNode) return;
   var cardId='aura-card-'+Date.now()+'-'+Math.random().toString(36).substr(2,5);
   var card=document.createElement('div');
   card.id=cardId;
   card.className='aura-action-card';
   card.style.cssText='pointer-events:auto;position:relative;z-index:10';
-  var dateDisplay=action.date;
-  var timeDisplay=action.time?' at '+action.time:'';
+  var dateDisplay=actionData.date;
+  var timeDisplay=actionData.time?' at '+actionData.time:'';
   card.innerHTML=
     '<div class="aura-action-card-header">'+
       '<div class="aura-action-card-icon">📅</div>'+
       '<div class="aura-action-card-label">Schedule Event</div>'+
     '</div>'+
     '<div class="aura-action-card-body">'+
-      '<div class="aura-action-card-title">'+escHtml(action.title)+'</div>'+
+      '<div class="aura-action-card-title">'+escHtml(actionData.title)+'</div>'+
       '<div class="aura-action-card-meta">'+escHtml(dateDisplay+timeDisplay)+'</div>'+
     '</div>'+
     '<div class="aura-action-card-btns">'+
@@ -3978,76 +3992,64 @@ function renderActionCard(action,bubble){
   var confirmBtn=document.getElementById(cardId+'-confirm');
   var declineBtn=document.getElementById(cardId+'-decline');
   if(!confirmBtn||!declineBtn) return;
-  confirmBtn.addEventListener('click',function(){
+  confirmBtn.onclick=function(ev){
+    ev.stopPropagation();
     confirmBtn.disabled=true;
-    confirmBtn.textContent='⏳ Saving...';
+    confirmBtn.textContent='⏳ Adding…';
     confirmBtn.style.opacity='0.6';
     declineBtn.style.display='none';
     fetch('/api/v1/calendar/add',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({title:action.title,date:action.date,time:action.time||null})
-    }).then(function(r){return r.json()}).then(function(data){
-      if(data.ok){
-        calendarEvents.push(data.event);
-        renderWeeklyView();
-        renderMonthlyView();
-        selectCalDate(activeCalDate||dateStrLocal(new Date()));
-        renderInsightSections();
-        renderDateRibbon();
-        // Glowing indicator dot on monthly grid cell
-        setTimeout(function(){
-          var monthCells=document.querySelectorAll('#monthlyGrid [data-date]');
-          for(var ci=0;ci<monthCells.length;ci++){
-            if(monthCells[ci].getAttribute('data-date')===action.date){
-              monthCells[ci].style.position='relative';
-              var mdot=document.createElement('div');
-              mdot.className='aura-action-dot';
-              mdot.style.cssText='position:absolute;top:4px;right:4px;z-index:2';
-              monthCells[ci].appendChild(mdot);
-              break;
-            }
-          }
-        },100);
-        card.style.borderColor='rgba(16,185,129,0.3)';
-        card.style.boxShadow='0 0 20px rgba(16,185,129,0.1),0 0 0 0.5px rgba(16,185,129,0.3)';
+      body:JSON.stringify({title:actionData.title,date:actionData.date,time:actionData.time||'09:00'})
+    }).then(function(res){ return res.json(); })
+    .then(function(data){
+      if (!card.parentNode) return;
+      if(data&&data.ok){
+        calendarEvents.push({title:actionData.title,date:actionData.date,time:actionData.time||'09:00'});
         confirmBtn.textContent='✅ Confirmed';
-        confirmBtn.style.background='rgba(16,185,129,0.15)';
+        confirmBtn.style.background='rgba(16,185,129,0.3)';
         confirmBtn.style.color='#10B981';
-        confirmBtn.style.opacity='1';
-        // Glowing indicator dot on the action card itself
+        if(typeof renderWeeklyView==='function') renderWeeklyView();
+        if(typeof renderMonthlyView==='function') renderMonthlyView();
+        if(typeof updateCalendarDateSelection==='function') updateCalendarDateSelection();
+        if(typeof refreshInsights==='function') refreshInsights();
+        if(typeof updateDateRibbon==='function') updateDateRibbon();
         var dot=document.createElement('div');
         dot.className='aura-action-dot';
         card.appendChild(dot);
+        showToast('Event added to calendar');
       } else {
         confirmBtn.textContent='❌ Failed';
-        confirmBtn.style.background='rgba(239,68,68,0.15)';
+        confirmBtn.style.background='rgba(239,68,68,0.2)';
         confirmBtn.style.color='#EF4444';
-        confirmBtn.style.opacity='1';
         confirmBtn.disabled=false;
+        confirmBtn.style.opacity='1';
         declineBtn.style.display='';
-        setTimeout(function(){if(confirmBtn.textContent==='❌ Failed'){confirmBtn.textContent='✔️ Confirm Slot';confirmBtn.style.background='';confirmBtn.style.color=''}},1500);
+        setTimeout(function(){ confirmBtn.textContent='✔️ Confirm Slot'; confirmBtn.style.background=''; confirmBtn.style.color=''; },1500);
       }
-    }).catch(function(){
+    }).catch(function(err){
       confirmBtn.textContent='❌ Network Error';
-      confirmBtn.style.background='rgba(239,68,68,0.15)';
+      confirmBtn.style.background='rgba(239,68,68,0.2)';
       confirmBtn.style.color='#EF4444';
-      confirmBtn.style.opacity='1';
       confirmBtn.disabled=false;
+      confirmBtn.style.opacity='1';
       declineBtn.style.display='';
-      setTimeout(function(){if(confirmBtn.textContent==='❌ Network Error'){confirmBtn.textContent='✔️ Confirm Slot';confirmBtn.style.background='';confirmBtn.style.color=''}},1500);
+      setTimeout(function(){ confirmBtn.textContent='✔️ Confirm Slot'; confirmBtn.style.background=''; confirmBtn.style.color=''; },1500);
     });
-  });
-  declineBtn.addEventListener('click',function(){
-    confirmBtn.disabled=true;
-    declineBtn.disabled=true;
-    card.style.opacity='0.5';
-    card.style.transition='opacity 0.3s';
-    confirmBtn.textContent='Declined';
-    confirmBtn.style.background='rgba(255,255,255,0.04)';
-    confirmBtn.style.color='var(--text-tertiary)';
-    declineBtn.style.display='none';
-  });
+  };
+  declineBtn.onclick=function(ev){
+    ev.stopPropagation();
+    card.style.transition='opacity 0.35s ease, transform 0.35s ease';
+    card.style.opacity='0';
+    card.style.transform='translateY(-6px) scale(0.97)';
+    setTimeout(function(){ if(card.parentNode) card.parentNode.removeChild(card); },350);
+  };
+}
+
+// Backward compatibility alias
+function renderActionCard(action,bubble){
+  renderActionCardToStream(action,bubble);
 }
 
 function sendChat(){
