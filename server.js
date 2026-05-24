@@ -183,6 +183,17 @@ function buildSystemMsg(ctx) {
   msg += '- Reference specific numbers when they are non-zero. When zero, be honest about it.\n';
   msg += '- CRITICAL DATA RULE: You must only report numbers from the user data below. If a count is 0 or a list is empty, report exactly that — never invent numbers. If water shows "0 units out of 8", say zero. If supplements show "0 out of 5", say zero. Never assume or guess.\n\n';
 
+  msg += 'AUTONOMOUS SCHEDULING RULES:\n';
+  msg += '- If the user implies or states an intention to schedule an event, set up a block, make an appointment, or book something on the calendar, you MUST include a [PROPOSED_ACTION] block at the very end of your response.\n';
+  msg += '- The [PROPOSED_ACTION] block must use EXACTLY this format on its own lines:\n';
+  msg += '  [PROPOSED_ACTION]\n';
+  msg += '  {"type":"SCHEDULE_EVENT","title":"Event Title Here","date":"YYYY-MM-DD","time":"HH:MM"}\n';
+  msg += '  [/PROPOSED_ACTION]\n';
+  msg += '- The "date" field must be YYYY-MM-DD format. The "time" field must be HH:MM in 24-hour format (e.g., "14:30" for 2:30pm).\n';
+  msg += '- If the user does not specify a time, use "09:00" as the default. If the user does not specify a date, use today\'s date.\n';
+  msg += '- Only include [PROPOSED_ACTION] when the user clearly intends to schedule something. Do NOT include it for casual mentions or hypotheticals.\n';
+  msg += '- The [PROPOSED_ACTION] block must be the VERY LAST thing in your response — after all other text.\n\n';
+
   if (ctx.workout) {
     const w = ctx.workout;
     const hasWorkoutData = w.todaySessions > 0 || w.weekSessions > 0;
@@ -256,7 +267,8 @@ app.post('/api/chat', async (req, res) => {
   }
 
   const context = req.body.context || {};
-  const systemMsg = buildSystemMsg(context);
+  const auraContext = await getAuraSystemContext();
+  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext;
 
   const payload = {
     model: 'llama-3.1-8b-instant',
