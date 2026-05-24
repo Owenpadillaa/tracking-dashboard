@@ -3913,33 +3913,31 @@ function chatAppendBubble(role,text){
   return bubble;
 }
 /* ─── PROPOSED ACTION DETECTOR ─── */
-function parseProposedAction(text){
-  var startIdx=text.indexOf('[PROPOSED_ACTION]');
-  if(startIdx===-1)return null;
-  var endIdx=text.indexOf('[/PROPOSED_ACTION]',startIdx);
-  if(endIdx===-1)return null;
-  var jsonStr=text.substring(startIdx+18,endIdx).trim();
-  try{
-    var action=JSON.parse(jsonStr);
-    if(action.type==='SCHEDULE_EVENT'&&action.title&&action.date)return action;
-  }catch(e){}
-  return null;
+/* ─── PROPOSED ACTION DETECTOR (multi-block) ─── */
+function parseProposedActions(text){
+  var actions=[];
+  var regex = /\[PROPOSED_ACTION\]([\s\S]*?)\/\[PROPOSED_ACTION\]/g;
+  var match;
+  while((match = regex.exec(text)) !== null){
+    var jsonStr = match[1].trim();
+    try{
+      var action = JSON.parse(jsonStr);
+      if(action.type==='SCHEDULE_EVENT' && action.title && action.date) actions.push(action);
+    }catch(e){}
+  }
+  return actions;
 }
 
 function handleProposedAction(fullText,bubble){
   if(bubble._actionCardRendered) return;
   bubble._actionCardRendered = true;
-  var action=parseProposedAction(fullText);
-  if(!action)return;
-  // Strip the block from visible text
-  var startIdx=fullText.indexOf('[PROPOSED_ACTION]');
-  var endIdx=fullText.indexOf('[/PROPOSED_ACTION]',startIdx)+19;
-  var cleanText=(fullText.substring(0,startIdx)+fullText.substring(endIdx)).trim();
+  var actions=parseProposedActions(fullText);
+  if(!actions||actions.length===0) return;
+  var cleanText=fullText.replace(/\[PROPOSED_ACTION\][\s\S]*?\/[PROPOSED_ACTION\]/g,'').replace(/\[PROPOSED_ACTION\]/g,'').replace(/\[\/PROPOSED_ACTION\]/g,'').trim();
   bubble.textContent=cleanText;
-  // Update the stored message
   var lastMsg=chatMessages[chatMessages.length-1];
   if(lastMsg&&lastMsg.role==='assistant')lastMsg.content=cleanText;
-  renderActionCard(action,bubble);
+  actions.forEach(function(action){ renderActionCard(action,bubble); });
 }
 
 function renderActionCard(action,bubble){
