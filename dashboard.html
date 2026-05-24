@@ -3991,17 +3991,20 @@ function renderActionCard(action,bubble){
         confirmBtn.style.background='rgba(16,185,129,0.15)';
         confirmBtn.style.color='#10B981';
         confirmBtn.style.opacity='1';
+        // Glowing indicator dot on the action card itself
         var dot=document.createElement('div');
         dot.className='aura-action-dot';
-      confirmBtn.textContent='❌ Failed';
-      confirmBtn.style.background='rgba(239,68,68,0.15)';
-      confirmBtn.style.color='#EF4444';
-      confirmBtn.style.opacity='1';
-      confirmBtn.disabled=false;
-      declineBtn.style.display='';
-      setTimeout(function(){if(confirmBtn.textContent==='❌ Failed'){confirmBtn.textContent='✔️ Confirm Slot';confirmBtn.style.background='';confirmBtn.style.color=''}},1500);
-    }
+        card.appendChild(dot);
+      } else {
+        confirmBtn.textContent='❌ Failed';
+        confirmBtn.style.background='rgba(239,68,68,0.15)';
+        confirmBtn.style.color='#EF4444';
         confirmBtn.style.opacity='1';
+        confirmBtn.disabled=false;
+        declineBtn.style.display='';
+        setTimeout(function(){if(confirmBtn.textContent==='❌ Failed'){confirmBtn.textContent='✔️ Confirm Slot';confirmBtn.style.background='';confirmBtn.style.color=''}},1500);
+      }
+    }).catch(function(){
       confirmBtn.textContent='❌ Network Error';
       confirmBtn.style.background='rgba(239,68,68,0.15)';
       confirmBtn.style.color='#EF4444';
@@ -4009,8 +4012,6 @@ function renderActionCard(action,bubble){
       confirmBtn.disabled=false;
       declineBtn.style.display='';
       setTimeout(function(){if(confirmBtn.textContent==='❌ Network Error'){confirmBtn.textContent='✔️ Confirm Slot';confirmBtn.style.background='';confirmBtn.style.color=''}},1500);
-    });
-      confirmBtn.style.opacity='1';
     });
   });
   declineBtn.addEventListener('click',function(){
