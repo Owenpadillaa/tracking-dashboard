@@ -170,7 +170,7 @@ const TOOLS = [
 ];
 
 function buildSystemMsg(ctx) {
-  let msg = 'You are Aura, a sleek, premium personal coach and tracker assistant. Be conversational, highly supportive, concise, and professional.\n\n';
+  let msg = 'You are Aura, a sleek, premium personal assistant. Be conversational, highly supportive, concise, and professional.\n\n';
 
   if (ctx.currentDate) {
     msg += `Today's date: ${ctx.currentDate}. Use this to anchor all "today"/"tomorrow"/"this week" references.\n\n`;
@@ -207,7 +207,7 @@ function buildSystemMsg(ctx) {
     } else {
       msg += `- No workouts logged this week yet\n`;
     }
-    msg += `\nCOACHING RULES FOR WORKOUT STREAK:\n`;
+    msg += `\nWORKOUT STREAK GUIDELINES:\n`;
     msg += `- If streak >= 3, celebrate it enthusiastically! Mention the specific number.\n`;
     msg += `- If user hasn\'t worked out today AND streak > 0, gently motivate them to keep it alive.\n`;
     msg += `- If streak === 0 and no workouts logged, encourage them to start a streak today.\n`;

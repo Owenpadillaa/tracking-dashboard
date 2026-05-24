@@ -1424,7 +1424,7 @@ body{
     </div>
     <div class="card chat-card" style="flex:1; display:flex; flex-direction:column; min-height:0;">
       <div class="chat-log flex-1" id="chatLog" style="max-height:none; flex:1; overflow-y:auto;">
-        <div class="chat-msg aura"><div class="chat-bubble">Hey! I'm Aura, your personal coach. How can I help you today?</div></div>
+        <div class="chat-msg aura"><div class="chat-bubble">Hey! I'm Aura, your personal assistant. How can I help you today?</div></div>
       </div>
       <div class="chat-input-row">
         <input type="text" class="chat-input" id="chatInput" placeholder="Ask Aura anything…" maxlength="1000" autocomplete="off">
@@ -4599,7 +4599,7 @@ document.getElementById('calMonthNext').addEventListener('click',function(){
       if(!hasWorkoutToday()){
         var streak=computeWorkoutStreak();
         var body=streak>0?'Protect your '+streak+'-day streak! Get a quick session in before the day ends.':'Time to move! Even 10 minutes counts — log a workout.'
-        showNotif('Aura Workout Coach',body);
+        showNotif('Aura Workout Assistant',body);
       }
       markSent('workout');
     }
