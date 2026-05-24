@@ -820,9 +820,9 @@ body{
 .scrollbar-none::-webkit-scrollbar{display:none}
 .cal-cap{scroll-snap-align:center;flex-shrink:0;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);user-select:none;position:relative}
 .cal-cap:hover{background:rgba(255,255,255,0.07)}
-.cal-cap.active{border-color:rgba(99,102,241,0.6);background:rgba(99,102,241,0.08)}
-.cal-cap.today{border-color:rgba(99,102,241,0.3)}
-.cal-cap.today.active{border-color:rgba(99,102,241,0.8);background:rgba(99,102,241,0.12)}
+.cal-cap.active{border-color:rgba(34,211,238,0.6);background:rgba(34,211,238,0.08)}
+.cal-cap.today{border-color:rgba(34,211,238,0.3)}
+.cal-cap.today.active{border-color:rgba(34,211,238,0.8);background:rgba(34,211,238,0.12)}
 .cal-cap-dow{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary)}
 .cal-cap-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
 .cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity 0.2s}
@@ -3647,10 +3647,10 @@ function renderDateChips(){
     var isToday=ds===todayStr;
     var isActive=ds===activeCalDate;
     var chip=document.createElement('div');
-    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-opacity-80'+(isActive?' bg-indigo-500/15 border border-indigo-500/30 text-indigo-400':' bg-white/5 border border-white/10');
+    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-opacity-80'+(isActive?' bg-slate-900 border border-cyan-500 text-cyan-400':' bg-white/5 border border-white/10');
     chip.dataset.date=ds;
-    chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-indigo-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
-      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-indigo-400':'text-slate-200')+'">'+d.getDate()+'</span>';
+    chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
+      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>';
     chip.addEventListener('click',function(){
       selectCalDate(this.dataset.date);
     });
@@ -4206,7 +4206,8 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
           title: data.calendar.event_title,
           time: data.calendar.time||''
         });
-        selectCalDate(activeCalDate||dateStrLocal(new Date()));
+        if(data.calendar.date===activeCalDate)selectCalDate(activeCalDate);
+        renderDateRibbon();
         items.push('event: '+data.calendar.event_title);
       }
 
@@ -4220,7 +4221,9 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
           date: targetDate,
           time: targetTime
         });
-        if(activeCalDate===dateStrLocal(new Date())){selectCalDate(targetDate)}else{selectCalDate(activeCalDate)};        items.push('event: '+data.calendar_details.title);
+        if(targetDate===activeCalDate)selectCalDate(activeCalDate);
+        renderDateRibbon();
+        items.push('event: '+data.calendar_details.title);
       }
 
       // Server-side CALENDAR_EVENT intent was persisted — inject into local cache for instant UI
