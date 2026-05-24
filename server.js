@@ -193,7 +193,6 @@ function buildSystemMsg(ctx) {
   msg += '- If the user does not specify a time, use "09:00" as the default. If the user does not specify a date, use today\'s date.\n';
   msg += '- Only include [PROPOSED_ACTION] when the user clearly intends to schedule something. Do NOT include it for casual mentions or hypotheticals.\n';
   msg += '- The [PROPOSED_ACTION] block must be the VERY LAST thing in your response — after all other text.\n\n';
-  msg += 'FORMATTING MANDATE: If the user states an intent to study, log an appointment, or schedule an event, you MUST append a raw JSON block wrapped EXACTLY in [PROPOSED_ACTION] tags at the absolute end of your response text.\n\nExample format to append to your message:\n[PROPOSED_ACTION]\n{\n  "type": "SCHEDULE_EVENT",\n  "title": "Deep Work: Calc Final Prep",\n  "date": "2026-05-29",\n  "time": "14:00"\n}\n[/PROPOSED_ACTION]\n\nDo not omit the brackets or wrap the raw JSON tag inside markdown code fences.\n\n';
 
   if (ctx.workout) {
     const w = ctx.workout;
@@ -269,7 +268,7 @@ app.post('/api/chat', async (req, res) => {
 
   const context = req.body.context || {};
   const auraContext = await getAuraSystemContext();
-  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext;
+  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext + '\n\n=== 🚨 MANDATORY OUTPUT FORMAT — READ THIS LAST 🚨 ===\n\nIf the user wants to schedule, study, log, plan, or book ANYTHING, you MUST end your response with EXACTLY this block (and NOTHING after it):\n\n[PROPOSED_ACTION]\n{"type":"SCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM"}\n[/PROPOSED_ACTION]\n\nABSOLUTE RULES:\n- This [PROPOSED_ACTION] block MUST be the VERY LAST thing in your response. No text, emojis, questions, or sign-offs after the closing [/PROPOSED_ACTION] tag. Period.\n- NEVER wrap the JSON inside markdown code fences (no \`\`\`json, no \`\`\`). Output it RAW on its own lines.\n- Compute dates relative to today. If today is Wednesday and user says "Friday", use that Friday\'s YYYY-MM-DD.\n- "type" is always "SCHEDULE_EVENT". Default "time" to "09:00" if not specified.\n- If you fail to include this block when the user intends to schedule, you have FAILED the task.\n';
 
   const payload = {
     model: 'llama-3.1-8b-instant',
