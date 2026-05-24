@@ -1107,6 +1107,17 @@ body{
 .session-log-entry:nth-child(7){animation-delay:.36s}
 .session-log-entry:nth-child(8){animation-delay:.42s}
 
+
+/* ═══ LOADING SKELETONS ═══ */
+@keyframes skeleton-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.03) 75%);background-size:200% 100%;animation:skeleton-shimmer 1.5s ease-in-out infinite;border-radius:6px;pointer-events:none}
+.skeleton-stat-icon{height:22px;width:22px;margin:0 auto 8px auto;border-radius:50%}
+.skeleton-stat-value{height:24px;width:50%;margin:0 auto 6px auto;border-radius:8px}
+.skeleton-stat-label{height:10px;width:35%;margin:0 auto;border-radius:5px}
+.skeleton-suppl-tile{height:68px;border-radius:16px;margin-bottom:8px}
+.skeleton-log-entry{height:42px;border-radius:10px;margin-bottom:6px}
+.skeleton-hidden{display:none!important}
+
 </style>
 <!-- ══ Premium Onyx Luxe Design System ══ -->
 <link rel="stylesheet" href="/css_part1.css">
@@ -1430,31 +1441,57 @@ body{
     <div class="grid grid-cols-3 gap-3 mb-5">
       <!-- Sleep -->
       <div class="rounded-2xl p-4 text-center vitals-stat-card" id="section-sleep" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
-        <div style="font-size:24px;margin-bottom:4px">🌙</div>
-        <div class="sleep-hours" id="sleepHours" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">--</div>
-        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">hours</div>
-        <div style="font-size:9px;color:var(--text-tertiary);margin-top:4px;opacity:0.6" id="sleepHealthDetail">Check in</div>
+        <div id="sleepSkeleton" style="padding-top:2px">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="skeleton skeleton-stat-value"></div>
+          <div class="skeleton skeleton-stat-label"></div>
+        </div>
+        <div id="sleepLoaded" class="skeleton-hidden">
+          <div style="font-size:24px;margin-bottom:4px">🌙</div>
+          <div class="sleep-hours" id="sleepHours" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">--</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">hours</div>
+          <div style="font-size:9px;color:var(--text-tertiary);margin-top:4px;opacity:0.6" id="sleepHealthDetail">Check in</div>
+        </div>
       </div>
 
       <!-- Supplements -->
       <div class="rounded-2xl p-4 text-center vitals-stat-card" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
-        <div style="font-size:24px;margin-bottom:4px">💊</div>
-        <div id="supplSummary" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">0/0</div>
-        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">taken</div>
+        <div id="supplSkeleton">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="skeleton skeleton-stat-value"></div>
+          <div class="skeleton skeleton-stat-label"></div>
+        </div>
+        <div id="supplLoaded" class="skeleton-hidden">
+          <div style="font-size:24px;margin-bottom:4px">💊</div>
+          <div id="supplSummary" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:var(--text-primary)">0/0</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">taken</div>
+        </div>
       </div>
 
       <!-- Streak -->
       <div class="rounded-2xl p-4 text-center vitals-stat-card" style="background:rgba(24,24,27,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)">
-        <div style="font-size:24px;margin-bottom:4px">🔥</div>
-        <div id="streakBadgeNum" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:#fbbf24">0</div>
-        <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">day streak</div>
+        <div id="streakSkeleton">
+          <div class="skeleton skeleton-stat-icon"></div>
+          <div class="skeleton skeleton-stat-value"></div>
+          <div class="skeleton skeleton-stat-label"></div>
+        </div>
+        <div id="streakLoaded" class="skeleton-hidden">
+          <div style="font-size:24px;margin-bottom:4px">🔥</div>
+          <div id="streakBadgeNum" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;color:#fbbf24">0</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-tertiary)">day streak</div>
+        </div>
       </div>
     </div>
 
     <!-- ═══ Supplement Grid ═══ -->
     <div class="section" id="section-supplements">
       <div class="section-title">Supplements</div>
-      <div class="grid grid-cols-2 gap-4 my-4" id="supplGrid"></div>
+      <div class="grid grid-cols-2 gap-4 my-4" id="supplGrid">
+        <div class="skeleton skeleton-suppl-tile"></div>
+        <div class="skeleton skeleton-suppl-tile"></div>
+        <div class="skeleton skeleton-suppl-tile"></div>
+        <div class="skeleton skeleton-suppl-tile"></div>
+      </div>
       <div class="suppl-add-row">
         <input type="text" class="gm-input" id="supplInput" placeholder="+ Add supplement…" maxlength="100" style="flex:1;min-width:100px">
         <button class="gm-add-btn" id="supplAddBtn">+ Add</button>
@@ -1495,7 +1532,10 @@ body{
       <div class="section session-log-section" id="todayLogSection" style="display:none">
         <div class="section-title">Today's Sessions</div>
         <div class="card" style="padding:0">
-          <ul class="today-log-list" id="todayLogList"></ul>
+          <ul class="today-log-list" id="todayLogList">
+          <li class="skeleton skeleton-log-entry" style="list-style:none"></li>
+          <li class="skeleton skeleton-log-entry" style="list-style:none"></li>
+        </ul>
         </div>
       </div>
     </div>
@@ -2278,6 +2318,9 @@ function renderSuppl(){
   });
 
   summary.textContent=totalTaken+'/'+totalCount+' taken today';
+  // Reveal real content, hide skeleton
+  var sk=document.getElementById('supplSkeleton');if(sk)sk.classList.add('skeleton-hidden');
+  var ld=document.getElementById('supplLoaded');if(ld)ld.classList.remove('skeleton-hidden');
 }
 
 document.getElementById('supplAddBtn').addEventListener('click',function(){
@@ -2463,6 +2506,8 @@ function renderWeeklyChart(){
 
 // Today's log
 function renderTodayLog(){
+  // Clear any lingering skeletons (belt-and-suspenders)
+  var skLog=document.getElementById("todayLogList");if(skLog)skLog.querySelectorAll(".skeleton").forEach(function(s){s.remove()});
   const workouts=getWorkouts();
   const section=document.getElementById('todayLogSection');
   const list=document.getElementById('todayLogList');
@@ -3268,6 +3313,9 @@ async function renderSleep(){
       btnEl.className='sleep-btn';
       btnEl.style.opacity='';btnEl.style.pointerEvents='';
       if(hoursEl)hoursEl.textContent='--';
+  // Reveal real content, hide skeleton
+  var sk=document.getElementById('sleepSkeleton');if(sk)sk.classList.add('skeleton-hidden');
+  var ld=document.getElementById('sleepLoaded');if(ld)ld.classList.remove('skeleton-hidden');
       if(detailEl)detailEl.textContent='Check in when you wake up';
       if(homeVal)homeVal.textContent='--';
       if(homeLabel)homeLabel.textContent='';
@@ -3362,6 +3410,9 @@ function renderWorkoutStats(){
   // Update streak badge
   var badgeNum=document.getElementById('streakBadgeNum');
   if(badgeNum)badgeNum.textContent=streak;
+  // Reveal real content, hide skeleton
+  var sk=document.getElementById('streakSkeleton');if(sk)sk.classList.add('skeleton-hidden');
+  var ld=document.getElementById('streakLoaded');if(ld)ld.classList.remove('skeleton-hidden');
 
   // Legacy stat elements (for Aura context)
   var el;
