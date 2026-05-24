@@ -314,6 +314,61 @@
   #gmCardToday .gm-queue-btn{padding:2px;font-size:12px}
   #gmCardToday .goal-delete{padding:2px;font-size:13px;opacity:0.35}
   #gmCardToday .gm-show-more{padding:6px;font-size:11px;margin-bottom:3px}
+
+  /* ── Always-visible delete buttons (mobile touch targets) ── */
+  .goal-delete,
+  .expense-delete,
+  .today-log-delete,
+  .cal-event-del,
+  .cal-week-event-del,
+  .savings-contrib-del{
+    opacity:0.45!important;
+    font-size:18px!important;
+    min-width:36px;min-height:36px;
+    padding:6px!important;
+    display:flex;align-items:center;justify-content:center;
+    color:#f87171!important;
+  }
+  /* Override parent-hover specificity: .cal-event:hover .cal-event-del uses 0,2,0 + !important */
+  .cal-event .cal-event-del,
+  .cal-event:hover .cal-event-del{
+    opacity:0.45!important;
+    font-size:18px!important;
+    min-width:36px;min-height:36px;
+    padding:6px!important;
+    display:flex;align-items:center;justify-content:center;
+    color:#f87171!important;
+  }
+  .cal-week-event .cal-week-event-del,
+  .cal-week-event:hover .cal-week-event-del{
+    opacity:0.45!important;
+    font-size:18px!important;
+    min-width:36px;min-height:36px;
+    padding:6px!important;
+    display:flex;align-items:center;justify-content:center;
+    color:#f87171!important;
+  }
+  .suppl-tile-delete{
+    opacity:0.5!important;
+    font-size:22px!important;
+    min-width:36px;min-height:36px;
+    padding:8px!important;
+    color:#f87171!important;
+    bottom:8px;right:8px;
+  }
+  .goal-delete:hover,.goal-delete:active,
+  .expense-delete:hover,.expense-delete:active,
+  .today-log-delete:hover,.today-log-delete:active,
+  .cal-event-del:hover,.cal-event-del:active,
+  .cal-event .cal-event-del:hover,.cal-event .cal-event-del:active,
+  .cal-week-event-del:hover,.cal-week-event-del:active,
+  .cal-week-event .cal-week-event-del:hover,.cal-week-event .cal-week-event-del:active,
+  .savings-contrib-del:hover,.savings-contrib-del:active,
+  .suppl-tile-delete:hover,.suppl-tile-delete:active{
+    opacity:1!important;
+    background:rgba(239,68,68,0.15);
+    border-radius:8px;
+  }
   .section-title{font-size:11px;margin-bottom:10px}
 
   /* Homepage tighten — mobile optimized */
@@ -447,6 +502,43 @@
   .dw-timer-display{font-size:46px}
   .dw-overlay-timer{font-size:50px}
   .dash-title{font-size:26px}
+
+  /* Always-visible delete buttons */
+  .goal-delete,
+  .expense-delete,
+  .today-log-delete,
+  .cal-event-del,
+  .cal-week-event-del,
+  .savings-contrib-del{
+    opacity:0.4!important;
+    font-size:16px!important;
+    min-width:32px;min-height:32px;
+    padding:5px!important;
+    color:#f87171!important;
+  }
+  .cal-event .cal-event-del,
+  .cal-event:hover .cal-event-del{
+    opacity:0.4!important;
+    font-size:16px!important;
+    min-width:32px;min-height:32px;
+    padding:5px!important;
+    color:#f87171!important;
+  }
+  .cal-week-event .cal-week-event-del,
+  .cal-week-event:hover .cal-week-event-del{
+    opacity:0.4!important;
+    font-size:16px!important;
+    min-width:32px;min-height:32px;
+    padding:5px!important;
+    color:#f87171!important;
+  }
+  .suppl-tile-delete{
+    opacity:0.45!important;
+    font-size:20px!important;
+    min-width:32px;min-height:32px;
+    padding:6px!important;
+    color:#f87171!important;
+  }
 }
 
 /* ── Desktop/Large (≥1024px) ── */
