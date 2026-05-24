@@ -3411,7 +3411,7 @@ async function renderSleep(){
   }
 }
 
-// Sleep button click — check in or check out via server, then refresh all UI
+// Sleep button click — check in, check out, or reset via server, then refresh all UI
 document.getElementById('sleepCheckBtn').addEventListener('click',async function(){
   const btnEl=document.getElementById('sleepCheckBtn');
   if(!btnEl)return;
@@ -3429,8 +3429,13 @@ document.getElementById('sleepCheckBtn').addEventListener('click',async function
     return;
   }
 
-  if(!isActive){
-    // Check in — record absolute start timestamp on server
+  // Also check if we have a local record from today (for Reset state)
+  const lastRecord=storeGet('lastSleepRecord');
+  const todayStr=getActiveDateString();
+  const hasTodayRecord=lastRecord&&lastRecord.hours&&lastRecord.date===todayStr;
+
+  if(!isActive&&!hasTodayRecord){
+    // State 1: Not checked in — start a new sleep session
     btnEl.textContent='Starting...';
     btnEl.disabled=true;
     try{
@@ -3445,8 +3450,8 @@ document.getElementById('sleepCheckBtn').addEventListener('click',async function
       console.warn('Sleep start error',err);
     }
     btnEl.disabled=false;
-  }else{
-    // Check out — finalize, compute duration, persist
+  }else if(isActive){
+    // State 2: Active session running — check out and finalize
     btnEl.textContent='Logging...';
     btnEl.disabled=true;
     try{
@@ -3458,8 +3463,8 @@ document.getElementById('sleepCheckBtn').addEventListener('click',async function
       });
       if(res.ok){
         const data=await res.json();
-        // Cache the record locally so renderSleep can show it immediately without another fetch
-        storeSet('lastSleepRecord',{date:getActiveDateString(),hours:data.hours,checkIn:data.checkIn,checkOut:data.checkOut});
+        // Cache the record locally with date stamp for cross-day gating
+        storeSet('lastSleepRecord',{hours:data.hours,checkIn:data.checkIn,checkOut:data.checkOut,date:todayStr});
         // Immediately refresh the home cockpit progress strip
         if(typeof refreshHomeCockpit==='function')refreshHomeCockpit();
         else if(typeof renderHomeCockpit==='function')renderHomeCockpit();
@@ -3470,7 +3475,11 @@ document.getElementById('sleepCheckBtn').addEventListener('click',async function
       console.warn('Sleep end error',err);
     }
     btnEl.disabled=false;
+  }else if(hasTodayRecord){
+    // State 3: Has today's completed record — Reset clears it
+    storeDelete('lastSleepRecord');
   }
+
   // Re-render sleep state and home dashboard
   renderSleep();
   if(typeof updateDayBar==='function')updateDayBar();
