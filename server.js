@@ -985,6 +985,154 @@ app.post('/api/v1/calendar/add', (req, res) => {
 // Cache freshness: 12 hours in ms
 const INSIGHTS_TTL = 12 * 60 * 60 * 1000;
 
+/* ─── AURA SYSTEM CONTEXT AGGREGATOR ─── */
+// Bundles all tracking data into a compact markdown snapshot for LLM system prompts.
+// Reads from: calendar_events, health, water, finance, workouts data files.
+async function getAuraSystemContext() {
+  const tz = 'America/Los_Angeles';
+  const todayStr = userDateStr(tz);
+  const parts = [];
+
+  // ── Calendar (upcoming events) ──
+  try {
+    const events = loadDataFile('calendar_events');
+    if (events && events.length) {
+      const nowMs = Date.now();
+      const upcoming = events
+        .filter(function(ev) {
+          if (!ev.date) return false;
+          var evTime = new Date(ev.date + 'T00:00:00').getTime();
+          return evTime >= nowMs - 86400000; // from yesterday forward
+        })
+        .sort(function(a, b) { return a.date.localeCompare(b.date); })
+        .slice(0, 12);
+
+      parts.push('## Calendar');
+      if (upcoming.length) {
+        upcoming.forEach(function(ev) {
+          parts.push('- ' + ev.date + ': ' + ev.title + (ev.time ? ' @ ' + ev.time : ''));
+        });
+      } else {
+        parts.push('- No upcoming events');
+      }
+    } else {
+      parts.push('## Calendar\n- No events');
+    }
+  } catch (_) { parts.push('## Calendar\n- (unavailable)'); }
+
+  // ── Health (water, sleep, supplements) ──
+  try {
+    var waterData = loadDataFile('water');
+    var todayWater = (waterData || []).find(function(e) { return e.date === todayStr; });
+    var glasses = todayWater ? (todayWater.glasses || 0) : 0;
+
+    var health = loadHealthData();
+    var sleepRecords = health.sleep_records || [];
+    var todaySleep = sleepRecords.filter(function(r) { return r.date === todayStr; });
+    var totalSleepHours = todaySleep.reduce(function(s, r) { return s + (r.hours || 0); }, 0);
+
+    // Active sleep session (currently sleeping)
+    var activeSleepStart = null;
+    try {
+      var sessions = loadActiveSessions();
+      if (sessions.sleep && sessions.sleep.session_start_time) {
+        activeSleepStart = sessions.sleep.session_start_time;
+      }
+    } catch (_) {}
+
+    // Supplements
+    var supplByDate = health.checked_supplements_by_date || {};
+    var todaySupps = supplByDate[todayStr] || {};
+    var suppNames = Object.keys(todaySupps);
+    var takenSupps = suppNames.filter(function(n) { return todaySupps[n]; }).length;
+
+    parts.push('## Health');
+    parts.push('- Water: ' + glasses + '/8 glasses');
+    if (totalSleepHours > 0) {
+      parts.push('- Sleep: ' + totalSleepHours.toFixed(1) + 'h logged tonight');
+    } else if (activeSleepStart) {
+      var sleepStartLocal = new Date(activeSleepStart).toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+      parts.push('- Sleep: sleeping since ' + sleepStartLocal + ' (in progress)');
+    } else {
+      parts.push('- Sleep: not logged yet');
+    }
+    if (suppNames.length > 0) {
+      parts.push('- Supplements: ' + takenSupps + '/' + suppNames.length + ' taken');
+      // List unchecked ones as a nudge
+      var unchecked = suppNames.filter(function(n) { return !todaySupps[n]; });
+      if (unchecked.length > 0) {
+        parts.push('  (remaining: ' + unchecked.join(', ') + ')');
+      }
+    }
+  } catch (_) { parts.push('## Health\n- (unavailable)'); }
+
+  // ── Finance (spending, income, flexible balance, savings) ──
+  try {
+    var finance = loadFinanceData();
+    var income = finance.income || {};
+    var monthlyIncome = getMonthlyAmount(income);
+
+    var expenses = finance.expenses || [];
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    var monthExpenses = expenses.filter(function(e) { return (e.time || 0) >= monthStart; });
+    var totalSpent = monthExpenses.reduce(function(s, e) { return s + (e.amount || 0); }, 0);
+
+    // Flexible cash balance = income minus spent this month
+    var flexibleBalance = monthlyIncome - totalSpent;
+
+    // Savings
+    var savings = finance.savings || {};
+    var savingsCurrent = savings.current || 0;
+    var savingsTarget = savings.target || 0;
+
+    // Subscriptions
+    var subs = finance.subscriptions || [];
+    var activeSubs = subs.filter(function(s) { return s.active !== false; });
+
+    parts.push('## Finance');
+    if (monthlyIncome > 0) parts.push('- Income: $' + monthlyIncome.toFixed(0) + '/mo');
+    if (totalSpent > 0) {
+      parts.push('- Spent this month: $' + totalSpent.toFixed(2));
+      if (monthlyIncome > 0) {
+        parts.push('- Budget used: ' + ((totalSpent / monthlyIncome) * 100).toFixed(0) + '%');
+      }
+    }
+    parts.push('- Flexible balance: $' + flexibleBalance.toFixed(2));
+    if (savingsCurrent > 0 || savingsTarget > 0) {
+      parts.push('- Savings: $' + savingsCurrent.toFixed(2) + ' / $' + savingsTarget.toFixed(2) + ' goal');
+    }
+    if (activeSubs.length > 0) {
+      var subMonthly = activeSubs.reduce(function(s, sub) {
+        var amt = sub.amount || 0;
+        if (sub.cycle === 'yearly') return s + amt / 12;
+        if (sub.cycle === 'weekly') return s + amt * 52 / 12;
+        return s + amt;
+      }, 0);
+      parts.push('- Subscriptions: ' + activeSubs.length + ' active ($' + subMonthly.toFixed(0) + '/mo)');
+    }
+  } catch (_) { parts.push('## Finance\n- (unavailable)'); }
+
+  // ── Workouts (today + streak) ──
+  try {
+    var wkData = loadWorkoutData();
+    var todayWorkouts = wkData.today_workouts || [];
+    var streak = wkData.streak_count || 0;
+
+    parts.push('## Workouts');
+    if (todayWorkouts.length > 0) {
+      var totalMin = todayWorkouts.reduce(function(s, w) { return s + Math.round((w.duration || 0) / 60); }, 0);
+      var types = todayWorkouts.map(function(w) { return w.type; }).join(', ');
+      parts.push('- Today: ' + todayWorkouts.length + ' session(s) (' + types + ', ' + totalMin + ' min)');
+    } else {
+      parts.push('- Today: no workout logged');
+    }
+    parts.push('- Streak: ' + streak + ' day' + (streak !== 1 ? 's' : '') + (streak >= 3 ? ' \u{1F525}' : ''));
+  } catch (_) { parts.push('## Workouts\n- (unavailable)'); }
+
+  return parts.join('\n');
+}
+
 function getHistoricalMatrix(daysBack) {
   daysBack = daysBack || 7;
   const now = Date.now();
