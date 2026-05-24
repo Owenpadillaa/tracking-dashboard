@@ -827,6 +827,9 @@ body{
 .cal-cap-num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary);line-height:1}
 .cal-cap-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:10px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity 0.2s}
 .cal-cap-dot.show{opacity:1}
+.cal-chip-dot{width:5px;height:5px;border-radius:50%;background:#22d3ee;position:absolute;bottom:6px;left:50%;margin-left:-2.5px;opacity:0;transition:opacity 0.2s;box-shadow:0 0 8px rgba(34,211,238,0.6);animation:chipDotPulse 2s ease-in-out infinite}
+.cal-chip-dot.show{opacity:1}
+@keyframes chipDotPulse{0%,100%{box-shadow:0 0 6px rgba(34,211,238,0.4)}50%{box-shadow:0 0 14px rgba(34,211,238,0.8)}}
 .cal-event-list{display:flex;flex-direction:column;gap:0}
 .cal-empty{text-align:center;padding:20px 0;color:var(--text-tertiary);font-size:13px;font-weight:500}
 .cal-event{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,0.04);align-items:center}
@@ -3646,11 +3649,13 @@ function renderDateChips(){
     var ds=dateStrLocal(d);
     var isToday=ds===todayStr;
     var isActive=ds===activeCalDate;
+    var hasEvents=calendarEvents.some(function(e){return e.date===ds});
     var chip=document.createElement('div');
-    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-opacity-80'+(isActive?' bg-slate-900 border border-cyan-500 text-cyan-400':' bg-white/5 border border-white/10');
+    chip.className='snap-center flex-shrink-0 w-12 min-h-[64px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 hover:bg-opacity-80 relative'+(isActive?' bg-slate-900 border border-cyan-500 text-cyan-400':' bg-white/5 border border-white/10');
     chip.dataset.date=ds;
     chip.innerHTML='<span class="text-xs font-semibold uppercase tracking-wider '+(isActive?'text-cyan-400':'text-slate-400')+'">'+dayNames[d.getDay()].slice(0,3)+'</span>'
-      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>';
+      +'<span class="text-lg font-bold leading-none mt-0.5 '+(isActive?'text-cyan-400':'text-slate-200')+'">'+d.getDate()+'</span>'
+      +'<span class="'+(hasEvents?'cal-chip-dot show':'cal-chip-dot')+'"></span>';
     chip.addEventListener('click',function(){
       selectCalDate(this.dataset.date);
     });
