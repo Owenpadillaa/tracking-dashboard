@@ -1494,60 +1494,74 @@ app.post('/api/v1/health/supplements', express.json(), (req, res) => {
   res.json({ ok: true });
 });
 
-/* ════════════ SCHEDULED BRIEFINGS ════════════ */
+/* ════════════ PROACTIVE LOCK-SCREEN NOTIFICATION LOOPS ════════════ */
 
-function buildBriefingMsg(ctx, timeOfDay) {
-  // Build the same rich system prompt used in the interactive chat
-  let msg = buildSystemMsg(ctx);
+// Morning Rocket: 2-sentence breakdown analyzing calendar + workout profiles
+const MORNING_ROCKET_PROMPT = `You are Aura's Morning Rocket briefing engine.
 
-  // Add briefing-specific framing
-  if (timeOfDay === 'morning') {
-    msg += 'BRIEFING INSTRUCTION:\n';
-    msg += 'Write a short morning briefing (2-3 sentences, under 280 characters) for a push notification.\n';
-    msg += '- Give a quick snapshot of today based on the data above.\n';
-    msg += '- Mention specific numbers (water goal, workout streak, calendar events today, supplements to take).\n';
-    msg += '- Motivate the user to start strong.\n';
-  } else if (timeOfDay === 'midday') {
-    msg += 'BRIEFING INSTRUCTION:\n';
-    msg += 'Write a short midday check-in (1-2 sentences, under 200 characters) for a push notification.\n';
-    msg += '- Remind the user what they still need to do today (water, supplements, workout).\n';
-    msg += '- Keep it encouraging and brief — a quick nudge to stay on track.\n';
-  } else {
-    msg += 'BRIEFING INSTRUCTION:\n';
-    msg += 'Write a short evening briefing (2-3 sentences, under 280 characters) for a push notification.\n';
-    msg += '- Summarize what was accomplished today based on the data above.\n';
-    msg += '- Mention what was left undone (incomplete supplements, missed workout, water under goal).\n';
-    msg += '- Give a gentle nudge for anything incomplete and a motivational sign-off.\n';
-  }
+Using ONLY the live system state provided below, write exactly 2 concise sentences for a lock-screen push notification:
+- Sentence 1: Today's calendar outlook — key events, appointments, schedule density from the Calendar section.
+- Sentence 2: Morning workout setup — streak status and recommended action from the Workouts section.
 
-  msg += '\n\nADDITIONAL RULES:\n';
-  msg += '- Do NOT use emojis.\n';
-  msg += '- Do NOT include a greeting prefix like "Good morning" — just start the message.\n';
-  msg += '- Keep it punchy and specific — this shows on a lock screen.\n';
+CRITICAL RULES:
+- No emojis. No greeting prefix like "Good morning" — jump straight into the briefing.
+- Under 280 characters total.
+- Only reference data explicitly present in the system state. If data is missing, state it honestly.
+- Punchy, lock-screen-optimized style.`;
 
-  return msg;
-}
+// Midday Audit: 2-sentence course-correction analyzing health + finance velocities
+const MIDDAY_AUDIT_PROMPT = `You are Aura's Midday Audit briefing engine.
 
-async function sendBriefing(timeOfDay) {
+Using ONLY the live system state provided below, write exactly 2 concise sentences for a lock-screen push notification:
+- Sentence 1: Health velocity check — water intake progress, supplements taken vs remaining, sleep status from the Health section.
+- Sentence 2: Finance velocity check — spending pace this month, flexible balance, any concerning trends from the Finance section.
+
+CRITICAL RULES:
+- No emojis. No greeting prefix.
+- Under 200 characters total.
+- Only reference data explicitly present in the system state.
+- Direct, actionable course-correction tone.`;
+
+// Night Debrief: objective summary of completed items vs slips
+const NIGHT_DEBRIEF_PROMPT = `You are Aura's Night Debrief briefing engine.
+
+Using ONLY the live system state provided below, write exactly 2 concise sentences for a lock-screen push notification:
+- Sentence 1: Completed today — workouts done, water goal met, supplements taken, from the Workouts and Health sections.
+- Sentence 2: Slips and gaps — what was left undone, missed targets, carry-over items for tomorrow.
+
+CRITICAL RULES:
+- No emojis. No greeting prefix.
+- Under 280 characters total.
+- Only reference data explicitly present in the system state.
+- Honest, objective, forward-looking tone.`;
+
+const PULSE_PROMPTS = {
+  morning: MORNING_ROCKET_PROMPT,
+  midday:  MIDDAY_AUDIT_PROMPT,
+  night:   NIGHT_DEBRIEF_PROMPT,
+};
+
+async function sendBriefing(timeOfDay, systemState) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
+    console.error('sendBriefing: GROQ_API_KEY not configured');
     return;
   }
 
   const subs = loadSubscriptions();
   if (!subs.length) {
+    console.log('sendBriefing: no push subscriptions registered, skipping');
     return;
   }
 
-  const ctx = loadUserContext();
-  if (!ctx) {
+  const contextPrompt = PULSE_PROMPTS[timeOfDay];
+  if (!contextPrompt) {
+    console.error('sendBriefing: unknown timeOfDay "' + timeOfDay + '"');
     return;
   }
 
   try {
-    const systemMsg = buildBriefingMsg(ctx, timeOfDay);
-
-    // Call Groq for a short briefing
+    // Call Groq with the time-context prompt + live system state
     const groqResp = await fetch(GROQ_URL, {
       method: 'POST',
       headers: {
@@ -1558,38 +1572,38 @@ async function sendBriefing(timeOfDay) {
         model: 'llama-3.1-8b-instant',
         stream: false,
         messages: [
-          { role: 'system', content: systemMsg },
-          { role: 'user', content: `Generate my ${timeOfDay} briefing now based on my current data.` }
+          { role: 'system', content: contextPrompt },
+          { role: 'user', content: 'Live system state snapshot:\n\n' + systemState }
         ],
         max_tokens: 200,
+        temperature: 0.3,
       }),
     });
 
     if (!groqResp.ok) {
-      console.error('Briefing Groq error:', groqResp.status);
+      console.error('sendBriefing: Groq error ' + groqResp.status);
       return;
     }
 
     const groqData = await groqResp.json();
     const briefing = groqData.choices?.[0]?.message?.content?.trim();
     if (!briefing) {
-      console.error('Briefing: empty response from Groq');
+      console.error('sendBriefing: empty response from Groq');
       return;
     }
 
-    // Build high-priority payload for lock-screen hijack
-    const labels = { morning: 'Morning Rocket', midday: 'Midday Audit', night: 'Night Debrief' };
-    const title = `Aura ${labels[timeOfDay] || 'Pulse'}`;
+    // Compile high-priority lock-screen breakout notification payload
     const payload = JSON.stringify({
-      title: title,
+      title: 'AURA | POCKET ASSISTANT',
       body: briefing,
       tag: 'aura-critical-pulse',
       renotify: true,
-      requireInteraction: true,
-      priority: 'high',
-      vibrate: [100, 50, 100],
+      requireInteraction: true,   // Holds the notification open until acknowledged
+      priority: 'high',           // Breaches cell stacks for heads-up placement
+      vibrate: [100, 50, 100],    // Physical tactile alert pulse
       data: { pulse: timeOfDay, timestamp: Date.now() }
     });
+
     let sent = 0, failed = 0;
     const alive = [];
 
@@ -1601,15 +1615,17 @@ async function sendBriefing(timeOfDay) {
       } catch (err) {
         failed++;
         if (err.statusCode !== 410) alive.push(sub);
-        console.error('Push error:', err.statusCode || err.message);
+        console.error('sendBriefing: push error ' + (err.statusCode || err.message));
       }
     }
 
     if (alive.length !== subs.length) {
       saveSubscriptions(alive);
     }
+
+    console.log('sendBriefing: ' + timeOfDay + ' pulse sent=' + sent + ' failed=' + failed);
   } catch (err) {
-    console.error('Briefing error:', err.message);
+    console.error('sendBriefing: error — ' + err.message);
   }
 }
 
@@ -1630,7 +1646,7 @@ function resetFiredIfDayChanged() {
   }
 }
 
-setInterval(function() {
+async function checkScheduledNotifications() {
   var now = new Date();
   var currentMins = now.getHours() * 60 + now.getMinutes();
   resetFiredIfDayChanged();
@@ -1642,17 +1658,24 @@ setInterval(function() {
     { key: 'night', time: config.night }
   ];
 
-  pulses.forEach(function(p) {
+  for (var i = 0; i < pulses.length; i++) {
+    var p = pulses[i];
     var target = clockToMins(p.time);
     if (currentMins === target && !lastFired[p.key]) {
       lastFired[p.key] = true;
       console.log('Pulse trigger: ' + p.key + ' at ' + p.time);
-      sendBriefing(p.key);
+
+      // Assemble live system state and delegate to AI briefing engine
+      var systemState = await getAuraSystemContext();
+      sendBriefing(p.key, systemState);
     }
-    // If we passed the target time this day, reset fired flag is handled at midnight
-    // Allow re-fire if clock wrapped (user changes time to earlier)
-  });
-}, 30000); // Check every 30 seconds
+  }
+}
+
+// Background minute-matching loop — ticks exactly once every 60 seconds
+setInterval(function() {
+  checkScheduledNotifications();
+}, 60000);
 
 /* ════════════ ACTIVE SESSION HELPERS ════════════ */
 
