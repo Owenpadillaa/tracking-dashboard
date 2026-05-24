@@ -265,11 +265,6 @@ body{
 .gm-streak.gm-streak-active{background:rgba(245,158,11,0.1);color:var(--gold)}
 .gm-streak.gm-streak-active .gm-streak-bolt{filter:drop-shadow(0 0 8px rgba(245,158,11,0.5))}
 
-.streak-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:99px;background:rgba(0,0,0,0.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid transparent;background-clip:padding-box;position:relative}
-.streak-pill::before{content:'';position:absolute;inset:0;border-radius:99px;padding:1px;background:linear-gradient(135deg,#F59E0B,#D97706,#F59E0B);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.streak-pill-icon{font-size:14px;line-height:1}
-.streak-pill-num{font-family:"SF Mono",ui-monospace;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);letter-spacing:-0.02em}
-.streak-pill-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .gm-streak-label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase}
 .gm-bar{display:flex;gap:4px;height:6px;margin-bottom:16px}
 .gm-bar:empty{display:none}

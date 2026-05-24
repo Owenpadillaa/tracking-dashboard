@@ -198,12 +198,7 @@
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   margin-bottom:4px;
 }
-.sleep-hours-unit{
-  font-size:13px;font-weight:600;
-  color:var(--text-tertiary);
-  letter-spacing:0.08em;text-transform:uppercase;
-  margin-bottom:12px;
-}
+
 
 /* ── Workout Timer Modal Polish (see also css_part2.css for base) ── */
 
