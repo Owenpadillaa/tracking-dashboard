@@ -3918,7 +3918,7 @@ function parseProposedActions(text){
   if(!text || typeof text !== 'string') return [];
   var actions=[];
   try{
-    var regex = /\[PROPOSED_ACTION\]([\s\S]*?)\/\[PROPOSED_ACTION\]/g;
+    var regex = /\[PROPOSED_ACTION\]([\s\S]*?)\[PROPOSED_ACTION\]/g;
     var match;
     var lastIdx = -1;
     var safety = 0;

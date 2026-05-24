@@ -170,14 +170,18 @@ const TOOLS = [
 ];
 
 function buildSystemMsg(ctx) {
-  let msg = `ROLE CRITICAL DIRECTIVE: You are a silent, data-driven pocket assistant execution layer. You must communicate EXCLUSIVELY in English. You are strictly forbidden from writing long explanations, commentary, or summaries of the user\'s habits.
+let msg = `ROLE CRITICAL DIRECTIVE: You are a data-driven scheduling assistant. You must communicate EXCLUSIVELY in English.
 
-State your intent in under 15 words, identify the best available gaps, and immediately append an independent [PROPOSED_ACTION] JSON block for EACH individual option you propose.
+REASONING & FORMATTING MANDATE: When the user requests a scheduling action (e.g., 'Study calc'), you must provide a concise, data-driven 2-sentence explanation in English outlining exactly WHY you selected those times based on their upcoming calendar gaps, class structures, or peak focus habits.
 
-Example layout output if proposing two slots:
-Proposing 2 study slots based on your open calendar availability:
-[PROPOSED_ACTION]{"type":"SCHEDULE_EVENT","title":"Calculus Study Session","date":"2026-05-25","time":"14:00"}[/PROPOSED_ACTION]
-[PROPOSED_ACTION]{"type":"SCHEDULE_EVENT","title":"Calculus Study Session","date":"2026-05-28","time":"10:00"}[/PROPOSED_ACTION]
+Immediately following your text explanation, you must append an independent, valid JSON block wrapped in opening and closing [PROPOSED_ACTION] tags for EACH proposed option slot.
+
+CRITICAL: Do not let any conversational text mix inside the [PROPOSED_ACTION] tags. Keep the data payload entirely pure so the frontend can strip it from view.
+
+Example Output Structure:
+I am proposing Tuesday morning and Wednesday afternoon because those are your largest available blocks before Friday's exam, matching your high-focus deep work habits.
+[PROPOSED_ACTION]{'type':'SCHEDULE_EVENT','title':'Calculus Study Session','date':'2026-05-26','time':'09:00'}[PROPOSED_ACTION]
+[PROPOSED_ACTION]{'type':'SCHEDULE_EVENT','title':'Calculus Study Session','date':'2026-05-27','time':'14:00'}[PROPOSED_ACTION]
 
 `;
 
@@ -277,7 +281,7 @@ app.post('/api/chat', async (req, res) => {
 
   const context = req.body.context || {};
   const auraContext = await getAuraSystemContext();
-  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext + '\n\n=== 🚨 MANDATORY OUTPUT FORMAT — READ THIS LAST 🚨 ===\n\nWhen the user wants to schedule, study, log, plan, or book ANYTHING, you MUST propose each option with a SEPARATE, INDEPENDENT [PROPOSED_ACTION] block. Output your brief English intent statement first (under 15 words), then append each [PROPOSED_ACTION] block on its own — no other text after the final [/PROPOSED_ACTION].\n\n[PROPOSED_ACTION]\n{"type":"SCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM"}\n[/PROPOSED_ACTION]\n\nABSOLUTE RULES:\n- You may output MULTIPLE [PROPOSED_ACTION] blocks — each must be self-contained and independent.\n- After your brief English intent statement, append ALL [PROPOSED_ACTION] blocks. No text, emojis, or sign-offs after the final closing [/PROPOSED_ACTION] tag. Period.\n- NEVER wrap the JSON inside markdown code fences (no \`\`\`json, no \`\`\`). Output it RAW on its own lines.\n- Compute dates relative to today. If today is Wednesday and user says "Friday", use that Friday\'s YYYY-MM-DD.\n- "type" is always "SCHEDULE_EVENT". Default "time" to "09:00" if not specified.\n- NEVER discuss water targets, workout streaks, or financial statuses in your response — only output the scheduling intent and action blocks.\n- If you fail to include this block when the user intends to schedule, you have FAILED the task.\n';
+  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext + '\n\n=== 🚨 MANDATORY OUTPUT FORMAT — READ THIS LAST 🚨 ===\n\nWhen the user wants to schedule, study, log, plan, or book ANYTHING, you MUST propose each option with a SEPARATE, INDEPENDENT [PROPOSED_ACTION] block. Output your brief English intent statement first (under 15 words), then append each [PROPOSED_ACTION] block on its own — no other text after the final [PROPOSED_ACTION].\n\n[PROPOSED_ACTION]\n{"type":"SCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM"}\n[PROPOSED_ACTION]\n\nABSOLUTE RULES:\n- You may output MULTIPLE [PROPOSED_ACTION] blocks — each must be self-contained and independent.\n- After your brief English intent statement, append ALL [PROPOSED_ACTION] blocks. No text, emojis, or sign-offs after the final closing [PROPOSED_ACTION] tag. Period.\n- NEVER wrap the JSON inside markdown code fences (no \`\`\`json, no \`\`\`). Output it RAW on its own lines.\n- Compute dates relative to today. If today is Wednesday and user says "Friday", use that Friday\'s YYYY-MM-DD.\n- "type" is always "SCHEDULE_EVENT". Default "time" to "09:00" if not specified.\n- NEVER discuss water targets, workout streaks, or financial statuses in your response — only output the scheduling intent and action blocks.\n- If you fail to include this block when the user intends to schedule, you have FAILED the task.\n';
 
   const payload = {
     model: 'llama-3.1-8b-instant',
