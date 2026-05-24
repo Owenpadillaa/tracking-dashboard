@@ -193,6 +193,7 @@ function buildSystemMsg(ctx) {
   msg += '- If the user does not specify a time, use "09:00" as the default. If the user does not specify a date, use today\'s date.\n';
   msg += '- Only include [PROPOSED_ACTION] when the user clearly intends to schedule something. Do NOT include it for casual mentions or hypotheticals.\n';
   msg += '- The [PROPOSED_ACTION] block must be the VERY LAST thing in your response — after all other text.\n\n';
+  msg += 'FORMATTING MANDATE: If the user states an intent to study, log an appointment, or schedule an event, you MUST append a raw JSON block wrapped EXACTLY in [PROPOSED_ACTION] tags at the absolute end of your response text.\n\nExample format to append to your message:\n[PROPOSED_ACTION]\n{\n  "type": "SCHEDULE_EVENT",\n  "title": "Deep Work: Calc Final Prep",\n  "date": "2026-05-29",\n  "time": "14:00"\n}\n[/PROPOSED_ACTION]\n\nDo not omit the brackets or wrap the raw JSON tag inside markdown code fences.\n\n';
 
   if (ctx.workout) {
     const w = ctx.workout;
