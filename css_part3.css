@@ -223,7 +223,7 @@
 /* Stagger card entrance */
 .tab-page.active .card,
 .tab-page.active .section{
-  animation:slideUp .45s cubic-bezier(.33,1,.68,1) both;
+  animation:slideUp .45s cubic-bezier(.33,1,.68,1) forwards;
 }
 .tab-page.active .card:nth-child(1),
 .tab-page.active .section:nth-child(1){animation-delay:0s}
@@ -474,6 +474,16 @@
   .weekly-bars{height:115px;gap:8px}
   .weekly-bar-label{font-size:12px}
   .weekly-bar-value{font-size:11px}
+
+  /* Homepage mobile compact */
+  .insight-donut-wrap{max-width:52px;margin:0 auto}
+  .insight-donut-center{transform:scale(0.85)}
+  .insight-donut-val{font-size:11px}
+  .insight-donut-label{font-size:8px}
+  .insight-cell{min-height:56px!important;padding:8px 10px!important}
+  .insight-cell-header{font-size:9px!important}
+  .insight-cell-footer{font-size:9px!important}
+
 }
 
 /* ── Small mobile (≤360px) ── */
