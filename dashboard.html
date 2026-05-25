@@ -292,7 +292,7 @@ tailwind.config = {
   </div>
 
   <!-- ═══════ AI ASSISTANT TAB ═══════ -->
-  <div class="tab-page" id="tab-ai">
+  <div class="tab-page hidden" id="tab-ai">
     <div class="flex items-center justify-between mb-4" style="flex-shrink:0">
       <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">AI Assistant</h1>
       <button class="chat-reset-btn" id="chatResetBtn">Reset</button>
@@ -312,7 +312,7 @@ tailwind.config = {
   </div>
 
   <!-- ═══════ HEALTH TAB ═══════ -->
-    <div class="tab-page" id="tab-health">
+    <div class="tab-page hidden" id="tab-health">
     <h1 class="dash-title">Vitals</h1>
 
     <!-- ═══ Hero: Water Bottle ═══ -->
@@ -464,7 +464,7 @@ tailwind.config = {
   </div>
   </div>
 <!-- ═══════ FINANCE TAB ═══════ -->
-  <div class="tab-page" id="tab-finance">
+  <div class="tab-page hidden" id="tab-finance">
     <h1 class="dash-title">Finance</h1>
 
     <!-- 1. Income Revenue Planner -->
@@ -630,7 +630,7 @@ tailwind.config = {
   </div>
 
   <!-- ═══════ DEEP WORK TAB ═══════ -->
-  <div class="tab-page" id="tab-deepwork">
+  <div class="tab-page hidden" id="tab-deepwork">
     <h1 class="dash-title">Deep Work</h1>
     <div class="section" style="text-align:center">
       <input type="text" class="dw-intention" id="dwIntention" placeholder="+ What is your single focus outcome for this block?">
@@ -781,11 +781,18 @@ function switchTab(id){
   var tabBar=document.querySelector('.tab-bar');
   if(tabBar){tabBar.style.display='';tabBar.style.opacity='';tabBar.style.visibility='';tabBar.style.pointerEvents='';}
   // Re-enable all tabs in case hijacking left them disabled
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='';b.style.opacity=''});
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
-  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
-  document.querySelector('[data-tab="'+id+'"]').classList.add('active');
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.style.pointerEvents='';b.style.opacity='';b.classList.remove('active');});
+  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active');p.classList.add('hidden');});
+  var btn=document.querySelector('[data-tab="'+id+'"]');
+  var page=document.getElementById(id);
+  if(btn) btn.classList.add('active');
+  if(page){
+    page.classList.add('active');
+    page.classList.remove('hidden');
+    page.style.display='';
+    page.style.opacity='';
+    page.style.transform='';
+  }
   if(id==='tab-finance'){
     if(typeof renderIncome==='function')renderIncome();
     if(typeof renderExpenses==='function')renderExpenses();
@@ -794,23 +801,25 @@ function switchTab(id){
     if(typeof renderDWMetrics==='function')renderDWMetrics();
   }
 }
-document.querySelectorAll('.tab-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    switchTab(btn.dataset.tab);
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      switchTab(btn.dataset.tab);
+    });
   });
-});
-document.addEventListener('click',function(e){
-  var block=e.target.closest('[data-tab-target]');
-  if(block){
-    switchTab(block.dataset.tabTarget);
-    var anchor=block.dataset.tabAnchor;
-    if(anchor){
-      setTimeout(function(){
-        var el=document.getElementById(anchor);
-        if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
-      },100);
+  document.addEventListener('click',function(e){
+    var block=e.target.closest('[data-tab-target]');
+    if(block){
+      switchTab(block.dataset.tabTarget);
+      var anchor=block.dataset.tabAnchor;
+      if(anchor){
+        setTimeout(function(){
+          var el=document.getElementById(anchor);
+          if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
+        },100);
+      }
     }
-  }
+  });
 });
 
 /* ════════════ SETTINGS SHEET ════════════ */
@@ -2181,10 +2190,7 @@ var cashFlowTile=document.getElementById('cashFlowTile');
 if(cashFlowTile){
   cashFlowTile.style.cursor='pointer';
   cashFlowTile.addEventListener('click',function(){
-    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
-    document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
-    document.querySelector('[data-tab="tab-finance"]').classList.add('active');
-    document.getElementById('tab-finance').classList.add('active');
+    switchTab('tab-finance');
   });
 }
 
