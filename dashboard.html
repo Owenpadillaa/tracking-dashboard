@@ -2307,6 +2307,7 @@ if(voiceOrbEl){
   });
   // Press-and-hold: touch
   voiceOrbEl.addEventListener('touchstart',function(ev){
+    ev.stopPropagation();
     ev.preventDefault();
     if(_voiceIsRecording)return;
     _voiceIsTouch=true;
@@ -2318,14 +2319,16 @@ if(voiceOrbEl){
       }
     },150);
   });
-  voiceOrbEl.addEventListener('touchend',function(){
+  voiceOrbEl.addEventListener('touchend',function(ev){
+    ev.stopPropagation();
     _voiceIsTouch=false;
     clearTimeout(_voicePressTimer);
     if(_voiceIsRecording&&_voiceRecognition){
       try{_voiceRecognition.stop();}catch(e){}
     }
   });
-  voiceOrbEl.addEventListener('touchcancel',function(){
+  voiceOrbEl.addEventListener('touchcancel',function(ev){
+    ev.stopPropagation();
     _voiceIsTouch=false;
     clearTimeout(_voicePressTimer);
     if(_voiceIsRecording&&_voiceRecognition){
