@@ -80,7 +80,7 @@ body{
   display:none;height:100%;overflow-y:auto;overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   padding:max(env(safe-area-inset-top,16px),16px) 16px calc(24px + 54px + 16px + env(safe-area-inset-bottom,0px));
-  animation:fadeUp .4s cubic-bezier(.33,1,.68,1) both;
+  animation:fadeUp .4s cubic-bezier(.33,1,.68,1) forwards;
 }
 .tab-page.active{display:block}
 .tab-page#tab-ai.active{display:flex;flex-direction:column}
