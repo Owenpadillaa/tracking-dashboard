@@ -281,7 +281,7 @@ app.post('/api/chat', async (req, res) => {
 
   const context = req.body.context || {};
   const auraContext = await getAuraSystemContext();
-  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext + '\n\n=== 🚨 MANDATORY OUTPUT FORMAT — READ THIS LAST 🚨 ===\n\nWhen the user wants to schedule, study, log, plan, or book ANYTHING, you MUST propose each option with a SEPARATE, INDEPENDENT [PROPOSED_ACTION] block. Output your brief English intent statement first (under 15 words), then append each [PROPOSED_ACTION] block on its own — no other text after the final [PROPOSED_ACTION].\n\n[PROPOSED_ACTION]\n{"type":"SCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM"}\n[PROPOSED_ACTION]\n\nABSOLUTE RULES:\n- You may output MULTIPLE [PROPOSED_ACTION] blocks — each must be self-contained and independent.\n- After your brief English intent statement, append ALL [PROPOSED_ACTION] blocks. No text, emojis, or sign-offs after the final closing [PROPOSED_ACTION] tag. Period.\n- NEVER wrap the JSON inside markdown code fences (no \`\`\`json, no \`\`\`). Output it RAW on its own lines.\n- Compute dates relative to today. If today is Wednesday and user says "Friday", use that Friday\'s YYYY-MM-DD.\n- "type" is always "SCHEDULE_EVENT". Default "time" to "09:00" if not specified.\n- NEVER discuss water targets, workout streaks, or financial statuses in your response — only output the scheduling intent and action blocks.\n- If you fail to include this block when the user intends to schedule, you have FAILED the task.\n';
+  const systemMsg = buildSystemMsg(context) + '\n\n=== LIVE USER TELEMETRY ===\nThe following is the user\'s actual live data snapshot. Use these exact numbers in your responses:\n\n' + auraContext + '\n\n=== 🚨 MANDATORY OUTPUT FORMAT — READ THIS LAST 🚨 ===\n\nWhen the user wants to schedule, study, log, plan, or book ANYTHING, you MUST propose each option with a SEPARATE, INDEPENDENT [PROPOSED_ACTION] block. Output your brief English intent statement first (under 15 words), then append each [PROPOSED_ACTION] block on its own — no other text after the final [PROPOSED_ACTION].\n\n[PROPOSED_ACTION]\n{"type":"SCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM"}\n[PROPOSED_ACTION]\n\nABSOLUTE RULES:\n- You may output MULTIPLE [PROPOSED_ACTION] blocks — each must be self-contained and independent.\n- After your brief English intent statement, append ALL [PROPOSED_ACTION] blocks. No text, emojis, or sign-offs after the final closing [PROPOSED_ACTION] tag. Period.\n- CRITICAL: use ONLY double-quotes for JSON keys/values (example: "type":"SCHEDULE_EVENT"). Single quotes will BREAK the parser.\n- NEVER wrap the JSON inside markdown code fences (no \`\`\`json, no \`\`\`). Output it RAW on its own lines.\n- Compute dates relative to today. If today is Wednesday and user says "Friday", use that Friday\'s YYYY-MM-DD.\n- "type" is always "SCHEDULE_EVENT". Default "time" to "09:00" if not specified.\n- NEVER discuss water targets, workout streaks, or financial statuses in your response — only output the scheduling intent and action blocks.\n- If you fail to include this block when the user intends to schedule, you have FAILED the task.\n';
 
   const payload = {
     model: 'llama-3.1-8b-instant',
@@ -986,13 +986,215 @@ app.post('/api/v1/calendar/delete', (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /api/v1/calendar/add — append a new event
-app.post('/api/v1/calendar/add', (req, res) => {
+// ─── Calendar Overlap Detection ───
+// Compare incoming event against existing events. Default duration: 1h.
+// Uses startA < endB && endA > startB overlap check.
+function checkForConflicts(incoming, existingEvents, defaultDurationMin) {
+  defaultDurationMin = defaultDurationMin || 60;
+  var inStart = parseTimeToMinutes(incoming.date, incoming.time || '09:00');
+  var inEnd = inStart + defaultDurationMin;
+  var conflicts = [];
+  for (var i = 0; i < existingEvents.length; i++) {
+    var ev = existingEvents[i];
+    if (ev.date !== incoming.date) continue;
+    var evStart = parseTimeToMinutes(ev.date, ev.time || '09:00');
+    var evEnd = evStart + (ev.duration_min || 60);
+    if (inStart < evEnd && inEnd > evStart) {
+      conflicts.push(ev);
+    }
+  }
+  return conflicts;
+}
+
+// Parse date+time into absolute minutes since epoch for comparison
+function parseTimeToMinutes(dateStr, timeStr) {
+  var d = new Date(dateStr + 'T' + (timeStr || '00:00') + ':00');
+  var mins = d.getTime() / 60000; // minutes since epoch
+  if (isNaN(mins)) return 0; // fallback for malformed dates
+  return mins;
+}
+
+// Scan the upcoming week for the next open 2-hour window (default 120 min).
+// Returns { date, time } of the first available slot, or null.
+function findNextOpenWindow(existingEvents, requiredMin, startDate) {
+  requiredMin = requiredMin || 120;
+  var scanDate = startDate ? new Date(startDate + 'T00:00:00') : new Date();
+  var tz = 'America/Los_Angeles';
+  var maxDays = 14; // search up to 2 weeks out
+  
+  for (var day = 0; day < maxDays; day++) {
+    var ds = scanDate.getFullYear() + '-' + 
+      String(scanDate.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(scanDate.getDate()).padStart(2, '0');
+    
+    // Get events for this day, sorted by time
+    var dayEvents = existingEvents
+      .filter(function(e) { return e.date === ds && e.time; })
+      .sort(function(a, b) { return (a.time || '').localeCompare(b.time || ''); });
+    
+    // Build busy intervals for this day
+    var busy = [];
+    for (var i = 0; i < dayEvents.length; i++) {
+      var ev = dayEvents[i];
+      var evStart = parseHM(ev.time);
+      var evEnd = evStart + (ev.duration_min || 60);
+      busy.push([evStart, evEnd]);
+    }
+    // Merge overlapping busy intervals
+    busy.sort(function(a, b) { return a[0] - b[0]; });
+    var merged = [];
+    for (var i = 0; i < busy.length; i++) {
+      if (merged.length === 0 || busy[i][0] > merged[merged.length - 1][1]) {
+        merged.push(busy[i].slice());
+      } else {
+        merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], busy[i][1]);
+      }
+    }
+    
+    // Search for an open window from 06:00 to 22:00
+    var dayStart = 6 * 60;  // 6:00 AM
+    var dayEnd = 22 * 60;   // 10:00 PM
+    var cursor = dayStart;
+    
+    for (var i = 0; i < merged.length; i++) {
+      var gap = merged[i][0] - cursor;
+      if (gap >= requiredMin) {
+        var h = Math.floor(cursor / 60);
+        var m = cursor % 60;
+        return {
+          date: ds,
+          time: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0')
+        };
+      }
+      cursor = Math.max(cursor, merged[i][1]);
+    }
+    // Check after last busy interval
+    if (dayEnd - cursor >= requiredMin) {
+      var h = Math.floor(cursor / 60);
+      var m = cursor % 60;
+      return {
+        date: ds,
+        time: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0')
+      };
+    }
+    
+    // Advance to next day
+    scanDate.setDate(scanDate.getDate() + 1);
+  }
+  return null; // no window found in search range
+}
+
+function parseHM(timeStr) {
+  var parts = (timeStr || '09:00').split(':');
+  return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
+// POST /api/v1/calendar/add — append a new event with conflict detection
+app.post('/api/v1/calendar/add', async (req, res) => {
   const { title, date, time } = req.body;
   if (!title || !date) {
     return res.status(400).json({ error: 'title and date are required' });
   }
   const events = loadDataFile('calendar_events');
+  
+  // Check for overlapping events before writing
+  const incoming = { title: String(title).trim(), date: date, time: time || '09:00' };
+  const conflicts = checkForConflicts(incoming, events, 60);
+  
+  if (conflicts.length > 0) {
+    // Found conflicts — find alternative window and generate reschedule suggestion
+    var altWindow = findNextOpenWindow(events, 120, date);
+    
+    // Build collision summary for Llama
+    var conflictLines = conflicts.map(function(c) {
+      return '- ' + c.title + ' on ' + c.date + ' @ ' + (c.time || 'N/A');
+    }).join('\n');
+    
+    var altDesc = altWindow ? 
+      altWindow.date + ' at ' + altWindow.time : 
+      'No open 2-hour window found in the next 14 days';
+    
+    // Use Llama to generate a conversational RESCHEDULE_EVENT block
+    var reschedulePayload = null;
+    var apiKey = process.env.GROQ_API_KEY;
+    if (apiKey && altWindow) {
+      try {
+        var prompt = 'You are a scheduling assistant. A calendar conflict was detected.\n\n' +
+          'Requested event: "' + incoming.title + '" on ' + incoming.date + ' at ' + (incoming.time || '09:00') + '\n' +
+          'Conflicting events:\n' + conflictLines + '\n\n' +
+          'Suggested alternative window: ' + altWindow.date + ' at ' + altWindow.time + ' (2-hour block)\n\n' +
+          'Output ONLY a JSON object with no markdown wrapping. The JSON must have these exact fields:\n' +
+          '{"type":"RESCHEDULE_EVENT","title":"Event Title","date":"YYYY-MM-DD","time":"HH:MM","message":"Brief 1-sentence explanation of the conflict and proposed reschedule"}\n\n' +
+          'Set "title" to the original event title, "date" and "time" to the suggested alternative window. Keep "message" under 140 chars.';
+        
+        var groqResp = await fetch(GROQ_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey
+          },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 200,
+            temperature: 0.3
+          })
+        });
+        
+        if (groqResp.ok) {
+          var data = await groqResp.json();
+          var content = (data.choices[0].message.content || '').trim();
+          content = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+          try { reschedulePayload = JSON.parse(content); } catch(e) {
+            // Fallback: build payload from altWindow
+            reschedulePayload = {
+              type: 'RESCHEDULE_EVENT',
+              title: incoming.title,
+              date: altWindow.date,
+              time: altWindow.time,
+              message: 'Conflict with "' + conflicts[0].title + '". Suggested alternative: ' + altWindow.date + ' at ' + altWindow.time
+            };
+          }
+        } else {
+          // Groq failed — build fallback
+          reschedulePayload = {
+            type: 'RESCHEDULE_EVENT',
+            title: incoming.title,
+            date: altWindow.date,
+            time: altWindow.time,
+            message: 'Conflict with "' + conflicts[0].title + '". Suggested alternative: ' + altWindow.date + ' at ' + altWindow.time
+          };
+        }
+      } catch(e) {
+        console.error('Reschedule Llama error:', e.message);
+        reschedulePayload = {
+          type: 'RESCHEDULE_EVENT',
+          title: incoming.title,
+          date: altWindow.date,
+          time: altWindow.time,
+          message: 'Conflict with "' + conflicts[0].title + '". Suggested alternative: ' + altWindow.date + ' at ' + altWindow.time
+        };
+      }
+    } else if (altWindow) {
+      // No API key — use fallback
+      reschedulePayload = {
+        type: 'RESCHEDULE_EVENT',
+        title: incoming.title,
+        date: altWindow.date,
+        time: altWindow.time,
+        message: 'Conflict with "' + conflicts[0].title + '". Suggested alternative: ' + altWindow.date + ' at ' + altWindow.time
+      };
+    }
+    
+    return res.json({
+      conflict: true,
+      conflicts: conflicts.map(function(c) { return { id: c.id, title: c.title, date: c.date, time: c.time }; }),
+      incoming: incoming,
+      reschedule: reschedulePayload
+    });
+  }
+  
+  // No conflict — write normally
   const ev = {
     id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
     title: String(title).trim(),
@@ -1005,14 +1207,179 @@ app.post('/api/v1/calendar/add', (req, res) => {
   res.json({ ok: true, event: ev });
 });
 
+// POST /api/v1/calendar/reschedule — atomic swap: remove conflicting event, add rescheduled event
+app.post('/api/v1/calendar/reschedule', (req, res) => {
+  const { conflictId, title, date, time } = req.body;
+  if (!conflictId || !title || !date) {
+    return res.status(400).json({ error: 'conflictId, title, and date are required' });
+  }
+  
+  var events = loadDataFile('calendar_events');
+  
+  // Verify conflict event still exists
+  var conflictIdx = -1;
+  for (var i = 0; i < events.length; i++) {
+    if (events[i].id === conflictId) { conflictIdx = i; break; }
+  }
+  
+  if (conflictIdx === -1) {
+    return res.status(404).json({ error: 'Conflict event no longer exists' });
+  }
+  
+  // Snapshot for rollback
+  var snapshot = events.slice();
+  
+  try {
+    // Atomic: remove conflict + add new event in single write
+    var removed = events.splice(conflictIdx, 1)[0];
+    var newEv = {
+      id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      title: String(title).trim(),
+      date: date,
+      time: time || null,
+      createdAt: Date.now(),
+      rescheduledFrom: removed.id
+    };
+    events.push(newEv);
+    saveDataFile('calendar_events', events);
+    
+    res.json({ 
+      ok: true, 
+      removed: { id: removed.id, title: removed.title, date: removed.date, time: removed.time },
+      created: newEv 
+    });
+  } catch (err) {
+    // Rollback
+    saveDataFile('calendar_events', snapshot);
+    console.error('Reschedule error:', err.message);
+    res.status(500).json({ error: 'Reschedule failed, rolled back' });
+  }
+});
+
 /* ════════════ INSIGHTS ENGINE ════════════ */
 
 // Cache freshness: 12 hours in ms
 const INSIGHTS_TTL = 12 * 60 * 60 * 1000;
 
+/* ─── CROSS-DATA HABIT CORRELATOR ─── */
+// Reads health.json, workout.json, and deepwork.json simultaneously.
+// Groups by date over the past 14 entries, calculates if high focus tracking
+// scores mathematically align with positive hydration markers or active workout flags.
+function calculateHabitCorrelations() {
+  var tz = 'America/Los_Angeles';
+  var todayStr = userDateStr(tz);
+  var results = [];
+  
+  try {
+    // ── Gather datasets ──
+    var waterData = loadDataFile('water');
+    var wkData = loadWorkoutData();
+    var deepworkData = loadDataFile('deepwork');
+    
+    // Build date-keyed maps for the last 14 days
+    var dateMap = {};
+    var now = new Date();
+    for (var d = 0; d < 14; d++) {
+      var check = new Date(now);
+      check.setDate(check.getDate() - d);
+      var ds = check.getFullYear() + '-' + 
+        String(check.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(check.getDate()).padStart(2, '0');
+      dateMap[ds] = { water: 0, workouts: 0, workoutMin: 0, deepwork: 0, deepworkMin: 0 };
+    }
+    
+    // ── Water: glasses per day ──
+    if (waterData && waterData.length) {
+      for (var i = 0; i < waterData.length; i++) {
+        var w = waterData[i];
+        if (dateMap[w.date] !== undefined) {
+          dateMap[w.date].water = (w.glasses || 0) * 8; // convert glasses to oz
+        }
+      }
+    }
+    
+    // ── Workouts: presence + minutes per day ──
+    var allWorkouts = (wkData.history || []).slice();
+    if (wkData.today_workouts && wkData.today_workouts.length) {
+      allWorkouts.push({ date: todayStr, sessions: wkData.today_workouts });
+    }
+    for (var i = 0; i < allWorkouts.length; i++) {
+      var entry = allWorkouts[i];
+      if (dateMap[entry.date] !== undefined && entry.sessions) {
+        dateMap[entry.date].workouts = entry.sessions.length;
+        for (var j = 0; j < entry.sessions.length; j++) {
+          dateMap[entry.date].workoutMin += Math.round((entry.sessions[j].duration || 0) / 60);
+        }
+      }
+    }
+    
+    // ── Deep Work: sessions + minutes per day ──
+    var dwArr = Array.isArray(deepworkData) ? deepworkData : [];
+    for (var i = 0; i < dwArr.length; i++) {
+      var dw = dwArr[i];
+      if (dateMap[dw.date] !== undefined) {
+        dateMap[dw.date].deepwork++;
+        dateMap[dw.date].deepworkMin += (dw.duration || 0);
+      }
+    }
+    
+    // ── Compute correlations ──
+    // Split days into: workout days vs non-workout days; high-water days (>64oz) vs low-water days
+    var workoutDays = [];
+    var noWorkoutDays = [];
+    var highWaterDays = [];
+    var lowWaterDays = [];
+    var dates = Object.keys(dateMap).sort();
+    
+    for (var i = 0; i < dates.length; i++) {
+      var day = dateMap[dates[i]];
+      if (day.workouts > 0) {
+        workoutDays.push(day);
+      } else {
+        noWorkoutDays.push(day);
+      }
+      if (day.water > 64) {
+        highWaterDays.push(day);
+      } else {
+        lowWaterDays.push(day);
+      }
+    }
+    
+    function avg(arr, field) {
+      if (!arr.length) return 0;
+      var sum = 0;
+      for (var i = 0; i < arr.length; i++) { sum += arr[i][field]; }
+      return sum / arr.length;
+    }
+    
+    // Build correlation strings
+    if (workoutDays.length > 0 && noWorkoutDays.length > 0) {
+      results.push('## Cross-Data Correlations (last 14 days)');
+      results.push('- Workout days (' + workoutDays.length + '): avg water ' + avg(workoutDays, 'water').toFixed(0) + 'oz, deep work ' + avg(workoutDays, 'deepworkMin').toFixed(0) + 'min');
+      results.push('- Rest days (' + noWorkoutDays.length + '): avg water ' + avg(noWorkoutDays, 'water').toFixed(0) + 'oz, deep work ' + avg(noWorkoutDays, 'deepworkMin').toFixed(0) + 'min');
+    }
+    
+    if (highWaterDays.length > 0 && lowWaterDays.length > 0) {
+      if (!results.length) results.push('## Cross-Data Correlations (last 14 days)');
+      results.push('- High-hydration days (>64oz, ' + highWaterDays.length + '): avg deep work ' + avg(highWaterDays, 'deepworkMin').toFixed(0) + 'min, workout ' + avg(highWaterDays, 'workoutMin').toFixed(0) + 'min');
+      results.push('- Low-hydration days (≤64oz, ' + lowWaterDays.length + '): avg deep work ' + avg(lowWaterDays, 'deepworkMin').toFixed(0) + 'min, workout ' + avg(lowWaterDays, 'workoutMin').toFixed(0) + 'min');
+    }
+    
+    if (results.length === 0) {
+      results.push('## Cross-Data Correlations (last 14 days)');
+      results.push('- Insufficient data for trend analysis');
+    }
+  } catch (_) {
+    results.push('## Cross-Data Correlations (last 14 days)');
+    results.push('- (unavailable)');
+  }
+  
+  return results.join('\n');
+}
+
 /* ─── AURA SYSTEM CONTEXT AGGREGATOR ─── */
 // Bundles all tracking data into a compact markdown snapshot for LLM system prompts.
-// Reads from: calendar_events, health, water, finance, workouts data files.
+// Reads from: calendar_events, health, water, finance, workouts, deepwork data files.
 async function getAuraSystemContext() {
   const tz = 'America/Los_Angeles';
   const todayStr = userDateStr(tz);
@@ -1154,6 +1521,12 @@ async function getAuraSystemContext() {
     }
     parts.push('- Streak: ' + streak + ' day' + (streak !== 1 ? 's' : '') + (streak >= 3 ? ' \u{1F525}' : ''));
   } catch (_) { parts.push('## Workouts\n- (unavailable)'); }
+
+  // ── Cross-Data Habit Correlations ──
+  try {
+    parts.push('');
+    parts.push(calculateHabitCorrelations());
+  } catch (_) { /* silently skip if correlator fails */ }
 
   return parts.join('\n');
 }
@@ -1792,6 +2165,145 @@ app.post('/api/v1/health/sleep/end', (req, res) => {
 
   res.json({ ok: true, hours: parseFloat(totalHours.toFixed(2)), checkIn: startTs, checkOut: endTs });
 });
+
+// ── Micro-Logger Voice Orb: Intent Routing Endpoint ──
+const VOICE_LOG_SYSTEM_PROMPT = `You are Aura's data routing engine. You receive a raw text logging intent statement. You must categorize it into one of four files: 'workout', 'health', 'finance', or 'calendar'.
+Return EXCLUSIVELY a pure JSON object mapping the targeted file and the structural data changes required.
+Example 1: 'drank 2 cups of water' -> {"file": "health", "action": "increment", "key": "water_oz", "value": 16}
+Example 2: '30 min run' -> {"file": "workout", "action": "push", "data": {"type": "Run", "duration": 30}}
+Do not output markdown code fences, introductions, or conversational text. Output pure JSON.`;
+
+app.post('/api/v1/log/voice', async (req, res) => {
+  const { text } = req.body;
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    return res.status(400).json({ ok: false, error: 'Missing transcription text' });
+  }
+
+  // Early check: ensure GROQ_API_KEY is configured
+  if (!process.env.GROQ_API_KEY) {
+    return res.json({ ok: false, error: 'Voice logging not configured — GROQ_API_KEY missing' });
+  }
+
+  try {
+    // Route intent through Groq
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (process.env.GROQ_API_KEY || '')
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: VOICE_LOG_SYSTEM_PROMPT },
+          { role: 'user', content: text }
+        ],
+        temperature: 0.1,
+        max_tokens: 256
+      })
+    });
+
+    if (!groqRes.ok) {
+      const errText = await groqRes.text().catch(() => 'unknown');
+      console.error('Groq intent routing failed:', groqRes.status, errText);
+      return res.json({ ok: false, error: 'Intent routing failed' });
+    }
+
+    const groqData = await groqRes.json();
+    const rawContent = groqData.choices?.[0]?.message?.content || '';
+    
+    // Parse the intent JSON from Groq
+    let intent;
+    try {
+      intent = JSON.parse(rawContent.trim());
+    } catch (e) {
+      // Try extracting JSON from markdown fences or surrounding text
+      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try { intent = JSON.parse(jsonMatch[0]); } catch (e2) {
+          return res.json({ ok: false, error: 'Could not parse routing intent' });
+        }
+      } else {
+        return res.json({ ok: false, error: 'Could not parse routing intent' });
+      }
+    }
+
+    // Execute the file operation
+    let message = 'AURA | LOGGED \u2713';
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    if (intent.file === 'health') {
+      const health = loadHealthData();
+      if (intent.action === 'increment' && intent.key && typeof intent.value === 'number') {
+        if (!health[intent.key]) health[intent.key] = 0;
+        health[intent.key] += intent.value;
+        message = 'AURA | LOGGED \u2713 \u2014 ' + intent.value + ' ' + (intent.key === 'water_oz' ? 'oz water' : intent.key);
+      } else if (intent.action === 'push' && intent.data) {
+        if (!Array.isArray(health.records)) health.records = [];
+        health.records.push({ ...intent.data, date: dateStr, loggedAt: Date.now() });
+        message = 'AURA | LOGGED \u2713 \u2014 health record added';
+      }
+      saveHealthData(health);
+    } else if (intent.file === 'workout') {
+      const workouts = loadDataFile('workout');
+      if (intent.action === 'push' && intent.data) {
+        workouts.push({ ...intent.data, date: dateStr, loggedAt: Date.now() });
+        message = 'AURA | LOGGED \u2713 \u2014 ' + (intent.data.type || 'Workout') + ' ' + (intent.data.duration ? intent.data.duration + 'min' : '');
+      } else if (intent.action === 'increment' && intent.key) {
+        const todayEntry = workouts.find(w => w.date === dateStr);
+        if (todayEntry) {
+          todayEntry[intent.key] = (todayEntry[intent.key] || 0) + (intent.value || 1);
+        } else {
+          workouts.push({ date: dateStr, [intent.key]: intent.value || 1, loggedAt: Date.now() });
+        }
+        message = 'AURA | LOGGED \u2713 \u2014 workout ' + intent.key;
+      }
+      saveDataFile('workout', workouts);
+    } else if (intent.file === 'finance') {
+      const finance = loadDataFile('finance');
+      if (intent.action === 'push' && intent.data) {
+        finance.push({ ...intent.data, date: dateStr, loggedAt: Date.now() });
+        message = 'AURA | LOGGED \u2713 \u2014 $' + (intent.data.amount || '0') + ' ' + (intent.data.category || 'expense');
+      }
+      saveDataFile('finance', finance);
+    } else if (intent.file === 'calendar') {
+      const events = loadDataFile('calendar_events');
+      if (intent.action === 'push' && intent.data) {
+        events.push({ ...intent.data, loggedAt: Date.now() });
+        message = 'AURA | LOGGED \u2713 \u2014 ' + (intent.data.title || 'Event') + ' on ' + (intent.data.date || dateStr);
+      }
+      saveDataFile('calendar_events', events);
+    } else {
+      return res.json({ ok: false, error: 'Unknown file target: ' + intent.file });
+    }
+
+    // Persist voice log entry for history panel
+    const voiceLogs = loadDataFile('voice_log');
+    voiceLogs.unshift({
+      transcript: text,
+      file: intent.file,
+      action: intent.action,
+      message: message,
+      createdAt: Date.now()
+    });
+    // Keep last 50 entries
+    if (voiceLogs.length > 50) voiceLogs.length = 50;
+    saveDataFile('voice_log', voiceLogs);
+
+    res.json({ ok: true, message, intent });
+  } catch (err) {
+    console.error('Voice log error:', err);
+    res.json({ ok: false, error: 'Internal error processing voice log' });
+  }
+});
+// ── Voice Log History ──
+app.get('/api/v1/log/voice/history', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 10, 50);
+  const logs = loadDataFile('voice_log');
+  res.json({ ok: true, history: logs.slice(0, limit) });
+});
+
+
 
 /* ════════════ SERVER START ════════════ */
 

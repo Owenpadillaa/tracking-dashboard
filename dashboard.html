@@ -1170,6 +1170,25 @@ body{
 </head>
 <body>
 <div id="toast"></div>
+
+
+<!-- ═══ Action Modal Overlay (sequential scheduling confirmations) ═══ -->
+<div class="aura-modal-overlay" id="actionModalOverlay">
+  <div class="aura-modal-card" id="actionModalCard">
+    <button class="aura-modal-close" id="actionModalClose" aria-label="Close">✕</button>
+    <div class="aura-modal-badge">
+      <span class="aura-modal-badge-icon">📅</span>
+      <span>Schedule Event</span>
+    </div>
+    <div class="aura-modal-title" id="actionModalTitle"></div>
+    <div class="aura-modal-meta" id="actionModalMeta"></div>
+    <div class="aura-modal-progress" id="actionModalProgress"></div>
+    <div class="aura-modal-btns">
+      <button class="aura-modal-btn aura-modal-btn-confirm" id="actionModalConfirm">✓ Accept</button>
+      <button class="aura-modal-btn aura-modal-btn-decline" id="actionModalDecline">✕ Decline</button>
+    </div>
+  </div>
+</div>
 <div class="app-scroll">
 <div class="container">
 
@@ -1368,23 +1387,21 @@ body{
       </div>
     </div>
 
-    <!-- Quick Log -->
-    <div class="mb-4" style="background:rgba(24,24,27,0.4);border-radius:18px;padding:14px 16px;border:1px solid rgba(255,255,255,0.04)">
-      <div class="flex items-center gap-2 mb-3">
-        <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Quick Log</span>
-        <span class="text-[9px] text-slate-600">— tap or type what you did</span>
+    <!-- Micro-Logger Voice Orb -->
+    <div class="voice-orb-container" style="padding:28px 16px 20px;text-align:center">
+      <div class="flex flex-col items-center justify-center gap-4 py-12">
+        <button id="voice-logger-orb" class="voice-orb-btn" aria-label="Press and hold to record">
+          <svg xmlns="http://www.w3.org/2000/svg" class="voice-orb-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        </button>
+        <span id="voice-logger-status" class="voice-orb-label">Hold Orb to Log Anything</span>    </div>
+
+    <!-- Voice Log History Panel -->
+    <div class="voice-history-panel" id="voiceHistoryPanel" style="display:none">
+      <div class="voice-history-header">
+        <span class="voice-history-title">Recent Logs</span>
+        <span class="voice-history-count" id="voiceHistoryCount"></span>
       </div>
-      <div class="voice-bar" style="margin:0">
-        <input type="text" class="voice-input" id="voiceInput" placeholder="e.g. 30 min run, 64oz water, took vitamins" autocomplete="off">
-        <button class="voice-btn" id="voiceLogBtn">Log</button>
-        <div class="relative">
-          <div class="absolute -inset-2 rounded-full opacity-0" id="micPulseRing" style="background:rgba(99,102,241,0.08);animation:micPulse 2.5s ease-in-out infinite"></div>
-          <button class="voice-mic-btn" id="aura-mic-btn">
-            <svg class="w-5 h-5 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" style="stroke:rgba(99,102,241,0.9)" viewBox="0 0 24 24"><rect x="9" y="1" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          </button>
-        </div>
-        <div class="voice-feedback" id="voiceFeedback"></div>
-      </div>
+      <div class="voice-history-list" id="voiceHistoryList"></div>
     </div>
 
     <!-- ═══ Calendar: Multi-View Hybrid ═══ -->
@@ -1847,6 +1864,61 @@ function showToast(msg,duration){
   _toastTimer=setTimeout(function(){el.classList.remove('show')},duration||3500);
 }
 
+// ── Aura Frosted-Glass Toast (voice orb confirmation) ──
+var _auraToastTimer=null;
+function showAuraToast(msg){
+  var existing=document.getElementById('auraToast');
+  if(existing)existing.remove();
+  var toast=document.createElement('div');
+  toast.id='auraToast';
+  toast.className='aura-toast';
+  toast.textContent=msg;
+  document.body.appendChild(toast);
+  requestAnimationFrame(function(){
+    toast.classList.add('aura-toast-show');
+  });
+  clearTimeout(_auraToastTimer);
+  _auraToastTimer=setTimeout(function(){
+    toast.classList.remove('aura-toast-show');
+    setTimeout(function(){if(toast.parentNode)toast.remove();},400);
+  },2500);
+}
+
+// ── Voice Log History Panel ──
+var _voiceHistoryIcons={health:'💧',workout:'🏃',finance:'💰',calendar:'📅'};
+function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function loadVoiceHistory(){
+  fetch('/api/v1/log/voice/history?limit=10').then(function(r){return r.json();}).then(function(data){
+    var panel=document.getElementById('voiceHistoryPanel');
+    var list=document.getElementById('voiceHistoryList');
+    var count=document.getElementById('voiceHistoryCount');
+    if(!data||!data.ok||!data.history||!data.history.length){
+      if(panel)panel.style.display='none';
+      return;
+    }
+    if(panel)panel.style.display='';
+    if(count)count.textContent=data.history.length+' entry'+(data.history.length!==1?'s':'');
+    var html='';
+    data.history.forEach(function(entry){
+      var icon=_voiceHistoryIcons[entry.file]||'📋';
+      var time=new Date(entry.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      html+='<div class="voice-history-item">';
+      html+='<span class="voice-history-icon">'+icon+'</span>';
+      html+='<div class="voice-history-body">';
+      html+='<span class="voice-history-text">'+escHtml(entry.transcript)+'</span>';
+      html+='<span class="voice-history-meta">'+escHtml(entry.file)+' · '+time+'</span>';
+      html+='</div>';
+      html+='</div>';
+    });
+    if(list)list.innerHTML=html;
+  }).catch(function(){
+    var panel=document.getElementById('voiceHistoryPanel');
+    if(panel)panel.style.display='none';
+  });
+}
+// Load on DOM ready (check readyState since script runs after DOMContentLoaded)
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',loadVoiceHistory);}else{loadVoiceHistory();}
+
 /* ════════════ TAB SYSTEM ════════════ */
 function switchTab(id){
   // Ensure nav bar is visible (belt-and-suspenders)
@@ -2094,10 +2166,6 @@ function speakAuraResponse(text){
 initAuraTts();
 
 /* ════════════ SPEECH RECOGNITION (STT) ════════════ */
-var auraMicBtn=document.getElementById('aura-mic-btn');
-var micPulseRing=document.getElementById('micPulseRing');
-var voiceInputEl=document.getElementById('voiceInput');
-var chatMicBtn=document.getElementById('chatMicBtn');
 
 var SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
 var speechRec=null;
@@ -2112,14 +2180,12 @@ if(SpeechRecognition){
   speechRec.onresult=function(e){
     var transcript=e.results[0][0].transcript;
     speechActive=false;
-    stopMicPulse();
     if(speechCallback) speechCallback(transcript);
     speechCallback=null;
   };
-  speechRec.onerror=function(){speechActive=false;stopMicPulse();speechCallback=null};
+  speechRec.onerror=function(){speechActive=false;speechCallback=null};
   speechRec.onend=function(){
     speechActive=false;
-    stopMicPulse();
     // If onend fires without onresult (user tapped stop), still fire callback
     if(speechCallback){speechCallback('');speechCallback=null}
   };
@@ -2132,43 +2198,139 @@ function startSpeechInput(callback){
   if(speechActive){speechRec.stop();return}
   speechCallback=callback;
   speechActive=true;
-  try{speechRec.start();startMicPulse()}catch(e){speechActive=false;stopMicPulse()}
+  try{speechRec.start();}catch(e){speechActive=false;}
 }
 
 function stopSpeechInput(){
   if(speechRec&&speechActive)speechRec.stop();
 }
 
-function startMicPulse(){
-  if(micPulseRing)micPulseRing.style.opacity='1';
-  if(auraMicBtn){
-    auraMicBtn.style.background='linear-gradient(135deg, rgba(99,102,241,0.3), rgba(99,102,241,0.1))';
-    auraMicBtn.style.borderColor='rgba(99,102,241,0.6)';
-    auraMicBtn.style.boxShadow='0 0 25px rgba(99,102,241,0.4), 0 0 50px rgba(99,102,241,0.15)';
+// ── Micro-Logger Voice Orb: press-to-talk with native SpeechRecognition ──
+var voiceOrbEl=document.getElementById('voice-logger-orb');
+var voiceOrbStatus=document.getElementById('voice-logger-status');
+var _voiceRecognition=null;
+var _voiceIsRecording=false;
+var _voiceIsTouch=false;
+var _voicePressTimer=null;
+if(voiceOrbEl){
+  var SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SpeechRecognition){
+    _voiceRecognition=new SpeechRecognition();
+    _voiceRecognition.continuous=false;
+    _voiceRecognition.interimResults=false;
+    _voiceRecognition.lang='en-US';
+    _voiceRecognition.onresult=function(event){
+      var transcript=event.results[0][0].transcript.trim();
+      if(transcript){
+        if(voiceOrbStatus)voiceOrbStatus.textContent='Processing: "'+transcript+'"';
+        fetch('/api/v1/log/voice',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:transcript})
+        }).then(function(r){return r.json();})
+        .then(function(data){
+          _stopOrbPulse();
+          if(data&&data.ok){
+            showAuraToast(data.message||'AURA | LOGGED \u2713');
+            if(voiceOrbStatus)voiceOrbStatus.textContent='Hold Orb to Log Anything';
+            if(typeof refreshInsights==='function')refreshInsights();
+            if(typeof renderWeeklyView==='function')renderWeeklyView();
+            if(typeof updateDateRibbon==='function')updateDateRibbon();
+            loadVoiceHistory();
+          } else {
+            showAuraToast('AURA | Could not process log');
+            if(voiceOrbStatus)voiceOrbStatus.textContent='Try again \u2014 Hold Orb to Log';
+          }
+        }).catch(function(){
+          _stopOrbPulse();
+          showAuraToast('AURA | Network error');
+          if(voiceOrbStatus)voiceOrbStatus.textContent='Hold Orb to Log Anything';
+        });
+      } else {
+        _stopOrbPulse();
+        if(voiceOrbStatus)voiceOrbStatus.textContent='Hold Orb to Log Anything';
+      }
+    };
+    _voiceRecognition.onerror=function(event){
+      _stopOrbPulse();
+      if(voiceOrbStatus)voiceOrbStatus.textContent='Hold Orb to Log Anything';
+      if(event.error==='not-allowed'){
+        showAuraToast('AURA | Microphone access denied');
+      }
+    };
+    _voiceRecognition.onend=function(){
+      _stopOrbPulse();
+      _voiceIsRecording=false;
+      if(voiceOrbStatus&&voiceOrbStatus.textContent.indexOf('Processing')===-1){
+        voiceOrbStatus.textContent='Hold Orb to Log Anything';
+      }
+    };
+  } else {
+    // Browser doesn't support SpeechRecognition
+    if(voiceOrbEl){
+      voiceOrbEl.style.opacity='0.4';
+      voiceOrbEl.style.cursor='not-allowed';
+    }
+    if(voiceOrbStatus)voiceOrbStatus.textContent='Not supported in this browser';
   }
-  document.querySelectorAll('.chat-mic-btn').forEach(function(b){
-    b.style.color='var(--accent)';
-  });
-}
-function stopMicPulse(){
-  if(micPulseRing)micPulseRing.style.opacity='0';
-  if(auraMicBtn){
-    auraMicBtn.style.background='';
-    auraMicBtn.style.borderColor='';
-    auraMicBtn.style.boxShadow='';
+  function _startOrbPulse(){
+    if(voiceOrbEl)voiceOrbEl.classList.add('orb-listening');
+    if(voiceOrbStatus)voiceOrbStatus.textContent='Listening\u2026 release to send';
   }
-  document.querySelectorAll('.chat-mic-btn').forEach(function(b){
-    b.style.color='';
+  function _stopOrbPulse(){
+    if(voiceOrbEl)voiceOrbEl.classList.remove('orb-listening');
+  }
+  // Press-and-hold: mouse
+  voiceOrbEl.addEventListener('mousedown',function(ev){
+    ev.preventDefault();
+    if(_voiceIsTouch)return;
+    if(_voiceIsRecording)return;
+    _voiceIsRecording=true;
+    _startOrbPulse();
+    _voicePressTimer=setTimeout(function(){
+      if(_voiceIsRecording&&_voiceRecognition){
+        try{_voiceRecognition.start();}catch(e){}
+      }
+    },150);
   });
-}
-
-// Home mic — tap to record, auto-log on stop
-if(auraMicBtn){
-  auraMicBtn.addEventListener('click',function(){
-    startSpeechInput(function(transcript){
-      if(voiceInputEl)voiceInputEl.value=transcript;
-      if(transcript.trim())processVoiceLog(transcript);
-    });
+  voiceOrbEl.addEventListener('mouseup',function(){
+    clearTimeout(_voicePressTimer);
+    if(_voiceIsRecording&&_voiceRecognition){
+      try{_voiceRecognition.stop();}catch(e){}
+    }
+  });
+  voiceOrbEl.addEventListener('mouseleave',function(){
+    clearTimeout(_voicePressTimer);
+    if(_voiceIsRecording&&_voiceRecognition){
+      try{_voiceRecognition.stop();}catch(e){}
+    }
+  });
+  // Press-and-hold: touch
+  voiceOrbEl.addEventListener('touchstart',function(ev){
+    ev.preventDefault();
+    if(_voiceIsRecording)return;
+    _voiceIsTouch=true;
+    _voiceIsRecording=true;
+    _startOrbPulse();
+    _voicePressTimer=setTimeout(function(){
+      if(_voiceIsRecording&&_voiceRecognition){
+        try{_voiceRecognition.start();}catch(e){}
+      }
+    },150);
+  });
+  voiceOrbEl.addEventListener('touchend',function(){
+    _voiceIsTouch=false;
+    clearTimeout(_voicePressTimer);
+    if(_voiceIsRecording&&_voiceRecognition){
+      try{_voiceRecognition.stop();}catch(e){}
+    }
+  });
+  voiceOrbEl.addEventListener('touchcancel',function(){
+    _voiceIsTouch=false;
+    clearTimeout(_voicePressTimer);
+    if(_voiceIsRecording&&_voiceRecognition){
+      try{_voiceRecognition.stop();}catch(e){}
+    }
   });
 }
 
@@ -2676,7 +2838,7 @@ function fmtMoney(n){return '$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d
     renderIncome();
   });
 
-  document.getElementById('incomeEditBtn').addEventListener('click',function(){
+  var incomeEditBtn=document.getElementById('incomeEditBtn');if(incomeEditBtn)incomeEditBtn.addEventListener('click',function(){
     var inc=storeGet('finance:income')||{};
     document.getElementById('incomeAmount').value=inc.amount||'';
     selectedFreq=inc.freq||'weekly';
@@ -3927,8 +4089,13 @@ function parseProposedActions(text){
       lastIdx = match.index;
       var jsonStr = match[1].trim();
       if(!jsonStr || jsonStr.length < 5) { safety++; continue; }
+      // Try proper double-quoted JSON first, fall back to single-quote normalization
       var action;
-      try { action = JSON.parse(jsonStr); } catch(e) { safety++; continue; }
+      try { action = JSON.parse(jsonStr); } catch(e2) {
+        // Model sometimes outputs single-quoted JSON — normalize and retry
+        var fixedJson = jsonStr.replace(/'/g, '"');
+        try { action = JSON.parse(fixedJson); } catch(e3) { safety++; continue; }
+      }
       if(action && action.type==='SCHEDULE_EVENT' && action.title && action.date) actions.push(action);
       safety++;
       if(safety > 20) break;
@@ -3940,118 +4107,334 @@ function parseProposedActions(text){
 function handleProposedAction(fullText,bubble){
   if(bubble._actionCardRendered) return;
   var actions;
-  try { actions = parseProposedActions(fullText); } catch(e) { return; }
-  if(!actions||actions.length===0) return;
+  try { actions = parseProposedActions(fullText); } catch(e) { actions = []; }
   bubble._actionCardRendered = true;
 
-  // Properly strip paired [PROPOSED_ACTION] tags without a slash
+  // Always strip tags from visible text, even if parsing failed
   var cleanText = fullText;
   var actionRegex = /\[PROPOSED_ACTION\]([\s\S]*?)\[PROPOSED_ACTION\]/g;
-  actionRegex.lastIndex = 0;
   var match;
   while ((match = actionRegex.exec(fullText)) !== null) {
-    var rawJson = match[1].trim();
     cleanText = cleanText.replace(match[0], '');
-    try {
-      var actionData = JSON.parse(rawJson.replace(/'/g, '"'));
-      renderActionCardToStream(actionData, bubble);
-    } catch (e) {
-      console.error('Failed to parse action card data slot:', e);
-    }
   }
   bubble.textContent = cleanText.trim();
   var lastMsg = chatMessages[chatMessages.length - 1];
   if (lastMsg && lastMsg.role === 'assistant') lastMsg.content = cleanText.trim();
+
+  if(!actions||actions.length===0) return;
+
+  // (tags already stripped above)
+
+  // Queue actions for sequential modal display
+  if(!window._actionModalQueue) window._actionModalQueue = [];
+  var wasActive = window._actionModalActive;
+  window._actionModalQueue = window._actionModalQueue.concat(actions);
+  if(!wasActive) _startNextActionModal();
 }
 
-function renderActionCardToStream(actionData, bubble){
-  if(!bubble||!bubble.parentNode) return;
-  var cardId='aura-card-'+Date.now()+'-'+Math.random().toString(36).substr(2,5);
-  var card=document.createElement('div');
-  card.id=cardId;
-  card.className='aura-action-card';
-  card.style.cssText='pointer-events:auto;position:relative;z-index:10';
-  var dateDisplay=actionData.date;
-  var timeDisplay=actionData.time?' at '+actionData.time:'';
-  card.innerHTML=
-    '<div class="aura-action-card-header">'+
-      '<div class="aura-action-card-icon">📅</div>'+
-      '<div class="aura-action-card-label">Schedule Event</div>'+
-    '</div>'+
-    '<div class="aura-action-card-body">'+
-      '<div class="aura-action-card-title">'+escHtml(actionData.title)+'</div>'+
-      '<div class="aura-action-card-meta">'+escHtml(dateDisplay+timeDisplay)+'</div>'+
-    '</div>'+
-    '<div class="aura-action-card-btns">'+
-      '<button id="'+cardId+'-confirm" class="aura-action-btn-confirm">✔️ Confirm Slot</button>'+
-      '<button id="'+cardId+'-decline" class="aura-action-btn-decline">❌ Decline</button>'+
-    '</div>';
-  var msgDiv=bubble.parentNode;
-  if(msgDiv.nextSibling)msgDiv.parentNode.insertBefore(card,msgDiv.nextSibling);
-  else msgDiv.parentNode.appendChild(card);
-  var confirmBtn=document.getElementById(cardId+'-confirm');
-  var declineBtn=document.getElementById(cardId+'-decline');
-  if(!confirmBtn||!declineBtn) return;
-  confirmBtn.onclick=function(ev){
+function _startNextActionModal(){
+  if(!window._actionModalQueue||window._actionModalQueue.length===0){
+    window._actionModalActive = false;
+    window._actionModalQueueTotalSeen = 0;
+    return;
+  }
+  window._actionModalActive = true;
+  var actionData = window._actionModalQueue.shift();
+  var current = (window._actionModalQueueTotalSeen||0) + 1;
+  var total = current + window._actionModalQueue.length;
+  window._actionModalQueueTotalSeen = current;
+
+  var overlay = document.getElementById('actionModalOverlay');
+  var titleEl = document.getElementById('actionModalTitle');
+  var metaEl = document.getElementById('actionModalMeta');
+  var progressEl = document.getElementById('actionModalProgress');
+  var confirmBtn = document.getElementById('actionModalConfirm');
+  var declineBtn = document.getElementById('actionModalDecline');
+  var closeBtn = document.getElementById('actionModalClose');
+
+  if(!overlay||!titleEl||!metaEl||!confirmBtn||!declineBtn||!closeBtn) return;
+
+  // Populate modal
+  titleEl.textContent = actionData.title;
+  var dateDisplay = formatDate(actionData.date);
+  var timeDisplay = actionData.time?' at '+actionData.time:'';
+  metaEl.textContent = dateDisplay + timeDisplay;
+
+  if(total > 1){
+    progressEl.textContent = 'Option ' + current + ' of ' + total;
+    progressEl.style.display = '';
+  } else {
+    progressEl.style.display = 'none';
+  }
+
+  // Reset button states
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = '\u2713 Accept';
+  confirmBtn.style.background = '';
+  confirmBtn.style.color = '';
+  confirmBtn.style.opacity = '1';
+  declineBtn.style.display = '';
+
+  // Show overlay
+  overlay.classList.add('active');
+
+  // Attach handlers via onclick property (overwrites previous)
+  closeBtn.onclick = function(){
+    overlay.classList.remove('active');
+    window._actionModalQueueTotalSeen = 0;
+    window._actionModalQueue = [];
+    window._actionModalActive = false;
+  };
+
+  confirmBtn.onclick = function(ev){
     ev.stopPropagation();
-    confirmBtn.disabled=true;
-    confirmBtn.textContent='⏳ Adding…';
-    confirmBtn.style.opacity='0.6';
-    declineBtn.style.display='none';
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '\u23F3 Adding\u2026';
+    confirmBtn.style.opacity = '0.6';
+    declineBtn.style.display = 'none';
+
     fetch('/api/v1/calendar/add',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({title:actionData.title,date:actionData.date,time:actionData.time||'09:00'})
     }).then(function(res){ return res.json(); })
     .then(function(data){
-      if (!card.parentNode) return;
+      if(data&&data.conflict){
+        _showConflictModal(data, actionData);
+        return;
+      }
       if(data&&data.ok){
         calendarEvents.push({title:actionData.title,date:actionData.date,time:actionData.time||'09:00'});
-        confirmBtn.textContent='✅ Confirmed';
-        confirmBtn.style.background='rgba(16,185,129,0.3)';
-        confirmBtn.style.color='#10B981';
+        confirmBtn.textContent = '\u2705 Confirmed';
+        confirmBtn.style.background = 'rgba(16,185,129,0.3)';
+        confirmBtn.style.color = '#10B981';
         if(typeof renderWeeklyView==='function') renderWeeklyView();
         if(typeof renderMonthlyView==='function') renderMonthlyView();
         if(typeof updateCalendarDateSelection==='function') updateCalendarDateSelection();
         if(typeof refreshInsights==='function') refreshInsights();
         if(typeof updateDateRibbon==='function') updateDateRibbon();
-        var dot=document.createElement('div');
-        dot.className='aura-action-dot';
-        card.appendChild(dot);
         showToast('Event added to calendar');
       } else {
-        confirmBtn.textContent='❌ Failed';
-        confirmBtn.style.background='rgba(239,68,68,0.2)';
-        confirmBtn.style.color='#EF4444';
-        confirmBtn.disabled=false;
-        confirmBtn.style.opacity='1';
-        declineBtn.style.display='';
-        setTimeout(function(){ confirmBtn.textContent='✔️ Confirm Slot'; confirmBtn.style.background=''; confirmBtn.style.color=''; },1500);
+        confirmBtn.textContent = '\u274C Failed';
+        confirmBtn.style.background = 'rgba(239,68,68,0.2)';
+        confirmBtn.style.color = '#EF4444';
+        showToast('Failed to add event');
       }
+      setTimeout(function(){
+        overlay.classList.remove('active');
+        _startNextActionModal();
+      }, 600);
     }).catch(function(err){
-      confirmBtn.textContent='❌ Network Error';
-      confirmBtn.style.background='rgba(239,68,68,0.2)';
-      confirmBtn.style.color='#EF4444';
-      confirmBtn.disabled=false;
-      confirmBtn.style.opacity='1';
-      declineBtn.style.display='';
-      setTimeout(function(){ confirmBtn.textContent='✔️ Confirm Slot'; confirmBtn.style.background=''; confirmBtn.style.color=''; },1500);
+      confirmBtn.textContent = '\u274C Network Error';
+      confirmBtn.style.background = 'rgba(239,68,68,0.2)';
+      confirmBtn.style.color = '#EF4444';
+      setTimeout(function(){
+        overlay.classList.remove('active');
+        _startNextActionModal();
+      }, 600);
     });
   };
-  declineBtn.onclick=function(ev){
+
+  declineBtn.onclick = function(ev){
     ev.stopPropagation();
-    card.style.transition='opacity 0.35s ease, transform 0.35s ease';
-    card.style.opacity='0';
-    card.style.transform='translateY(-6px) scale(0.97)';
-    setTimeout(function(){ if(card.parentNode) card.parentNode.removeChild(card); },350);
+    overlay.classList.remove('active');
+    _startNextActionModal();
   };
 }
 
-// Backward compatibility alias
-function renderActionCard(action,bubble){
-  renderActionCardToStream(action,bubble);
+
+function _showConflictModal(conflictData, originalAction){
+  var overlay = document.getElementById('actionModalOverlay');
+  var card = document.getElementById('actionModalCard');
+  var titleEl = document.getElementById('actionModalTitle');
+  var metaEl = document.getElementById('actionModalMeta');
+  var progressEl = document.getElementById('actionModalProgress');
+  var confirmBtn = document.getElementById('actionModalConfirm');
+  var declineBtn = document.getElementById('actionModalDecline');
+  var closeBtn = document.getElementById('actionModalClose');
+  var badgeEl = overlay.querySelector('.aura-modal-badge span:last-child');
+  var badgeIcon = overlay.querySelector('.aura-modal-badge-icon');
+
+  if(!overlay||!titleEl||!metaEl||!confirmBtn||!declineBtn||!closeBtn) return;
+
+  // Store reschedule data for the confirm handler
+  window._actionModalConflict = conflictData;
+
+  // Transform to amber-bordered conflict modal
+  card.style.border = '1px solid rgba(245,158,11,0.35)';
+  card.style.boxShadow = '0 0 0 1px rgba(245,158,11,0.2), 0 16px 64px rgba(0,0,0,0.6)';
+  if(badgeIcon) badgeIcon.textContent = '\u26A0\uFE0F';
+  if(badgeEl) badgeEl.textContent = 'Schedule Conflict';
+
+  titleEl.textContent = '\u26A0\uFE0F SCHEDULE CONFLICT DETECTED';
+  titleEl.style.color = '#FBBF24';
+
+  // Show conflicting events
+  var conflictNames = (conflictData.conflicts||[]).map(function(c){return c.title+' @ '+c.time;}).join(', ');
+  metaEl.textContent = 'Conflicts with: ' + conflictNames;
+
+  if(conflictData.reschedule){
+    progressEl.textContent = 'Suggested: ' + conflictData.reschedule.date + ' at ' + conflictData.reschedule.time + ' — ' + (conflictData.reschedule.message||'');
+    progressEl.style.display = '';
+  } else {
+    progressEl.style.display = 'none';
+  }
+
+  // Update button text for reschedule action
+  confirmBtn.textContent = '[ \u{1F504} Agree to Shift Slot ]';
+  confirmBtn.style.background = 'linear-gradient(135deg,#F59E0B,#D97706)';
+  confirmBtn.style.color = '#fff';
+  confirmBtn.style.boxShadow = '0 4px 16px rgba(245,158,11,0.25)';
+  confirmBtn.disabled = false;
+  confirmBtn.style.opacity = '1';
+  declineBtn.style.display = '';
+  declineBtn.textContent = '\u2715 Decline';
+
+  // Overlay is still active from _startNextActionModal — update handlers
+
+  closeBtn.onclick = function(){
+    _resetModalStyle();
+    overlay.classList.remove('active');
+    window._actionModalConflict = null;
+    _startNextActionModal();
+  };
+
+  confirmBtn.onclick = function(ev){
+    ev.stopPropagation();
+    var res = conflictData.reschedule;
+    if(!res||!res.date||!res.title){
+      _resetModalStyle();
+      overlay.classList.remove('active');
+      window._actionModalConflict = null;
+      _startNextActionModal();
+      return;
+    }
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '\u23F3 Rescheduling\u2026';
+    confirmBtn.style.opacity = '0.6';
+    declineBtn.style.display = 'none';
+
+    var conflictId = conflictData.conflicts[0] ? conflictData.conflicts[0].id : null;
+    if(!conflictId){
+      // Fallback: just add the rescheduled event
+      fetch('/api/v1/calendar/add',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({title:res.title,date:res.date,time:res.time||'09:00'})
+      }).then(function(r){return r.json();})
+      .then(function(d){
+        if(d&&d.ok){
+          calendarEvents.push({title:res.title,date:res.date,time:res.time||'09:00'});
+          confirmBtn.textContent = '\u2705 Rescheduled';
+          confirmBtn.style.background = 'rgba(16,185,129,0.3)';
+          confirmBtn.style.color = '#10B981';
+          if(typeof renderWeeklyView==='function') renderWeeklyView();
+          if(typeof renderMonthlyView==='function') renderMonthlyView();
+          if(typeof updateCalendarDateSelection==='function') updateCalendarDateSelection();
+          if(typeof refreshInsights==='function') refreshInsights();
+          if(typeof updateDateRibbon==='function') updateDateRibbon();
+          showToast('Event rescheduled');
+        } else {
+          confirmBtn.textContent = '\u274C Failed';
+          confirmBtn.style.background = 'rgba(239,68,68,0.2)';
+          confirmBtn.style.color = '#EF4444';
+          showToast('Reschedule failed');
+        }
+        setTimeout(function(){
+          _resetModalStyle();
+          overlay.classList.remove('active');
+          window._actionModalConflict = null;
+          _startNextActionModal();
+        }, 600);
+      }).catch(function(){
+        confirmBtn.textContent = '\u274C Network Error';
+        setTimeout(function(){
+          _resetModalStyle();
+          overlay.classList.remove('active');
+          window._actionModalConflict = null;
+          _startNextActionModal();
+        }, 600);
+      });
+    } else {
+      // Atomic swap via /api/v1/calendar/reschedule
+      fetch('/api/v1/calendar/reschedule',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({conflictId:conflictId,title:res.title,date:res.date,time:res.time||'09:00'})
+      }).then(function(r){return r.json();})
+      .then(function(d){
+        if(d&&d.ok){
+          // Remove old conflict from local array
+          for(var i=0;i<calendarEvents.length;i++){
+            if(calendarEvents[i].id===d.removed.id){calendarEvents.splice(i,1);break;}
+          }
+          calendarEvents.push({title:res.title,date:res.date,time:res.time||'09:00'});
+          confirmBtn.textContent = '\u2705 Rescheduled';
+          confirmBtn.style.background = 'rgba(16,185,129,0.3)';
+          confirmBtn.style.color = '#10B981';
+          if(typeof renderWeeklyView==='function') renderWeeklyView();
+          if(typeof renderMonthlyView==='function') renderMonthlyView();
+          if(typeof updateCalendarDateSelection==='function') updateCalendarDateSelection();
+          if(typeof refreshInsights==='function') refreshInsights();
+          if(typeof updateDateRibbon==='function') updateDateRibbon();
+          showToast('Event rescheduled');
+        } else {
+          confirmBtn.textContent = '\u274C Failed';
+          confirmBtn.style.background = 'rgba(239,68,68,0.2)';
+          confirmBtn.style.color = '#EF4444';
+          showToast('Reschedule failed');
+        }
+        setTimeout(function(){
+          _resetModalStyle();
+          overlay.classList.remove('active');
+          window._actionModalConflict = null;
+          _startNextActionModal();
+        }, 600);
+      }).catch(function(){
+        confirmBtn.textContent = '\u274C Network Error';
+        setTimeout(function(){
+          _resetModalStyle();
+          overlay.classList.remove('active');
+          window._actionModalConflict = null;
+          _startNextActionModal();
+        }, 600);
+      });
+    }
+  };
+
+  declineBtn.onclick = function(ev){
+    ev.stopPropagation();
+    _resetModalStyle();
+    overlay.classList.remove('active');
+    window._actionModalConflict = null;
+    _startNextActionModal();
+  };
 }
 
+function _resetModalStyle(){
+  var card = document.getElementById('actionModalCard');
+  var titleEl = document.getElementById('actionModalTitle');
+  var confirmBtn = document.getElementById('actionModalConfirm');
+  var declineBtn = document.getElementById('actionModalDecline');
+  var badgeEl = document.querySelector('#actionModalOverlay .aura-modal-badge span:last-child');
+  var badgeIcon = document.querySelector('#actionModalOverlay .aura-modal-badge-icon');
+
+  if(card){
+    card.classList.remove('aura-modal-conflict');
+  }
+  var badgeContainer = document.querySelector('#actionModalOverlay .aura-modal-badge');
+  if(badgeContainer) badgeContainer.classList.remove('aura-modal-badge-warn');
+  if(titleEl) titleEl.style.color = '';
+  if(confirmBtn){
+    confirmBtn.textContent = '\u2713 Accept';
+    confirmBtn.style.background = '';
+    confirmBtn.style.color = '';
+    confirmBtn.style.boxShadow = '';
+  }
+  if(declineBtn) declineBtn.textContent = '\u2715 Decline';
+  if(badgeEl) badgeEl.textContent = 'Schedule Event';
+  if(badgeIcon) badgeIcon.textContent = '\u{1F4C5}';
+}
 function sendChat(){
   var input=document.getElementById('chatInput');
   var btn=document.getElementById('chatSendBtn');
@@ -4085,7 +4468,7 @@ function sendChat(){
         if(result.done){
           if(cursor)cursor.remove();
           chatMessages.push({role:'assistant',content:fullText});
-  handleProposedAction(fullText, bubble);
+          handleProposedAction(fullText, bubble);
           chatStreaming=false;
           btn.disabled=false;
           input.focus();
@@ -4102,7 +4485,7 @@ function sendChat(){
           if(data==='[DONE]'){
             if(cursor)cursor.remove();
             chatMessages.push({role:'assistant',content:fullText});
-            // handleProposedAction already called at result.done
+            handleProposedAction(fullText, bubble);
             chatStreaming=false;
             btn.disabled=false;
             input.focus();
@@ -4303,10 +4686,7 @@ document.getElementById('chatInput').addEventListener('keydown',function(e){
   btn.addEventListener('click',processLog);
   input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();processLog()}});
   // Expose for speech recognition
-  window.processVoiceLog=function(text){
-    if(input)input.value=text;
-    processLog();
-  };
+  
 })();
 
 /* ════════════ BOOTUP SESSION HIJACK ════════════ */
