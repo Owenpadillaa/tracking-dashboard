@@ -2295,13 +2295,15 @@ if(voiceOrbEl){
   });
   voiceOrbEl.addEventListener('mouseup',function(){
     clearTimeout(_voicePressTimer);
-    if(_voiceIsRecording&&_voiceRecognition){
+    _voiceIsRecording=false;
+    if(_voiceRecognition){
       try{_voiceRecognition.stop();}catch(e){}
     }
   });
   voiceOrbEl.addEventListener('mouseleave',function(){
     clearTimeout(_voicePressTimer);
-    if(_voiceIsRecording&&_voiceRecognition){
+    _voiceIsRecording=false;
+    if(_voiceRecognition){
       try{_voiceRecognition.stop();}catch(e){}
     }
   });
@@ -2322,16 +2324,18 @@ if(voiceOrbEl){
   voiceOrbEl.addEventListener('touchend',function(ev){
     ev.stopPropagation();
     _voiceIsTouch=false;
+    _voiceIsRecording=false;
     clearTimeout(_voicePressTimer);
-    if(_voiceIsRecording&&_voiceRecognition){
+    if(_voiceRecognition){
       try{_voiceRecognition.stop();}catch(e){}
     }
   });
   voiceOrbEl.addEventListener('touchcancel',function(ev){
     ev.stopPropagation();
     _voiceIsTouch=false;
+    _voiceIsRecording=false;
     clearTimeout(_voicePressTimer);
-    if(_voiceIsRecording&&_voiceRecognition){
+    if(_voiceRecognition){
       try{_voiceRecognition.stop();}catch(e){}
     }
   });
