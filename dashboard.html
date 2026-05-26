@@ -26,10 +26,11 @@ tailwind.config = {
 }
 </script>
 <title>Aura</title>
-<!-- ══ Premium Onyx Luxe Design System ══ -->
+<!-- ══ Aura Design System ══ -->
 <link rel="stylesheet" href="css_part1.css">
 <link rel="stylesheet" href="css_part2.css">
 <link rel="stylesheet" href="css_part3.css">
+<link rel="stylesheet" href="css_game.css">
 </head>
 <body>
 <div id="toast"></div>
@@ -115,90 +116,56 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- Hero Insights Block — 4-section live summary -->
-    <!-- ═══ Compact Status Row (Sleep + Streak) ═══ -->
-    <div class="flex items-center gap-3 mb-3">
-      <button class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold" id="sleepCheckBtn" style="background:rgba(20,184,166,0.1);color:#2dd4bf;border:1px solid rgba(20,184,166,0.15)">
-        🌙 <span id="homeSleepVal">--</span>h
-      </button>
-      <span class="text-[10px] font-bold tracking-wider uppercase text-amber-400/70">🔥 <span id="homeStreakNum">0</span> streak</span>
-      <div class="flex-1"></div>
-      <span class="text-[7px] font-mono" id="homeSleepLabel" style="color:rgba(20,184,166,0.5)"></span>
-    </div>
-    <div class="relative mb-5 p-5 rounded-[24px] overflow-hidden" id="insightsCard" style="background:rgba(24,24,27,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 0 0 1px rgba(255,255,255,0.06),0 8px 40px rgba(0,0,0,0.5)">
-      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-teal-500/60 to-transparent"></div>
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-7 h-7 rounded-[10px] flex items-center justify-center flex-shrink-0" style="background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.2)">
-          <svg class="w-4 h-4 stroke-teal-400 fill-none stroke-2 stroke-linecap-round stroke-linejoin-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </div>
-
-        <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-teal-400/80" id="insightsLabel">Summary</span>
+    <!-- Status strip -->
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-2">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold" style="background:var(--teal-dim);color:var(--teal);border:1px solid rgba(45,212,191,0.15)" id="sleepCheckBtn">🌙 <span id="homeSleepVal">--</span>h</button>
+        <span class="text-xs font-bold tracking-wider uppercase" style="color:rgba(251,191,36,0.6)">🔥 <span id="homeStreakNum">0</span></span>
       </div>
-      <div class="grid grid-cols-2 gap-2" id="insightGrid">
-        <!-- Workouts -->
-        <div class="insight-cell nav-block" data-tab-target="tab-health" data-tab-anchor="section-workouts" style="--ring-color:#F59E0B">
-          <div class="insight-cell-accent" style="background:#F59E0B"></div>
-          <div class="insight-cell-header">Workouts</div>
-          <div class="insight-donut-wrap">
-            <svg class="insight-donut-svg" viewBox="0 0 72 72">
-              <circle class="insight-donut-track" cx="50" cy="50" r="28"/>
-              <circle class="insight-donut-fill" id="insightWkRing" cx="50" cy="50" r="28" stroke-dasharray="175.93" stroke-dashoffset="175.93"/>
-            </svg>
-            <div class="insight-donut-center">
-              <span class="insight-donut-val" id="insightWkVal">0</span>
-              <span class="insight-donut-label">min</span>
-            </div>
-          </div>
-          <div class="insight-cell-footer" id="insightWkFooter">Log a session</div>
+      <span class="text-[10px] font-mono" style="color:var(--text-3)" id="homeSleepLabel"></span>
+    </div>
+
+    <!-- ═══ 3-Donut Dashboard ═══ -->
+    <div class="dash-donuts mb-5">
+      <!-- Health Donut -->
+      <div class="donut-card" data-tab="tab-health">
+        <div class="donut-ring">
+          <svg viewBox="0 0 72 72"><circle class="donut-track" cx="36" cy="36" r="30"/><circle class="donut-fill" id="healthDonutFill" cx="36" cy="36" r="30" stroke="#38bdf8" stroke-dasharray="188.5" stroke-dashoffset="188.5"/></svg>
+          <div class="donut-center"><span class="donut-val" id="healthDonutVal">0%</span><span class="donut-sub">daily</span></div>
         </div>
-        <!-- Health -->
-        <div class="insight-cell nav-block" data-tab-target="tab-health" data-tab-anchor="section-water" style="--ring-color:#38bdf8">
-          <div class="insight-cell-accent" style="background:#38bdf8"></div>
-          <div class="insight-cell-header">Health</div>
-          <div class="insight-donut-wrap">
-            <svg class="insight-donut-svg" viewBox="0 0 72 72">
-              <circle class="insight-donut-track" cx="50" cy="50" r="28"/>
-              <circle class="insight-donut-fill" id="insightHealthRing" cx="50" cy="50" r="28" stroke-dasharray="175.93" stroke-dashoffset="175.93"/>
-            </svg>
-            <div class="insight-donut-center">
-              <span class="insight-donut-val" id="insightHealthVal">0%</span>
-              <span class="insight-donut-label">daily</span>
-            </div>
-          </div>
-          <div class="insight-cell-footer" id="insightHealthFooter">Water + supps</div>
+        <span class="donut-label">Health</span>
+        <span class="donut-footer" id="healthDonutFooter">Water + supps</span>
+      </div>
+
+      <!-- Workouts Donut -->
+      <div class="donut-card" data-tab="tab-health">
+        <div class="donut-ring">
+          <svg viewBox="0 0 72 72"><circle class="donut-track" cx="36" cy="36" r="30"/><circle class="donut-fill" id="workoutDonutFill" cx="36" cy="36" r="30" stroke="#fbbf24" stroke-dasharray="188.5" stroke-dashoffset="188.5"/></svg>
+          <div class="donut-center"><span class="donut-val" id="workoutDonutVal">0</span><span class="donut-sub">min</span></div>
         </div>
-        <!-- Finance -->
-        <div class="insight-cell nav-block" data-tab-target="tab-finance" style="--ring-color:#22c55e">
-          <div class="insight-cell-accent" style="background:#22c55e"></div>
-          <div class="insight-cell-header">Finance</div>
-          <div class="insight-donut-wrap">
-            <svg class="insight-donut-svg" viewBox="0 0 72 72">
-              <circle class="insight-donut-track" cx="50" cy="50" r="28"/>
-              <circle class="insight-donut-fill" id="insightCashRing" cx="50" cy="50" r="28" stroke-dasharray="175.93" stroke-dashoffset="175.93"/>
-            </svg>
-            <div class="insight-donut-center">
-              <span class="insight-donut-val" id="insightCashVal">$0</span>
-              <span class="insight-donut-label">spent</span>
-            </div>
-          </div>
-          <div class="insight-cell-footer" id="insightCashFooter">of income</div>
+        <span class="donut-label">Workouts</span>
+        <span class="donut-footer" id="workoutDonutFooter">Log a session</span>
+      </div>
+
+      <!-- Finance Donut -->
+      <div class="donut-card" data-tab="tab-finance">
+        <div class="donut-ring">
+          <svg viewBox="0 0 72 72"><circle class="donut-track" cx="36" cy="36" r="30"/><circle class="donut-fill" id="financeDonutFill" cx="36" cy="36" r="30" stroke="#4ade80" stroke-dasharray="188.5" stroke-dashoffset="188.5"/></svg>
+          <div class="donut-center"><span class="donut-val" id="financeDonutVal">$0</span><span class="donut-sub">spent</span></div>
         </div>
-        <!-- Events -->
-        <div class="insight-cell nav-block" data-tab-target="tab-home" style="--ring-color:#14b8a6">
-          <div class="insight-cell-accent" style="background:#14b8a6"></div>
-          <div class="insight-cell-header">Events</div>
-          <div class="insight-donut-wrap">
-            <svg class="insight-donut-svg" viewBox="0 0 72 72">
-              <circle class="insight-donut-track" cx="50" cy="50" r="28"/>
-              <circle class="insight-donut-fill" id="insightEventRing" cx="50" cy="50" r="28" stroke-dasharray="175.93" stroke-dashoffset="175.93"/>
-            </svg>
-            <div class="insight-donut-center">
-              <span class="insight-donut-val" id="insightEventVal">0</span>
-              <span class="insight-donut-label">today</span>
-            </div>
-          </div>
-          <div class="insight-cell-footer" id="insightEventFooter">events</div>
-        </div>
+        <span class="donut-label">Finance</span>
+        <span class="donut-footer" id="financeDonutFooter">of income</span>
+      </div>
+    </div>
+
+    <!-- ═══ Events Section ═══ -->
+    <div class="events-section">
+      <div class="events-header">
+        <span class="events-title">Today</span>
+        <span class="events-count" id="eventsCount">0</span>
+      </div>
+      <div id="eventsList">
+        <div class="event-empty" id="eventsEmpty">No events today</div>
       </div>
     </div>
 
@@ -314,7 +281,7 @@ tailwind.config = {
   </div>
 
   <!-- ═══════ HEALTH TAB ═══════ -->
-    <div class="tab-page hidden" id="tab-health">
+  <div class="tab-page hidden" id="tab-health">
     <h1 class="dash-title">Vitals</h1>
 
     <!-- ═══ Hero: Water Bottle ═══ -->
@@ -801,6 +768,7 @@ function switchTab(id){
   }
   if(id==='tab-deepwork'){
     if(typeof renderDWMetrics==='function')renderDWMetrics();
+  if(id=='tab-home'&&window.refreshInsights)window.refreshInsights();
   }
 }
 document.addEventListener('DOMContentLoaded',function(){
@@ -1230,7 +1198,7 @@ function setWater(d){storeSet(getWaterKey(),d)}
 
 function addGlass(){
   const w=getWater();if(w.glasses>=WATER_GOAL*2)return;
-  w.glasses++;w.log.push(Date.now());setWater(w);renderWater();
+  w.glasses++;w.log.push(Date.now());setWater(w);renderWater();if(window.refreshInsights)window.refreshInsights();
 }
 
 function renderWater(){
@@ -1414,6 +1382,7 @@ function renderSuppl(){
       if(e.target===delBtn||delBtn.contains(e.target))return;
       const d=getSupplDay();
       d[m.name]=!isTaken?{taken:true,takenAt:Date.now()}:{taken:false};
+      if(window.refreshInsights)window.refreshInsights();
       setSupplDay(d);syncSupplToServer();renderSuppl();
     });
 
@@ -1423,7 +1392,7 @@ function renderSuppl(){
       const arr=getSupplMaster();
       const idx=arr.findIndex(function(x){return x.name===m.name});
       if(idx>-1)arr.splice(idx,1);setSupplMaster(arr);
-      const d=getSupplDay();delete d[m.name];setSupplDay(d);syncSupplToServer();renderSuppl();
+      const d=getSupplDay();delete d[m.name];setSupplDay(d);syncSupplToServer();renderSuppl();if(window.refreshInsights)window.refreshInsights();
     });
 
     // Detail row (shows on hover)
@@ -1449,7 +1418,7 @@ document.getElementById('supplAddBtn').addEventListener('click',function(){
   if(m.some(function(x){return x.name.toLowerCase()===name.toLowerCase()})){input.value='';return}
   m.push({name:name,time:'anytime'});
   setSupplMaster(m);
-  const d=getSupplDay();d[name]={taken:false};setSupplDay(d);syncSupplToServer();
+  const d=getSupplDay();d[name] = {taken:false};setSupplDay(d);syncSupplToServer();if(window.refreshInsights)window.refreshInsights();
   input.value='';renderSuppl();
 });
 
@@ -1533,8 +1502,9 @@ document.getElementById('modalFinishBtn').addEventListener('click',function(){
   if(timerElapsed>0){
     // Save to localStorage
     var w=getWorkouts();
-    w.push({type:selectedWtype,duration:timerElapsed,time:Date.now()});
+w.push({type:selectedWtype,duration:timerElapsed,time:Date.now()})
     setWorkouts(w);
+    if(window.refreshInsights)window.refreshInsights();
 
     // POST to server
     var mins=Math.round(timerElapsed/60)||1;
@@ -1642,7 +1612,7 @@ function renderTodayLog(){
       +'<span class="today-log-when">'+(w.time?formatTime12(w.time):'')+'</span>'
       +'<button class="today-log-delete" title="Delete">×</button>';
     li.querySelector('.today-log-delete').addEventListener('click',function(){
-      const arr=getWorkouts();arr.splice(idx,1);setWorkouts(arr);renderWeeklyChart();renderTodayLog();renderWorkoutStats();
+      const arr=getWorkouts();arr.splice(idx,1);setWorkouts(arr);renderWeeklyChart();renderTodayLog();renderWorkoutStats();if(window.refreshInsights)window.refreshInsights();
     });
     list.appendChild(li);
   });
@@ -1800,8 +1770,9 @@ function addExpense(){
 
   var entry={amount:amount,desc:desc,cat:desc||'Other',time:Date.now()};
   var expenses=getExpenses();
-  expenses.push(entry);
+expenses.push(entry)
   setExpenses(expenses);
+  if(window.refreshInsights)window.refreshInsights();
 
   // Clear inputs immediately
   amountInput.value='';
@@ -3759,91 +3730,103 @@ document.getElementById('calMonthNext').addEventListener('click',function(){
   window.stopLocalNotifs=stopLocalNotifs;
 })();
 
-/* ════════════ INSIGHT DASHBOARD RENDERER ════════════ */
-function renderInsightSections(){
-  var D=2*Math.PI*38;
+/* ════════════ HOME DONUTS + EVENTS RENDERER ════════════ */
+function refreshInsights(){
+  renderHomeDonuts();
+  renderHomeEvents();
+}
+function renderHomeDonuts(){
+  var D=2*Math.PI*30; // r=30 in new SVG
   var weekDates=getWeekDates();
   var activeStr=getActiveDateString();
-  var todayStr=dateStrLocal(new Date());
 
-  // ── 1. Workouts donut: weekly minutes / 150 goal ──
-  var wkRing=document.getElementById('insightWkRing');
-  var wkVal=document.getElementById('insightWkVal');
-  var wkFooter=document.getElementById('insightWkFooter');
+  // Workouts: weekly minutes / 150 goal
+  var wkRing=document.getElementById('workoutDonutFill');
+  var wkVal=document.getElementById('workoutDonutVal');
+  var wkFooter=document.getElementById('workoutDonutFooter');
   if(wkRing){
-    var wkGoal=150;
-    var wkTotal=0;
+    var wkGoal=150,wkTotal=0;
     weekDates.forEach(function(date){
       var ws=storeGet('workouts:'+date)||[];
       wkTotal+=ws.reduce(function(s,w){return s+(w.duration||0)},0);
     });
     var wkMin=Math.round(wkTotal/60);
-    var wkPct=Math.min(wkMin/wkGoal,1);
-    wkRing.style.strokeDashoffset=D*(1-wkPct);
-    wkRing.style.stroke='#F59E0B';
-    wkRing.style.filter=wkPct>0?'drop-shadow(0 0 8px rgba(245,158,11,0.5))':'none';
+    var pct=Math.min(wkMin/wkGoal,1);
+    wkRing.style.strokeDashoffset=D*(1-pct);
     wkVal.textContent=wkMin;
-    wkFooter.textContent=wkMin>=wkGoal?'Goal met!':'of '+wkGoal+' min goal';
+    wkFooter.textContent=wkMin>=wkGoal?'Goal met!':'of '+wkGoal+' min';
   }
 
-  // ── 2. Health donut: composite water + supplements % ──
-  var hlRing=document.getElementById('insightHealthRing');
-  var hlVal=document.getElementById('insightHealthVal');
-  var hlFooter=document.getElementById('insightHealthFooter');
+  // Health: water + supplements composite
+  var hlRing=document.getElementById('healthDonutFill');
+  var hlVal=document.getElementById('healthDonutVal');
+  var hlFooter=document.getElementById('healthDonutFooter');
   if(hlRing){
-    var water=storeGet('water:'+activeStr);
-    var glasses=water?water.glasses||0:0;
+    var water=storeGet('water:'+activeStr)||{};
+    var glasses=water.glasses||0;
     var suppMaster=storeGet('supplements:master')||[];
     var suppDay=storeGet('supplements:'+activeStr)||{};
-    var suppTaken=0;
-    suppMaster.forEach(function(m){if(suppDay[m.name]&&suppDay[m.name].taken)suppTaken++});
-    var suppTotal=suppMaster.length;
+    var taken=suppMaster.filter(function(m){return suppDay[m.name]&&suppDay[m.name].taken}).length;
     var waterPct=Math.min(glasses/8,1);
-    var suppPct=suppTotal>0?suppTaken/suppTotal:0;
+    var suppPct=suppMaster.length>0?taken/suppMaster.length:0;
     var avgPct=(waterPct+suppPct)/2;
     hlRing.style.strokeDashoffset=D*(1-Math.min(avgPct,1));
-    hlRing.style.stroke='#38bdf8';
-    hlRing.style.filter=avgPct>0?'drop-shadow(0 0 8px rgba(56,189,248,0.5))':'none';
     hlVal.textContent=Math.round(avgPct*100)+'%';
-    hlFooter.textContent=glasses+'/8 💧 '+suppTaken+'/'+suppTotal+' 💊';
+    hlFooter.textContent=glasses+'/8 glasses · '+taken+'/'+suppMaster.length+' supps';
   }
 
-  // ── 3. Finance donut: spending % of income ──
-  var cfRing=document.getElementById('insightCashRing');
-  var cfVal=document.getElementById('insightCashVal');
-  var cfFooter=document.getElementById('insightCashFooter');
+  // Finance: spending % of monthly income
+  var cfRing=document.getElementById('financeDonutFill');
+  var cfVal=document.getElementById('financeDonutVal');
+  var cfFooter=document.getElementById('financeDonutFooter');
   if(cfRing){
     var expenses=storeGet('finance:expenses')||[];
     var total=expenses.reduce(function(s,e){return s+e.amount},0);
     var monthly=getMonthlyIncome();
-    var cfPct=monthly>0?Math.min(total/monthly,1):0;
-    var color=cfPct>0.9?'#ef4444':cfPct>0.7?'#f59e0b':'#22c55e';
-    cfRing.style.strokeDashoffset=D*(1-cfPct);
-    cfRing.style.stroke=color;
-    cfRing.style.filter=cfPct>0?'drop-shadow(0 0 8px '+color+')':'none';
+    var pct=monthly>0?Math.min(total/monthly,1):0;
+    cfRing.style.strokeDashoffset=D*(1-pct);
     cfVal.textContent=fmtMoney(total);
     cfFooter.textContent=monthly>0?fmtMoney(Math.max(0,monthly-total))+' left':'Set income';
   }
-
-  // ── 4. Events donut: count today ──
-  var evRing=document.getElementById('insightEventRing');
-  var evVal=document.getElementById('insightEventVal');
-  var evFooter=document.getElementById('insightEventFooter');
-  if(evRing){
-    var todayEvents=calendarEvents.filter(function(e){return e.date===todayStr});
-    var count=todayEvents.length;
-    var maxEv=5;
-    var evPct=Math.min(count/maxEv,1);
-    evRing.style.strokeDashoffset=D*(1-evPct);
-    evRing.style.stroke='#14b8a6';
-    evRing.style.filter=count>0?'drop-shadow(0 0 8px rgba(20,184,166,0.5))':'none';
-    evVal.textContent=count;
-    evFooter.textContent=count>0?count+' event'+(count>1?'s':'')+' today':'No events';
-  }
 }
 
-// Initial render
-renderInsightSections();
+// Home Events (localStorage)
+function getLocalEvents(){return storeGet('calendar:local')||[]}
+function setLocalEvents(arr){storeSet('calendar:local',arr)}
+function renderHomeEvents(){
+  var list=document.getElementById('eventsList');
+  var empty=document.getElementById('eventsEmpty');
+  var countEl=document.getElementById('eventsCount');
+  if(!list)return;
+  var todayStr=dateStrLocal(new Date());
+  var events=getLocalEvents().filter(function(e){return e.date===todayStr});
+  if(countEl)countEl.textContent=events.length;
+  if(!events.length){
+    list.innerHTML='';
+    var div=document.createElement('div');
+    div.className='event-empty';
+    div.textContent='No events today';
+    list.appendChild(div);
+    return;
+  }
+  list.innerHTML='';
+  events.forEach(function(ev){
+    var item=document.createElement('div');
+    item.className='event-item';
+    var dotColor=ev.color||'#2dd4bf';
+    item.innerHTML='<div class="event-dot" style="background:'+dotColor+'"></div>'
+      +'<div class="event-body">'
+      +'<div class="event-name">'+escHtml(ev.title||'Event')+'</div>'
+      +'<div class="event-time">'+(ev.time||'')+'</div>'
+      +'</div>';
+    list.appendChild(item);
+  });
+}
+
+// Init
+renderHomeDonuts();
+renderHomeEvents();
+window.refreshInsights=refreshInsights;
 
 /* ════════════ CONTEXT SYNC TO SERVER ════════════ */
 // Send localStorage context to server so scheduled briefings have real data
