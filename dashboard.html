@@ -266,7 +266,7 @@ tailwind.config = {
       </div>
 
     </div>
-  </div>
+  
 
   </div>
 
@@ -778,8 +778,8 @@ function switchTab(id){
   }
   if(id==='tab-deepwork'){
     if(typeof renderDWMetrics==='function')renderDWMetrics();
-  if(id=='tab-home'&&window.refreshInsights)window.refreshInsights();
   }
+  if(id=='tab-home'&&window.refreshInsights)window.refreshInsights();
 }
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.tab-btn').forEach(function(btn){
