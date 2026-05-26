@@ -3918,7 +3918,11 @@ function deleteHomeEvent(idx){
   var todayEvents=all.filter(function(e){return e.date===todayStr});
   var ev=todayEvents[idx];
   if(!ev)return;
-  var filtered=all.filter(function(e){return !(e.date===todayStr&&e.title===ev.title&&e.time===ev.time&&e.date===ev.date)});
+  var filtered=all.filter(function(e){
+    var isMatch=e.date===todayStr&&e.title===ev.title&&e.time===ev.time;
+    var isTarget=todayEvents.indexOf(e)===idx;
+    return !(isMatch&&isTarget);
+  });
   storeSet('calendar:events',filtered);
   fetch('/api/v1/calendar/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(filtered)}).catch(function(){});
   renderHomeEvents();
