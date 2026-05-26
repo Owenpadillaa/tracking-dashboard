@@ -130,9 +130,6 @@ body{
 .donut-text{display:flex;flex-direction:column;gap:1px;min-width:0}
 .donut-label{font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2)}
 .donut-footer{font-size:8px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.donut-info{display:flex;flex-direction:column;gap:2px;min-width:0}
-.donut-label{font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2)}
-.donut-footer{font-size:8px;color:var(--text-3)}
 
 /* ── Events Section ── */
 .events-section{margin-top:4px}
