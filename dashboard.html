@@ -165,51 +165,17 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- ═══ 3-Donut Dashboard (Legacy) ═══ -->
-    <div class="dash-donuts">
-      <!-- Health -->
-      <div class="donut-card" data-tab="tab-health">
-        <div class="donut-ring">
-          <svg viewBox="0 0 48 48"><circle class="donut-track" cx="24" cy="24" r="20"/><circle class="donut-fill" id="healthDonutFill" cx="24" cy="24" r="20" stroke="#38bdf8" stroke-dasharray="125.66" stroke-dashoffset="125.66"/></svg>
-          <div class="donut-center"><span class="donut-val" id="healthDonutVal">0%</span></div>
-        </div>
-        <div class="donut-text">
-          <span class="donut-label">Health</span>
-          <span class="donut-footer" id="healthDonutFooter">— glasses · — supps</span>
-        </div>
-      </div>
-      <!-- Workouts -->
-      <div class="donut-card" data-tab="tab-health">
-        <div class="donut-ring">
-          <svg viewBox="0 0 48 48"><circle class="donut-track" cx="24" cy="24" r="20"/><circle class="donut-fill" id="workoutDonutFill" cx="24" cy="24" r="20" stroke="#fbbf24" stroke-dasharray="125.66" stroke-dashoffset="125.66"/></svg>
-          <div class="donut-center"><span class="donut-val" id="workoutDonutVal">0</span></div>
-        </div>
-        <div class="donut-text">
-          <span class="donut-label">Workouts</span>
-          <span class="donut-footer" id="workoutDonutFooter">— min this week</span>
-        </div>
-      </div>
-      <!-- Finance -->
-      <div class="donut-card" data-tab="tab-finance">
-        <div class="donut-ring">
-          <svg viewBox="0 0 48 48"><circle class="donut-track" cx="24" cy="24" r="20"/><circle class="donut-fill" id="financeDonutFill" cx="24" cy="24" r="20" stroke="#4ade80" stroke-dasharray="125.66" stroke-dashoffset="125.66"/></svg>
-          <div class="donut-center"><span class="donut-val" id="financeDonutVal">$0</span></div>
-        </div>
-        <div class="donut-text">
-          <span class="donut-label">Finance</span>
-          <span class="donut-footer" id="financeDonutFooter">$— left</span>
-        </div>
-      </div>
     </div>
 
-    <!-- ═══ Events Section ═══ -->
-    <div class="events-section">
-      <div class="events-header">
-        <span class="events-title">Today</span>
-        <span class="events-count" id="eventsCount">0</span>
+    <!-- ═══ Today Events — Glowing Teal Card ═══ -->
+    <div class="home-events-card" id="homeEventsCard">
+      <div class="events-card-header">
+        <span class="events-card-icon">📅</span>
+        <span class="events-card-title">Today</span>
+        <span class="events-card-count" id="homeEventsCount">0</span>
       </div>
-      <div id="eventsList">
-        <div class="event-empty" id="eventsEmpty">No events today</div>
+      <div id="homeEventsList">
+        <div class="home-event-empty" id="homeEventsEmpty">No events scheduled</div>
       </div>
     </div>
 
@@ -3776,7 +3742,6 @@ document.getElementById('calMonthNext').addEventListener('click',function(){
 
 /* ════════════ HOME DONUTS + EVENTS RENDERER ════════════ */
 function refreshInsights(){
-  renderHomeDonuts();
   renderHomeEvents();
   fetchCockpit();
 }
@@ -3903,37 +3868,31 @@ function renderHomeDonuts(){
 function getLocalEvents(){return storeGet('calendar:local')||[]}
 function setLocalEvents(arr){storeSet('calendar:local',arr)}
 function renderHomeEvents(){
-  var list=document.getElementById('eventsList');
-  var empty=document.getElementById('eventsEmpty');
-  var countEl=document.getElementById('eventsCount');
+  var list=document.getElementById('homeEventsList');
+  var countEl=document.getElementById('homeEventsCount');
   if(!list)return;
   var todayStr=dateStrLocal(new Date());
   var events=getLocalEvents().filter(function(e){return e.date===todayStr});
   if(countEl)countEl.textContent=events.length;
   if(!events.length){
-    list.innerHTML='';
-    var div=document.createElement('div');
-    div.className='event-empty';
-    div.textContent='No events today';
-    list.appendChild(div);
+    list.innerHTML='<div class="home-event-empty">No events scheduled</div>';
     return;
   }
   list.innerHTML='';
   events.forEach(function(ev){
     var item=document.createElement('div');
-    item.className='event-item';
-    var dotColor=ev.color||'#2dd4bf';
-    item.innerHTML='<div class="event-dot" style="background:'+dotColor+'"></div>'
-      +'<div class="event-body">'
-      +'<div class="event-name">'+escHtml(ev.title||'Event')+'</div>'
-      +'<div class="event-time">'+(ev.time||'')+'</div>'
+    item.className='home-event-item';
+    var barColor=ev.color||'#2dd4bf';
+    item.innerHTML='<div class="home-event-bar" style="background:'+barColor+'"></div>'
+      +'<div class="home-event-body">'
+      +'<div class="home-event-name">'+escHtml(ev.title||'Event')+'</div>'
+      +'<div class="home-event-time">'+(ev.time||'')+'</div>'
       +'</div>';
     list.appendChild(item);
   });
 }
 
 // Init
-renderHomeDonuts();
 renderHomeEvents();
 window.refreshInsights=refreshInsights;
 

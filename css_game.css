@@ -154,6 +154,58 @@ body{
 .event-time{font-size:11px;color:var(--text-3);font-family:monospace;margin-top:1px}
 .event-empty{text-align:center;padding:20px;color:var(--text-3);font-size:13px}
 
+/* ── Home Events Glowing Card ── */
+.home-events-card{
+  margin-top:16px;
+  background:linear-gradient(135deg,rgba(20,184,166,0.08),rgba(34,211,238,0.05));
+  border:1px solid rgba(45,212,191,0.2);
+  border-radius:16px;
+  padding:16px 18px;
+  box-shadow:0 0 20px rgba(45,212,191,0.06),0 4px 16px rgba(0,0,0,0.3);
+  transition:all .3s ease;
+}
+.home-events-card:hover{
+  border-color:rgba(45,212,191,0.35);
+  box-shadow:0 0 28px rgba(45,212,191,0.12),0 6px 20px rgba(0,0,0,0.4);
+}
+.events-card-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+}
+.events-card-icon{font-size:15px}
+.events-card-title{font-size:13px;font-weight:700;color:var(--text-1);flex:1}
+.events-card-count{
+  font-size:10px;font-weight:700;
+  background:rgba(45,212,191,0.15);
+  color:var(--teal);
+  padding:3px 10px;
+  border-radius:99px;
+  border:1px solid rgba(45,212,191,0.2);
+}
+.home-event-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;margin-bottom:6px;
+  background:rgba(255,255,255,0.03);
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all .2s;cursor:pointer;
+}
+.home-event-item:hover{
+  background:rgba(45,212,191,0.06);
+  border-color:rgba(45,212,191,0.15);
+}
+.home-event-item:active{transform:scale(0.98)}
+.home-event-bar{
+  width:3px;height:28px;border-radius:2px;flex-shrink:0;
+}
+.home-event-body{flex:1;min-width:0}
+.home-event-name{font-size:14px;font-weight:600;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-event-time{font-size:11px;color:var(--text-3);font-family:monospace;margin-top:1px}
+.home-event-empty{
+  text-align:center;padding:16px 8px;color:var(--text-3);
+  font-size:13px;font-weight:500;
+}
+
 /* ── Goals ── */
 .goal-card{
   background:var(--surface);
