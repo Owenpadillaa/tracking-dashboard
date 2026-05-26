@@ -2235,6 +2235,73 @@ app.get('/api/v1/log/voice/history', (req, res) => {
 
 
 
+/* ════════════ USER COCKPIT — Home Dashboard Metrics ════════════ */
+
+app.get('/api/v1/user/cockpit', (req, res) => {
+  const tz = 'America/Los_Angeles';
+  const todayStr = userDateStr(tz);
+
+  // ── Finance: discretionary cash velocity (income - spent this month) ──
+  let finance = { discretionary: 0, spent: 0, income: 0 };
+  try {
+    const fin = loadFinanceData();
+    const monthlyIncome = getMonthlyAmount(fin.income || {});
+    const expenses = fin.expenses || [];
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const monthExpenses = expenses.filter(e => (e.time || 0) >= monthStart);
+    const totalSpent = monthExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+    finance = {
+      discretionary: Math.max(0, monthlyIncome - totalSpent),
+      spent: totalSpent,
+      income: monthlyIncome,
+    };
+  } catch (_) {}
+
+  // ── Health: water intake in oz ──
+  let health = { water_oz: 0, glasses: 0, goal: 64 };
+  try {
+    const waterData = loadDataFile('water');
+    const todayEntry = (waterData || []).find(e => e.date === todayStr);
+    const glasses = todayEntry ? (todayEntry.glasses || 0) : 0;
+    health = { water_oz: glasses * 8, glasses, goal: 64 };
+  } catch (_) {}
+
+  // ── Workouts: weekly goal completion (e.g. 2/3 completed) ──
+  let workouts = { completed: 0, goal: 3, streak: 0 };
+  try {
+    const wkData = loadWorkoutData();
+    const weekDates = [];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      weekDates.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'));
+    }
+    let weekSessions = 0;
+    // Today's workouts
+    if (wkData.today_workouts && wkData.today_workouts.length) {
+      weekSessions += wkData.today_workouts.length;
+    }
+    // History
+    for (const entry of (wkData.history || [])) {
+      if (weekDates.includes(entry.date) && entry.sessions && entry.sessions.length) {
+        weekSessions += entry.sessions.length;
+      }
+    }
+    workouts = {
+      completed: weekSessions,
+      goal: 3,
+      streak: wkData.streak_count || 0,
+    };
+  } catch (_) {}
+
+  res.json({ finance, health, workouts });
+});
+
 /* ════════════ SERVER START ════════════ */
 
 // Restore pending sleep session from health.json backup on startup
