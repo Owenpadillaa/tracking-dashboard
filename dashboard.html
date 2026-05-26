@@ -169,14 +169,24 @@ tailwind.config = {
 
     <!-- ═══ Today Events — Glowing Teal Card ═══ -->
     <div class="home-events-card" id="homeEventsCard">
+      <!-- Glowing top accent line -->
+      <div class="events-glow-line"></div>
+      <!-- Header -->
       <div class="events-card-header">
-        <span class="events-card-icon">📅</span>
-        <span class="events-card-title">Today</span>
-        <span class="events-card-count" id="homeEventsCount">0</span>
+        <div class="events-header-left">
+          <div class="events-icon-wrap">📅</div>
+          <div class="events-header-text">
+            <span class="events-card-title">Today's Schedule</span>
+            <span class="events-card-date" id="homeEventsDate"></span>
+          </div>
+        </div>
+        <div class="events-header-right">
+          <span class="events-card-count" id="homeEventsCount">0</span>
+          <span class="events-count-label">events</span>
+        </div>
       </div>
-      <div id="homeEventsList">
-        <div class="home-event-empty" id="homeEventsEmpty">No events scheduled</div>
-      </div>
+      <!-- Events list -->
+      <div id="homeEventsList" class="events-list"></div>
     </div>
 
     
