@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'aura-v3';
+var CACHE_VERSION = 'aura-v4';
 
 self.addEventListener('install', function(event) {
   self.skipWaiting();
