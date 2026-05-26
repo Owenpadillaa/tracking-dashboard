@@ -947,26 +947,12 @@ function updateDayBar(){
 
 /* ════════════ CALENDAR ANALYTICS TILE ════════════ */
 function renderCalendarAnalytics(){
-  var doneEl=document.getElementById('homeTaskDone');
-  var totalEl=document.getElementById('homeTaskTotal');
-  var labelEl=document.getElementById('homeTaskLabel');
-  var barEl=document.getElementById('homeTaskBar');
-  if(!doneEl)return;
+  var countEl=document.getElementById('homeEventsCount');
+  if(!countEl)return;
   var goals=storeGet('goals:'+getActiveDateString())||[];
   var done=goals.filter(function(g){return g.done}).length;
   var total=goals.length;
-  doneEl.textContent=done;
-  if(totalEl)totalEl.textContent='/ '+total;
-  if(labelEl)labelEl.textContent=total===0?'no tasks yet':(done===total?'all done!':(total-done)+' remaining');
-  // Mini bar
-  if(barEl){
-    barEl.innerHTML='';
-    for(var i=0;i<Math.min(total,20);i++){
-      var seg=document.createElement('div');
-      seg.style.cssText='flex:1;height:6px;border-radius:3px;transition:background 0.3s;background:'+(i<done?'#6BE3A4':'rgba(255,255,255,0.06)');
-      barEl.appendChild(seg);
-    }
-  }
+  if(countEl)countEl.textContent=total;
 }
 
 /* ════════════ SPEECH SYNTHESIS (TTS) ════════════ */
