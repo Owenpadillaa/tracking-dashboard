@@ -3866,26 +3866,63 @@ function setLocalEvents(arr){storeSet('calendar:local',arr)}
 function renderHomeEvents(){
   var list=document.getElementById('homeEventsList');
   var countEl=document.getElementById('homeEventsCount');
+  var dateEl=document.getElementById('homeEventsDate');
   if(!list)return;
-  var todayStr=dateStrLocal(new Date());
+  var today=new Date();
+  var todayStr=dateStrLocal(today);
   var events=getLocalEvents().filter(function(e){return e.date===todayStr});
   if(countEl)countEl.textContent=events.length;
+  if(dateEl){
+    var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dateEl.textContent=days[today.getDay()]+', '+months[today.getMonth()]+' '+today.getDate();
+  }
   if(!events.length){
-    list.innerHTML='<div class="home-event-empty">No events scheduled</div>';
+    list.innerHTML='<div class="home-events-empty">'
+      +'<div class="events-empty-icon">'
+        +'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+          +'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>'
+          +'<line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>'
+          +'<line x1="3" y1="10" x2="21" y2="10"/>'
+          +'<path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>'
+        +'</svg>'
+      +'</div>'
+      +'<div class="events-empty-title">Clear Day</div>'
+      +'<div class="events-empty-sub">No events today — add one to get rolling</div>'
+      +'<button class="events-add-btn" id="homeEventsAddBtn" onclick="switchTab(\'tab-ai\');setTimeout(function(){var i=document.getElementById(\'chatInput\');if(i){i.value=\'Add event: \';i.focus();}},150)">+ Add Event</button>'
+    +'</div>';
     return;
   }
   list.innerHTML='';
-  events.forEach(function(ev){
+  events.forEach(function(ev,idx){
     var item=document.createElement('div');
     item.className='home-event-item';
     var barColor=ev.color||'#2dd4bf';
-    item.innerHTML='<div class="home-event-bar" style="background:'+barColor+'"></div>'
-      +'<div class="home-event-body">'
-      +'<div class="home-event-name">'+escHtml(ev.title||'Event')+'</div>'
-      +'<div class="home-event-time">'+(ev.time||'')+'</div>'
-      +'</div>';
+    var icon=ev.icon||'📅';
+    var timeRange=ev.time?'<span class="home-event-time">'+escHtml(ev.time)+'</span>':'';
+    var deleteBtn='<button class="home-event-delete" onclick="event.stopPropagation();deleteHomeEvent('+idx+')" title="Delete event">×</button>';
+    item.innerHTML='<div class="home-event-glow-bar" style="background:'+barColor+'"></div>'
+      +'<div class="home-event-icon">'+icon+'</div>'
+      +'<div class="home-event-content">'
+        +'<div class="home-event-name">'+escHtml(ev.title||'Event')+'</div>'
+        +timeRange
+      +'</div>'
+      +deleteBtn;
     list.appendChild(item);
   });
+}
+
+function deleteHomeEvent(idx){
+  var todayStr=dateStrLocal(new Date());
+  var all=getLocalEvents();
+  var todayEvents=all.filter(function(e){return e.date===todayStr});
+  var ev=todayEvents[idx];
+  if(!ev)return;
+  var filtered=all.filter(function(e){return !(e.date===todayStr&&e.title===ev.title&&e.time===ev.time&&e.date===ev.date)});
+  storeSet('calendar:events',filtered);
+  fetch('/api/v1/calendar/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(filtered)}).catch(function(){});
+  renderHomeEvents();
+  if(window.refreshInsights)window.refreshInsights();
 }
 
 // Init
