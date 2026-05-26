@@ -514,7 +514,7 @@ body{
   .dash-title{font-size:26px;margin-bottom:16px}
   .dash-donuts{gap:8px}
   .donut-card{padding:12px 8px 10px;border-radius:14px}
-  .donut-ring{width:64px;height:64px}
+  .donut-ring{width:40px;height:40px}
   .donut-val{font-size:12px}
   .donut-sub{font-size:8px}
   .donut-label{font-size:9px}
@@ -547,7 +547,7 @@ body{
 }
 
 @media(max-width:360px){
-  .donut-ring{width:56px;height:56px}
+  .donut-ring{width:36px;height:36px}
   .donut-val{font-size:11px}
   .dash-donuts{gap:6px}
 }
